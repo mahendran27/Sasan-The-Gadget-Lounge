@@ -51,16 +51,26 @@ public class Rule32_5_MarginSchemeAuditDocument : IDocument
                         .FontSize(7.5f).Bold().FontColor("#B45309");
                 });
 
+                bool isBw = _company.IsMonochromePrintMode;
+                byte[]? logoBytes = LogoProvider.GetLogoBytes(isBw, _company.LogoPath);
+
                 col.Item().PaddingTop(8).Row(row =>
                 {
-                    row.RelativeItem(7).Column(c =>
+                    row.RelativeItem(7).Row(r =>
                     {
-                        c.Item().Text(_company.BusinessName.ToUpper()).FontSize(15).Bold().FontColor("#0F172A");
-                        c.Item().Text($"{_company.AddressLine1}, {_company.AddressLine2}, {_company.City} - {_company.Pincode}")
-                            .FontSize(8).FontColor("#475569");
-                        c.Item().Text($"GSTIN: {_company.GSTIN} | State Code: {_company.StateCode} (Tamil Nadu) | Phone: {_company.PhoneNumber}")
-                            .FontSize(8).FontColor("#475569");
-                        c.Item().Text("Specialized Registered Dealer in Pre-Owned Mobile Phones & Laptops").FontSize(7.5f).Italic().FontColor("#64748B");
+                        if (logoBytes != null)
+                        {
+                            r.ConstantItem(48).PaddingRight(10).Image(logoBytes).FitArea();
+                        }
+                        r.RelativeItem().Column(c =>
+                        {
+                            c.Item().Text(_company.BusinessName.ToUpper()).FontSize(14).Bold().FontColor("#0F172A");
+                            c.Item().Text($"{_company.AddressLine1}, {_company.AddressLine2}, {_company.City} - {_company.Pincode}")
+                                .FontSize(7.8f).FontColor("#475569");
+                            c.Item().Text($"GSTIN: {_company.GSTIN} | State Code: {_company.StateCode} (Tamil Nadu) | Phone: {_company.PhoneNumber}")
+                                .FontSize(7.8f).FontColor("#475569");
+                            c.Item().Text("Specialized Registered Dealer in Pre-Owned Mobile Phones & Laptops").FontSize(7.2f).Italic().FontColor("#64748B");
+                        });
                     });
 
                     row.RelativeItem(5).AlignRight().Column(c =>

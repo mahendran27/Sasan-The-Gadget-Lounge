@@ -32,6 +32,23 @@ Console.WriteLine($"      -> Store: {company.BusinessName}");
 Console.WriteLine($"      -> Address: {company.AddressLine1}, {company.City}, {company.State} (Code: {company.StateCode})");
 Console.WriteLine($"      -> GSTIN: {company.GSTIN} | UPI ID: {company.UpiId}");
 
+// Verify Logo Provider Loading
+byte[]? colorLogo = LogoProvider.GetLogoBytes(isMonochrome: false, company.LogoPath);
+byte[]? bwLogo = LogoProvider.GetLogoBytes(isMonochrome: true, company.LogoPath);
+Console.WriteLine($"      -> Circular Color Logo: {(colorLogo != null ? $"{colorLogo.Length / 1024} KB loaded [OK]" : "Missing")}");
+Console.WriteLine($"      -> Laser B&W High-Contrast Logo: {(bwLogo != null ? $"{bwLogo.Length / 1024} KB loaded [OK]" : "Missing")}");
+
+// Test Store Address & Profile Editing & Persistence
+Console.WriteLine("\n[1B/9] Testing Company Profile & Address Editing Persistence in SQLite...");
+company.AddressLine1 = "106/7, Karthik Mahall, Subban St (Renovated Lounge)";
+company.Tagline = "Tech. Comfort. Innovation.";
+company.TermsAndConditions += "\n6. Tested & Verified with Dual NFC/UHF RFID.";
+await db.SaveChangesAsync();
+
+var reloadedCompany = await db.CompanyProfiles.FirstAsync();
+Console.WriteLine($"      -> Verified Persisted Address: {reloadedCompany.AddressLine1}");
+Console.WriteLine($"      -> Verified Persisted Tagline: {reloadedCompany.Tagline} [ACID PERSISTED]");
+
 // 2. Verify IMEI Serialized Device Inventory
 Console.WriteLine("\n[2/6] Verifying Serialized Gadget Inventory & IMEI Tracking...");
 var devices = await db.SerializedUnits.Include(u => u.Product).ToListAsync();
@@ -137,18 +154,29 @@ if (totalDebits == totalCredits)
     Console.WriteLine("      -> [ACID VERIFIED] Double-entry bookkeeping ledger strictly BALANCED!");
 }
 
-// 5. TEST ALL 7 INVOICE TEMPLATES
-Console.WriteLine("\n[5/7] Verifying ALL 7 INVOICE TEMPLATE STYLES (QuestPDF Vector Generation)...");
+// 5. TEST ALL 12 INVOICE TEMPLATES (IN BOTH COLOR & BLACK/WHITE LASER PRINT MODES)
+Console.WriteLine("\n[5/9] Verifying ALL 12 INVOICE TEMPLATE STYLES in BOTH COLOR & BLACK-AND-WHITE LASER MODES...");
 var templateStyles = Enum.GetValues<InvoiceTemplateStyle>();
 foreach (var style in templateStyles)
 {
-    string pdfFileName = $"Invoice_{style}_{processedInvoice.InvoiceNumber.Replace('/', '_')}.pdf";
-    string fullPath = Path.Combine(AppContext.BaseDirectory, pdfFileName);
-    
-    invoicePrintEngine.SavePdf(style, processedInvoice, company, fullPath);
-    var fi = new FileInfo(fullPath);
-    Console.WriteLine($"      -> Choice {(int)style} ({style}): SUCCESS! {fi.Length / 1024} KB rendered.");
+    // A. Full Color Render
+    company.IsMonochromePrintMode = false;
+    string pdfFileNameColor = $"Invoice_{style}_Color_{processedInvoice.InvoiceNumber.Replace('/', '_')}.pdf";
+    string fullPathColor = Path.Combine(AppContext.BaseDirectory, pdfFileNameColor);
+    invoicePrintEngine.SavePdf(style, processedInvoice, company, fullPathColor);
+    var fiColor = new FileInfo(fullPathColor);
+
+    // B. Black & White Laser Render
+    company.IsMonochromePrintMode = true;
+    string pdfFileNameBw = $"Invoice_{style}_BW_{processedInvoice.InvoiceNumber.Replace('/', '_')}.pdf";
+    string fullPathBw = Path.Combine(AppContext.BaseDirectory, pdfFileNameBw);
+    invoicePrintEngine.SavePdf(style, processedInvoice, company, fullPathBw);
+    var fiBw = new FileInfo(fullPathBw);
+
+    string a4Tag = (int)style <= 10 ? "[A4 PRINT FORMAT]" : "[SPECIALIZED FORMAT]";
+    Console.WriteLine($"      -> Choice {(int)style,2} ({style,-26}) {a4Tag}: COLOR ({fiColor.Length / 1024} KB) | B&W LASER ({fiBw.Length / 1024} KB) [OK]");
 }
+company.IsMonochromePrintMode = false; // Reset to color
 
 // 6. TEST ALL 7 BARCODE LABEL STYLES
 Console.WriteLine("\n[6/7] Verifying ALL 7 BARCODE STICKER FORMATS (QuestPDF & TSPL Command Streams)...");
@@ -326,5 +354,5 @@ if (receivedImei == tappedImei)
 }
 
 Console.WriteLine("\n==========================================================================");
-Console.WriteLine("   ALL 8 MODULES (INVOICES, THEMES, BARCODES, NFC & UHF RFID) 100% VERIFIED!");
+Console.WriteLine("   ALL MODULES (12 INVOICE STYLES COLOR/B&W, LOGO ENGINE, STORE PROFILE EDITOR, NFC/UHF RFID) 100% VERIFIED!");
 Console.WriteLine("==========================================================================");

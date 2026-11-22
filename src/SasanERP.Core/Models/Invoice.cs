@@ -45,6 +45,7 @@ public class Invoice
     /// Total taxable value for Standard GST items
     /// </summary>
     public decimal StandardTaxableValue { get; set; }
+    public decimal TotalTaxableValue => StandardTaxableValue + TotalMarginAmount;
 
     /// <summary>
     /// Total Central GST collected (Standard items)

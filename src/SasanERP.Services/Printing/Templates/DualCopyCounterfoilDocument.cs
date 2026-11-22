@@ -41,6 +41,9 @@ public class DualCopyCounterfoilDocument : IDocument
             page.Margin(20, Unit.Point);
             page.DefaultTextStyle(x => x.FontSize(8f).FontFamily("Segoe UI").FontColor("#0F172A"));
 
+            bool isBw = _company.IsMonochromePrintMode;
+            byte[]? logoBytes = LogoProvider.GetLogoBytes(isBw, _company.LogoPath);
+
             page.Content().Column(col =>
             {
                 // ==========================================
@@ -51,6 +54,10 @@ public class DualCopyCounterfoilDocument : IDocument
                     // Header
                     top.Item().Row(r =>
                     {
+                        if (logoBytes != null)
+                        {
+                            r.ConstantItem(40).PaddingRight(8).Image(logoBytes).FitArea();
+                        }
                         r.RelativeItem(7).Column(c =>
                         {
                             c.Item().Row(logo =>

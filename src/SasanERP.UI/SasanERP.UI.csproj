@@ -13,6 +13,13 @@
     <PackageReference Include="WPF-UI" Version="4.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Resource Include="Assets\**" />
+    <None Update="Assets\**">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>

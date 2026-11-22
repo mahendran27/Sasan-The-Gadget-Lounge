@@ -53,6 +53,11 @@ public partial class MainWindow : FluentWindow
                 e.Handled = true;
                 break;
 
+            case Key.F5:
+                OpenSettings();
+                e.Handled = true;
+                break;
+
             case Key.F6:
                 OpenWirelessStudio();
                 e.Handled = true;
@@ -92,6 +97,11 @@ public partial class MainWindow : FluentWindow
         ViewModel.PrintBarcodeLabelCommand.Execute(null);
     }
 
+    private void BtnOpenSettings_Click(object sender, RoutedEventArgs e)
+    {
+        OpenSettings();
+    }
+
     private void BtnOpenWirelessStudio_Click(object sender, RoutedEventArgs e)
     {
         OpenWirelessStudio();
@@ -107,6 +117,13 @@ public partial class MainWindow : FluentWindow
     private void OpenWirelessStudio()
     {
         var window = _serviceProvider.GetRequiredService<WirelessStudioWindow>();
+        window.Owner = this;
+        window.ShowDialog();
+    }
+
+    private void OpenSettings()
+    {
+        var window = _serviceProvider.GetRequiredService<CompanySettingsWindow>();
         window.Owner = this;
         window.ShowDialog();
     }

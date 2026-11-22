@@ -60,11 +60,13 @@ public partial class App : Application
                 services.AddTransient<PosViewModel>();
                 services.AddTransient<InventoryIntakeViewModel>();
                 services.AddTransient<WirelessStudioViewModel>();
+                services.AddTransient<CompanySettingsViewModel>();
 
                 // Views
                 services.AddSingleton<MainWindow>();
                 services.AddTransient<Views.InventoryIntakeWindow>();
                 services.AddTransient<Views.WirelessStudioWindow>();
+                services.AddTransient<Views.CompanySettingsWindow>();
             })
             .Build();
     }

@@ -22,6 +22,11 @@ public class InvoiceItem
     public virtual SerializedUnit? SerializedUnit { get; set; }
 
     /// <summary>
+    /// Indicates whether this item represents an individual tracked serialized unit
+    /// </summary>
+    public bool IsSerialized => SerializedUnitId.HasValue || !string.IsNullOrWhiteSpace(IMEI1) || !string.IsNullOrWhiteSpace(SerialNumber);
+
+    /// <summary>
     /// Line item description (printed on invoice)
     /// </summary>
     public string ItemDescription { get; set; } = string.Empty;

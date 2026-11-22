@@ -42,6 +42,12 @@ public class ThermalRoll80mmDocument : IDocument
 
             page.Content().Column(col =>
             {
+                byte[]? logoBytes = LogoProvider.GetLogoBytes(isMonochrome: true, _company.LogoPath);
+                if (logoBytes != null)
+                {
+                    col.Item().AlignCenter().Width(38).Image(logoBytes).FitArea();
+                }
+
                 // Shop Header
                 col.Item().AlignCenter().Text(_company.BusinessName.ToUpper()).FontSize(10).Bold();
                 col.Item().AlignCenter().Text("PREMIUM NEW & PRE-OWNED GADGETS").FontSize(6.5f);

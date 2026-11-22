@@ -42,18 +42,28 @@ public class DeviceHealthCertificateDocument : IDocument
             // Header Banner
             page.Header().Column(col =>
             {
+                bool isBw = _company.IsMonochromePrintMode;
+                byte[]? logoBytes = LogoProvider.GetLogoBytes(isBw, _company.LogoPath);
+
                 col.Item().Row(row =>
                 {
-                    row.RelativeItem(7).Column(c =>
+                    row.RelativeItem(7).Row(r =>
                     {
-                        c.Item().Row(lr =>
+                        if (logoBytes != null)
                         {
-                            lr.AutoItem().Text("SASAN THE GADGET LOUNGE").FontSize(14).Bold().FontColor("#0B192C");
-                            lr.AutoItem().PaddingLeft(6).Background("#0369A1").Padding(2).Text("CERTIFIED QUALITY").FontSize(6.5f).Bold().FontColor("#FFFFFF");
+                            r.ConstantItem(46).PaddingRight(10).Image(logoBytes).FitArea();
+                        }
+                        r.RelativeItem().Column(c =>
+                        {
+                            c.Item().Row(lr =>
+                            {
+                                lr.AutoItem().Text("SASAN THE GADGET LOUNGE").FontSize(14).Bold().FontColor("#0B192C");
+                                lr.AutoItem().PaddingLeft(6).Background("#0369A1").Padding(2).Text("CERTIFIED QUALITY").FontSize(6.5f).Bold().FontColor("#FFFFFF");
+                            });
+                            c.Item().Text($"{_company.AddressLine1}, {_company.AddressLine2}, {_company.City} - {_company.Pincode}")
+                                .FontSize(7.5f).FontColor("#555555");
+                            c.Item().Text($"Phone: {_company.PhoneNumber} | GSTIN: {_company.GSTIN} (Tamil Nadu-33)").FontSize(7.5f).FontColor("#555555");
                         });
-                        c.Item().Text($"{_company.AddressLine1}, {_company.AddressLine2}, {_company.City} - {_company.Pincode}")
-                            .FontSize(7.5f).FontColor("#555555");
-                        c.Item().Text($"Phone: {_company.PhoneNumber} | GSTIN: {_company.GSTIN} (Tamil Nadu-33)").FontSize(7.5f).FontColor("#555555");
                     });
 
                     row.RelativeItem(5).AlignRight().Column(c =>

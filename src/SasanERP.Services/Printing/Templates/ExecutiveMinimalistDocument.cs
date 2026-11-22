@@ -42,15 +42,23 @@ public class ExecutiveMinimalistDocument : IDocument
             // Minimalist Header
             page.Header().Column(col =>
             {
+                byte[]? logoBytes = LogoProvider.GetLogoBytes(_company.IsMonochromePrintMode, _company.LogoPath);
                 col.Item().Row(row =>
                 {
-                    row.RelativeItem(7).Column(c =>
+                    row.RelativeItem(7).Row(r =>
                     {
-                        c.Item().Text(_company.BusinessName.ToUpper()).FontSize(16).Bold().FontColor("#000000");
-                        c.Item().Text($"{_company.AddressLine1}, {_company.AddressLine2}, {_company.City} - {_company.Pincode}")
-                            .FontSize(8).FontColor("#555555");
-                        c.Item().Text($"GSTIN: {_company.GSTIN} | State Code: {_company.StateCode} | Tel: {_company.PhoneNumber}")
-                            .FontSize(8).FontColor("#555555");
+                        if (logoBytes != null)
+                        {
+                            r.ConstantItem(48).PaddingRight(10).Image(logoBytes).FitArea();
+                        }
+                        r.RelativeItem().Column(c =>
+                        {
+                            c.Item().Text(_company.BusinessName.ToUpper()).FontSize(15).Bold().FontColor("#000000");
+                            c.Item().Text($"{_company.AddressLine1}, {_company.AddressLine2}, {_company.City} - {_company.Pincode}")
+                                .FontSize(7.8f).FontColor("#555555");
+                            c.Item().Text($"GSTIN: {_company.GSTIN} | State Code: {_company.StateCode} | Tel: {_company.PhoneNumber}")
+                                .FontSize(7.8f).FontColor("#555555");
+                        });
                     });
 
                     row.RelativeItem(5).AlignRight().Column(c =>

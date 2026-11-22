@@ -43,40 +43,50 @@ public class LuxuryGadgetLoungeDocument : IDocument
             // Header Banner
             page.Header().Column(col =>
             {
+                bool isBw = _company.IsMonochromePrintMode;
+                byte[]? logoBytes = LogoProvider.GetLogoBytes(isBw, _company.LogoPath);
+
                 // Dark Slate Luxury Banner
-                col.Item().Background("#0B192C").Padding(16).Row(row =>
+                col.Item().Background(isBw ? "#1E293B" : "#0B192C").Padding(14).Row(row =>
                 {
-                    row.RelativeItem(7).Column(c =>
+                    row.RelativeItem(7).Row(r =>
                     {
-                        c.Item().Text(t =>
+                        if (logoBytes != null)
                         {
-                            t.Span("SASAN ").FontSize(20).Bold().FontColor("#00E5FF");
-                            t.Span("THE GADGET LOUNGE").FontSize(20).Bold().FontColor("#FFFFFF");
-                        });
-                        c.Item().PaddingTop(2).Text(_company.Tagline).FontSize(8.5f).Italic().FontColor("#D4AF37");
-                        c.Item().PaddingTop(4).Text($"{_company.AddressLine1}, {_company.AddressLine2}, {_company.City} - {_company.Pincode}")
-                            .FontSize(8).FontColor("#CBD5E1");
-                        c.Item().Text($"Phone: {_company.PhoneNumber} | Email: {_company.Email}")
-                            .FontSize(8).FontColor("#CBD5E1");
-                        if (!string.IsNullOrWhiteSpace(_company.GSTIN))
-                        {
-                            c.Item().Text($"GSTIN: {_company.GSTIN} | State Code: {_company.StateCode} (Tamil Nadu)")
-                                .FontSize(8).Bold().FontColor("#38BDF8");
+                            r.ConstantItem(52).PaddingRight(12).Image(logoBytes).FitArea();
                         }
+                        r.RelativeItem().Column(c =>
+                        {
+                            c.Item().Text(t =>
+                            {
+                                t.Span("SASAN ").FontSize(18).Bold().FontColor(isBw ? "#FFFFFF" : "#00E5FF");
+                                t.Span("THE GADGET LOUNGE").FontSize(18).Bold().FontColor("#FFFFFF");
+                            });
+                            c.Item().PaddingTop(2).Text(_company.Tagline).FontSize(8.5f).Italic().FontColor(isBw ? "#E2E8F0" : "#D4AF37");
+                            c.Item().PaddingTop(4).Text($"{_company.AddressLine1}, {_company.AddressLine2}, {_company.City} - {_company.Pincode}")
+                                .FontSize(7.8f).FontColor("#CBD5E1");
+                            c.Item().Text($"Phone: {_company.PhoneNumber} | Email: {_company.Email}")
+                                .FontSize(7.8f).FontColor("#CBD5E1");
+                            if (!string.IsNullOrWhiteSpace(_company.GSTIN))
+                            {
+                                c.Item().Text($"GSTIN: {_company.GSTIN} | State Code: {_company.StateCode} (Tamil Nadu)")
+                                    .FontSize(8).Bold().FontColor(isBw ? "#FFFFFF" : "#38BDF8");
+                            }
+                        });
                     });
 
                     row.RelativeItem(5).AlignRight().Column(c =>
                     {
                         string docType = !_invoice.IsGstEnabled ? "RETAIL INVOICE / CASH MEMO" : "TAX INVOICE";
-                        c.Item().Background("#162744").Padding(6).AlignCenter().Text(docType).FontSize(12).Bold().FontColor("#00E5FF");
+                        c.Item().Background(isBw ? "#0F172A" : "#162744").Padding(6).AlignCenter().Text(docType).FontSize(12).Bold().FontColor(isBw ? "#FFFFFF" : "#00E5FF");
                         c.Item().PaddingTop(6).Text($"INVOICE #: {_invoice.InvoiceNumber}").FontSize(10).Bold().FontColor("#FFFFFF");
                         c.Item().Text($"Date: {_invoice.InvoiceDate:dd MMM yyyy, hh:mm tt}").FontSize(8.5f).FontColor("#E2E8F0");
-                        c.Item().Text($"Payment Status: PAID").FontSize(8.5f).Bold().FontColor("#10B981");
+                        c.Item().Text($"Payment Status: PAID").FontSize(8.5f).Bold().FontColor(isBw ? "#FFFFFF" : "#10B981");
                     });
                 });
 
-                // Cyan Accent Line
-                col.Item().Height(3).Background("#00E5FF");
+                // Accent Line
+                col.Item().Height(3).Background(isBw ? "#475569" : "#00E5FF");
             });
 
             // Content Area

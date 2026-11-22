@@ -42,11 +42,17 @@ public class EcoDigitalWhatsAppDocument : IDocument
 
             page.Content().Column(col =>
             {
+                byte[]? logoBytes = LogoProvider.GetLogoBytes(isMonochrome: false, _company.LogoPath);
+
                 // Top Header Card
                 col.Item().Background("#0B192C").Padding(10).Column(c =>
                 {
                     c.Item().Row(r =>
                     {
+                        if (logoBytes != null)
+                        {
+                            r.ConstantItem(36).PaddingRight(8).Image(logoBytes).FitArea();
+                        }
                         r.RelativeItem().Column(hc =>
                         {
                             hc.Item().Row(lr =>

@@ -111,17 +111,23 @@ public enum LedgerEntryType
 }
 
 /// <summary>
-/// Available Invoice Template Layout Styles (Choices 1 to 7)
+/// Available Invoice Template Layout Styles (10 A4 Designs + POS Roll & Mobile WhatsApp)
+/// Fully compatible with both Full Color and Black & White / Grayscale laser printing.
 /// </summary>
 public enum InvoiceTemplateStyle
 {
-    ExecutiveMinimalist = 1,          // Choice 1: Clean hairline dividers, monospaced numbers, B2B corporate look
-    LuxuryGadgetLounge = 2,           // Choice 2: Obsidian/Cyan accent, watermark, platinum diagnostic card
-    Rule32_5_MarginSchemeAudit = 3,   // Choice 3: Pre-owned focus, statutory preamble, CA-auditable margin breakdown
-    ThermalRoll_80mm = 4,             // Choice 4: 3-inch 80mm ESC/POS continuous roll with bottom dynamic UPI QR
-    DualCopyCounterfoil = 5,          // Choice 5: A4 halved into Buyer Copy + Shop Signed Warranty Counterfoil
-    EcoDigitalWhatsApp = 6,           // Choice 6: Smartphone 9:16 portrait layout with clickable Maps/Instagram links
-    DeviceHealthCertificate = 7       // Choice 7: Includes 12-point technician hardware inspection checklist
+    ExecutiveMinimalist = 1,          // A4 Style 1: Clean hairline dividers, monospaced numbers, B2B corporate look
+    LuxuryGadgetLounge = 2,           // A4 Style 2: Obsidian/Cyan accent, watermark, platinum diagnostic card
+    Rule32_5_MarginSchemeAudit = 3,   // A4 Style 3: Pre-owned focus, statutory preamble, CA-auditable margin breakdown
+    ThermalRoll_80mm = 4,             // POS Roll Style: 3-inch 80mm ESC/POS continuous roll with bottom dynamic UPI QR
+    DualCopyCounterfoil = 5,          // A4 Style 4: A4 halved into Buyer Copy + Shop Signed Warranty Counterfoil
+    EcoDigitalWhatsApp = 6,           // Mobile Style: Smartphone 9:16 portrait layout with clickable Maps/Instagram links
+    DeviceHealthCertificate = 7,      // A4 Style 5: Includes 12-point technician hardware inspection checklist
+    ModernNeoBrutalist = 8,           // A4 Style 6: High-contrast 2pt geometric borders, punchy laser B&W & Color
+    ClassicCorporateGst = 9,          // A4 Style 7: Traditional formal Indian GST invoice with dual tax & bank mandate
+    DarkCyberLounge = 10,             // A4 Style 8: Tech Lounge dark/light hybrid with electric cyan & amber accents
+    CompactTechDocket = 11,           // A4 Style 9: Dense 2-column spatial docket layout with full gadget telemetry
+    EliteBoutiqueWatermark = 12       // A4 Style 10: Luxury boutique styling with ornate dividers and central watermark
 }
 
 /// <summary>

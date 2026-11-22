@@ -25,8 +25,10 @@ public class CompanyProfile
     public string? BankBranch { get; set; } = "Theni Main Branch";
     public string? UpiId { get; set; } = "9080803070@upi"; // For dynamic UPI QR generation
     public string InvoicePrefix { get; set; } = "SGL";
+    public string? LogoPath { get; set; } = "Assets/logo.png"; // Bundled circular logo
+    public bool IsMonochromePrintMode { get; set; } = false; // Toggle for Color vs Black & White laser print
     
-    // Configured System Preferences (Choices 1-7, 1-6, 1-7)
+    // Configured System Preferences (Choices 1-12, 1-6, 1-7)
     public InvoiceTemplateStyle DefaultInvoiceTemplate { get; set; } = InvoiceTemplateStyle.LuxuryGadgetLounge;
     public AppThemeMode DefaultThemeMode { get; set; } = AppThemeMode.ElectricCyberCyan;
     public BarcodeLabelStyle DefaultBarcodeStyle { get; set; } = BarcodeLabelStyle.Flagship_50x30mm;

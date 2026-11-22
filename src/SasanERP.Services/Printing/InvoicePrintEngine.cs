@@ -35,6 +35,11 @@ public class InvoicePrintEngine
             InvoiceTemplateStyle.DualCopyCounterfoil => new DualCopyCounterfoilDocument(invoice, company, _barcodeService),
             InvoiceTemplateStyle.EcoDigitalWhatsApp => new EcoDigitalWhatsAppDocument(invoice, company, _barcodeService),
             InvoiceTemplateStyle.DeviceHealthCertificate => new DeviceHealthCertificateDocument(invoice, company, _barcodeService),
+            InvoiceTemplateStyle.ModernNeoBrutalist => new ModernNeoBrutalistDocument(invoice, company, _barcodeService),
+            InvoiceTemplateStyle.ClassicCorporateGst => new ClassicCorporateGstDocument(invoice, company, _barcodeService),
+            InvoiceTemplateStyle.DarkCyberLounge => new DarkCyberLoungeDocument(invoice, company, _barcodeService),
+            InvoiceTemplateStyle.CompactTechDocket => new CompactTechDocketDocument(invoice, company, _barcodeService),
+            InvoiceTemplateStyle.EliteBoutiqueWatermark => new EliteBoutiqueWatermarkDocument(invoice, company, _barcodeService),
             _ => new LuxuryGadgetLoungeDocument(invoice, company, _barcodeService)
         };
     }
