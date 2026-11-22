@@ -25,6 +25,9 @@
         <DataTemplate DataType="{x:Type vm:InventoryViewModel}">
             <views:InventoryView />
         </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:InvoiceHistoryViewModel}">
+            <views:InvoiceHistoryView />
+        </DataTemplate>
         <DataTemplate DataType="{x:Type vm:InventoryIntakeViewModel}">
             <views:DeviceIntakeView />
         </DataTemplate>
@@ -207,7 +210,29 @@
                                 </Grid>
                             </Button>
 
-                            <!-- Nav Item 4: Intake & Barcode Stickers [F4] -->
+                            <!-- Nav Item 4: Sales Invoices & Reprint [F4] -->
+                            <Button Click="BtnNavInvoices_Click" HorizontalContentAlignment="Left" Padding="12,10" Margin="0,0,0,4"
+                                    BorderThickness="0" Cursor="Hand">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Background" Value="Transparent"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding CurrentSection}" Value="InvoiceHistory">
+                                                <Setter Property="Background" Value="#162744"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                                <Grid Width="170">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="📑 " FontSize="14" Margin="0,0,8,0"/>
+                                        <TextBlock Text="Invoices &amp; Bills" FontSize="13" FontWeight="Bold" Foreground="#FFFFFF"/>
+                                    </StackPanel>
+                                    <TextBlock Text="[F4]" FontSize="10" FontWeight="Bold" Foreground="#00E5FF" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                </Grid>
+                            </Button>
+
+                            <!-- Nav Item 5: Intake & Barcode Stickers [F5] -->
                             <Button Click="BtnNavIntake_Click" HorizontalContentAlignment="Left" Padding="12,10" Margin="0,0,0,4"
                                     BorderThickness="0" Cursor="Hand">
                                 <Button.Style>
@@ -225,7 +250,7 @@
                                         <TextBlock Text="🏷️ " FontSize="14" Margin="0,0,8,0"/>
                                         <TextBlock Text="Intake &amp; Stickers" FontSize="13" FontWeight="Bold" Foreground="#FFFFFF"/>
                                     </StackPanel>
-                                    <TextBlock Text="[F4]" FontSize="10" FontWeight="Bold" Foreground="#FF9100" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                    <TextBlock Text="[F5]" FontSize="10" FontWeight="Bold" Foreground="#FF9100" HorizontalAlignment="Right" VerticalAlignment="Center"/>
                                 </Grid>
                             </Button>
 

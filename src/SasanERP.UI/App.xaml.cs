@@ -52,6 +52,7 @@ public partial class App : Application
                 services.AddScoped<SasanERP.Services.Analytics.ExecutiveDashboardService>();
                 services.AddScoped<SasanERP.Services.Security.AuditLogService>();
                 services.AddScoped<SasanERP.Services.Backup.DatabaseBackupService>();
+                services.AddScoped<SasanERP.Services.Invoicing.InvoiceHistoryService>();
 
                 // Wireless Services (NFC & UHF RFID)
                 services.AddSingleton<NfcTagService>();
@@ -64,6 +65,7 @@ public partial class App : Application
                 services.AddTransient<DashboardViewModel>();
                 services.AddTransient<PosViewModel>();
                 services.AddTransient<InventoryViewModel>();
+                services.AddTransient<InvoiceHistoryViewModel>();
                 services.AddTransient<InventoryIntakeViewModel>();
                 services.AddTransient<DaybookViewModel>();
                 services.AddTransient<GstReportsViewModel>();
@@ -75,6 +77,7 @@ public partial class App : Application
                 services.AddTransient<Views.DashboardView>();
                 services.AddTransient<Views.PosView>();
                 services.AddTransient<Views.InventoryView>();
+                services.AddTransient<Views.InvoiceHistoryView>();
                 services.AddTransient<Views.DeviceIntakeView>();
                 services.AddTransient<Views.DaybookView>();
                 services.AddTransient<Views.GstReportsView>();

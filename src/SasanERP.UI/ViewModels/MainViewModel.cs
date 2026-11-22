@@ -11,6 +11,7 @@ public enum NavigationSection
     Dashboard,
     PosBilling,
     InventoryRegistry,
+    InvoiceHistory,
     DeviceIntake,
     DaybookLedger,
     GstReports,
@@ -25,6 +26,7 @@ public partial class MainViewModel : ObservableObject
     public DashboardViewModel DashboardVM { get; }
     public PosViewModel PosVM { get; }
     public InventoryViewModel InventoryVM { get; }
+    public InvoiceHistoryViewModel InvoicesVM { get; }
     public InventoryIntakeViewModel IntakeVM { get; }
     public DaybookViewModel DaybookVM { get; }
     public GstReportsViewModel GstReportsVM { get; }
@@ -57,6 +59,7 @@ public partial class MainViewModel : ObservableObject
         DashboardViewModel dashboardVM,
         PosViewModel posVM,
         InventoryViewModel inventoryVM,
+        InvoiceHistoryViewModel invoicesVM,
         InventoryIntakeViewModel intakeVM,
         DaybookViewModel daybookVM,
         GstReportsViewModel gstReportsVM,
@@ -68,6 +71,7 @@ public partial class MainViewModel : ObservableObject
         DashboardVM = dashboardVM;
         PosVM = posVM;
         InventoryVM = inventoryVM;
+        InvoicesVM = invoicesVM;
         IntakeVM = intakeVM;
         DaybookVM = daybookVM;
         GstReportsVM = gstReportsVM;
@@ -108,6 +112,7 @@ public partial class MainViewModel : ObservableObject
             NavigationSection.Dashboard => DashboardVM,
             NavigationSection.PosBilling => PosVM,
             NavigationSection.InventoryRegistry => InventoryVM,
+            NavigationSection.InvoiceHistory => InvoicesVM,
             NavigationSection.DeviceIntake => IntakeVM,
             NavigationSection.DaybookLedger => DaybookVM,
             NavigationSection.GstReports => GstReportsVM,
@@ -119,6 +124,7 @@ public partial class MainViewModel : ObservableObject
         // Auto trigger data load when switching tabs
         if (section == NavigationSection.Dashboard) _ = DashboardVM.RefreshMetricsAsync();
         else if (section == NavigationSection.InventoryRegistry) _ = InventoryVM.LoadInventoryAsync();
+        else if (section == NavigationSection.InvoiceHistory) _ = InvoicesVM.SearchInvoicesAsync();
         else if (section == NavigationSection.DaybookLedger) _ = DaybookVM.LoadDaybookAsync();
         else if (section == NavigationSection.GstReports) _ = GstReportsVM.LoadGstDataAsync();
         else if (section == NavigationSection.PosBilling) _ = PosVM.InitializeAsync();

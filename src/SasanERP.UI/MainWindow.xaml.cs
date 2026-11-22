@@ -45,12 +45,12 @@ public partial class MainWindow : FluentWindow
                 break;
 
             case Key.F4:
-                ViewModel.NavigateToSection(NavigationSection.DeviceIntake);
+                ViewModel.NavigateToSection(NavigationSection.InvoiceHistory);
                 e.Handled = true;
                 break;
 
             case Key.F5:
-                ViewModel.NavigateToSection(NavigationSection.StoreSettings);
+                ViewModel.NavigateToSection(NavigationSection.DeviceIntake);
                 e.Handled = true;
                 break;
 
@@ -79,6 +79,11 @@ public partial class MainWindow : FluentWindow
                 break;
 
             case Key.F10:
+                ViewModel.NavigateToSection(NavigationSection.StoreSettings);
+                e.Handled = true;
+                break;
+
+            case Key.F11:
                 ViewModel.SettingsVM.CreateInstantBackupCommand.Execute(null);
                 e.Handled = true;
                 break;
@@ -98,6 +103,11 @@ public partial class MainWindow : FluentWindow
     private void BtnNavInventory_Click(object sender, RoutedEventArgs e)
     {
         ViewModel.NavigateToSection(NavigationSection.InventoryRegistry);
+    }
+
+    private void BtnNavInvoices_Click(object sender, RoutedEventArgs e)
+    {
+        ViewModel.NavigateToSection(NavigationSection.InvoiceHistory);
     }
 
     private void BtnNavIntake_Click(object sender, RoutedEventArgs e)
