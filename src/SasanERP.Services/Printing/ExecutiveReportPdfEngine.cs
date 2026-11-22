@@ -93,34 +93,41 @@ public class ExecutiveReportPdfEngine
                     // 1. Executive Summary Cards Grid
                     col.Item().Row(row =>
                     {
-                        row.Spacing(8);
+                        row.Spacing(6);
 
                         // Gross Sales
-                        row.RelativeItem().Border(1).BorderColor("#E2E8F0").Background("#F8FAFC").Padding(8).Column(c =>
+                        row.RelativeItem().Border(1).BorderColor("#E2E8F0").Background("#F8FAFC").Padding(6).Column(c =>
                         {
-                            c.Item().Text("GROSS SALES").FontSize(8).Bold().FontColor("#64748B");
-                            c.Item().Text($"₹{report.TotalGrossSales:N2}").FontSize(12).Bold().FontColor("#0F172A");
-                        });
-
-                        // Discounts
-                        row.RelativeItem().Border(1).BorderColor("#E2E8F0").Background("#F8FAFC").Padding(8).Column(c =>
-                        {
-                            c.Item().Text("DISCOUNTS ALLOWED").FontSize(8).Bold().FontColor("#64748B");
-                            c.Item().Text($"₹{report.TotalDiscounts:N2}").FontSize(12).Bold().FontColor("#DC2626");
+                            c.Item().Text("GROSS SALES").FontSize(7.5f).Bold().FontColor("#64748B");
+                            c.Item().Text($"₹{report.TotalGrossSales:N0}").FontSize(11).Bold().FontColor("#0F172A");
                         });
 
                         // Net Revenue
-                        row.RelativeItem().Border(1).BorderColor("#0284C7").Background("#F0F9FF").Padding(8).Column(c =>
+                        row.RelativeItem().Border(1).BorderColor("#0284C7").Background("#F0F9FF").Padding(6).Column(c =>
                         {
-                            c.Item().Text("NET REVENUE (BILLED)").FontSize(8).Bold().FontColor("#0369A1");
-                            c.Item().Text($"₹{report.TotalNetRevenue:N2}").FontSize(13).Bold().FontColor("#0284C7");
+                            c.Item().Text("NET REVENUE").FontSize(7.5f).Bold().FontColor("#0369A1");
+                            c.Item().Text($"₹{report.TotalNetRevenue:N0}").FontSize(11).Bold().FontColor("#0284C7");
                         });
 
-                        // Net Profit
-                        row.RelativeItem().Border(1).BorderColor("#16A34A").Background("#F0FDF4").Padding(8).Column(c =>
+                        // Gross Sales Profit
+                        row.RelativeItem().Border(1).BorderColor("#16A34A").Background("#F0FDF4").Padding(6).Column(c =>
                         {
-                            c.Item().Text("ESTIMATED NET PROFIT").FontSize(8).Bold().FontColor("#15803D");
-                            c.Item().Text($"₹{report.TotalProfitEstimated:N2}").FontSize(13).Bold().FontColor("#16A34A");
+                            c.Item().Text("SALES PROFIT").FontSize(7.5f).Bold().FontColor("#15803D");
+                            c.Item().Text($"₹{report.TotalProfitEstimated:N0}").FontSize(11).Bold().FontColor("#16A34A");
+                        });
+
+                        // Operating Expenses
+                        row.RelativeItem().Border(1).BorderColor("#DC2626").Background("#FEF2F2").Padding(6).Column(c =>
+                        {
+                            c.Item().Text("STORE EXPENSES").FontSize(7.5f).Bold().FontColor("#DC2626");
+                            c.Item().Text($"₹{report.TotalOperatingExpenses:N0}").FontSize(11).Bold().FontColor("#DC2626");
+                        });
+
+                        // True Net Profit
+                        row.RelativeItem().Border(1).BorderColor("#059669").Background("#ECFDF5").Padding(6).Column(c =>
+                        {
+                            c.Item().Text("TRUE NET PROFIT").FontSize(7.5f).Bold().FontColor("#047857");
+                            c.Item().Text($"₹{report.TrueNetBusinessProfit:N0}").FontSize(12).Bold().FontColor("#047857");
                         });
                     });
 

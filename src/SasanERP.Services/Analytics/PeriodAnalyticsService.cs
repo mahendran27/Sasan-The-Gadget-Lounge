@@ -101,6 +101,8 @@ public class PeriodReportDto
     public decimal CustomerCreditAdded { get; set; }
     public decimal StandardTaxCollected { get; set; }
     public decimal MarginTaxCollected { get; set; }
+    public decimal TotalOperatingExpenses { get; set; }
+    public decimal TrueNetBusinessProfit => TotalProfitEstimated - TotalOperatingExpenses;
     public int ActiveStockUnitsCount { get; set; }
     public decimal ActiveStockValuationCost { get; set; }
     public decimal ActiveStockValuationRetail { get; set; }
@@ -232,6 +234,16 @@ public class PeriodAnalyticsService
         report.ActiveStockUnitsCount = activeUnits.Count;
         report.ActiveStockValuationCost = activeUnits.Sum(u => u.PurchaseCost);
         report.ActiveStockValuationRetail = activeUnits.Sum(u => u.TaggedPrice);
+
+        // Operating Expenses in Period (Petty cash, rent, staff, utilities)
+        var expenseAmounts = await _context.LedgerEntries
+            .Where(le => le.ReferenceType == "StoreExpense"
+                      && le.EntryType == LedgerEntryType.Debit
+                      && le.TransactionDate >= fromUtc
+                      && le.TransactionDate <= toUtc)
+            .Select(le => le.Amount)
+            .ToListAsync();
+        report.TotalOperatingExpenses = expenseAmounts.Sum();
 
         return report;
     }

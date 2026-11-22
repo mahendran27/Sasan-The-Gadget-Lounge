@@ -54,6 +54,7 @@ public partial class App : Application
                 services.AddScoped<SasanERP.Services.Backup.DatabaseBackupService>();
                 services.AddScoped<SasanERP.Services.Invoicing.InvoiceHistoryService>();
                 services.AddScoped<SasanERP.Services.Analytics.PeriodAnalyticsService>();
+                services.AddScoped<SasanERP.Services.Accounting.StoreExpenseService>();
                 services.AddSingleton<SasanERP.Services.Printing.ExecutiveReportPdfEngine>();
 
                 // Wireless Services (NFC & UHF RFID)

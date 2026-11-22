@@ -109,33 +109,49 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
-                        <Border Grid.Column="0" Background="#162544" BorderBrush="#22365D" BorderThickness="1" CornerRadius="6" Padding="10" Margin="0,0,4,0">
+                        <Border Grid.Column="0" Background="#162544" BorderBrush="#22365D" BorderThickness="1" CornerRadius="6" Padding="8" Margin="0,0,3,0">
                             <StackPanel>
-                                <TextBlock Text="GROSS SALES" FontSize="10" FontWeight="Bold" Foreground="#8EA4C1"/>
-                                <TextBlock Text="{Binding CurrentReport.TotalGrossSales, StringFormat='₹{0:N2}'}" FontSize="18" FontWeight="Black" Foreground="#FFFFFF" Margin="0,2,0,0"/>
+                                <TextBlock Text="GROSS SALES" FontSize="9" FontWeight="Bold" Foreground="#8EA4C1"/>
+                                <TextBlock Text="{Binding CurrentReport.TotalGrossSales, StringFormat='₹{0:N0}'}" FontSize="15" FontWeight="Black" Foreground="#FFFFFF" Margin="0,2,0,0"/>
                             </StackPanel>
                         </Border>
 
-                        <Border Grid.Column="1" Background="#162544" BorderBrush="#22365D" BorderThickness="1" CornerRadius="6" Padding="10" Margin="4,0,4,0">
+                        <Border Grid.Column="1" Background="#162544" BorderBrush="#0284C7" BorderThickness="1" CornerRadius="6" Padding="8" Margin="3,0,3,0">
                             <StackPanel>
-                                <TextBlock Text="NET REVENUE BILLED" FontSize="10" FontWeight="Bold" Foreground="#8EA4C1"/>
-                                <TextBlock Text="{Binding CurrentReport.TotalNetRevenue, StringFormat='₹{0:N2}'}" FontSize="18" FontWeight="Black" Foreground="#00E5FF" Margin="0,2,0,0"/>
+                                <TextBlock Text="NET REVENUE" FontSize="9" FontWeight="Bold" Foreground="#00E5FF"/>
+                                <TextBlock Text="{Binding CurrentReport.TotalNetRevenue, StringFormat='₹{0:N0}'}" FontSize="15" FontWeight="Black" Foreground="#00E5FF" Margin="0,2,0,0"/>
                             </StackPanel>
                         </Border>
 
-                        <Border Grid.Column="2" Background="#162544" BorderBrush="#22365D" BorderThickness="1" CornerRadius="6" Padding="10" Margin="4,0,4,0">
+                        <Border Grid.Column="2" Background="#162544" BorderBrush="#22365D" BorderThickness="1" CornerRadius="6" Padding="8" Margin="3,0,3,0">
                             <StackPanel>
-                                <TextBlock Text="ESTIMATED NET PROFIT" FontSize="10" FontWeight="Bold" Foreground="#8EA4C1"/>
-                                <TextBlock Text="{Binding CurrentReport.TotalProfitEstimated, StringFormat='₹{0:N2}'}" FontSize="18" FontWeight="Black" Foreground="#4ADE80" Margin="0,2,0,0"/>
+                                <TextBlock Text="SALES PROFIT" FontSize="9" FontWeight="Bold" Foreground="#8EA4C1"/>
+                                <TextBlock Text="{Binding CurrentReport.TotalProfitEstimated, StringFormat='₹{0:N0}'}" FontSize="15" FontWeight="Black" Foreground="#4ADE80" Margin="0,2,0,0"/>
                             </StackPanel>
                         </Border>
 
-                        <Border Grid.Column="3" Background="#162544" BorderBrush="#22365D" BorderThickness="1" CornerRadius="6" Padding="10" Margin="4,0,0,0">
+                        <Border Grid.Column="3" Background="#26161B" BorderBrush="#EF4444" BorderThickness="1" CornerRadius="6" Padding="8" Margin="3,0,3,0">
                             <StackPanel>
-                                <TextBlock Text="ACTIVE STOCK IN HAND" FontSize="10" FontWeight="Bold" Foreground="#8EA4C1"/>
-                                <TextBlock Text="{Binding CurrentReport.ActiveStockUnitsCount, StringFormat='{}{0} Units'}" FontSize="18" FontWeight="Black" Foreground="#FBBF24" Margin="0,2,0,0"/>
+                                <TextBlock Text="STORE EXPENSES" FontSize="9" FontWeight="Bold" Foreground="#F87171"/>
+                                <TextBlock Text="{Binding CurrentReport.TotalOperatingExpenses, StringFormat='₹{0:N0}'}" FontSize="15" FontWeight="Black" Foreground="#F87171" Margin="0,2,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Grid.Column="4" Background="#11291F" BorderBrush="#10B981" BorderThickness="1" CornerRadius="6" Padding="8" Margin="3,0,3,0">
+                            <StackPanel>
+                                <TextBlock Text="TRUE NET PROFIT" FontSize="9" FontWeight="Black" Foreground="#34D399"/>
+                                <TextBlock Text="{Binding CurrentReport.TrueNetBusinessProfit, StringFormat='₹{0:N0}'}" FontSize="16" FontWeight="Black" Foreground="#34D399" Margin="0,2,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Grid.Column="5" Background="#162544" BorderBrush="#22365D" BorderThickness="1" CornerRadius="6" Padding="8" Margin="3,0,0,0">
+                            <StackPanel>
+                                <TextBlock Text="STOCK IN HAND" FontSize="9" FontWeight="Bold" Foreground="#8EA4C1"/>
+                                <TextBlock Text="{Binding CurrentReport.ActiveStockUnitsCount, StringFormat='{}{0} Units'}" FontSize="15" FontWeight="Black" Foreground="#FBBF24" Margin="0,2,0,0"/>
                             </StackPanel>
                         </Border>
                     </Grid>

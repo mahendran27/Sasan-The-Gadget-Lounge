@@ -74,7 +74,12 @@ public static class DbInitializer
                 new() { AccountCode = "5003", Name = "Courier & Air Freight", Type = AccountType.Expense, CurrentBalance = 0m },
                 new() { AccountCode = "5004", Name = "Showroom Rent (Karthik Mahall)", Type = AccountType.Expense, CurrentBalance = 0m },
                 new() { AccountCode = "5005", Name = "Electricity & Utilities", Type = AccountType.Expense, CurrentBalance = 0m },
-                new() { AccountCode = "5006", Name = "Discounts Allowed on Sales", Type = AccountType.Expense, CurrentBalance = 0m }
+                new() { AccountCode = "5006", Name = "Discounts Allowed on Sales", Type = AccountType.Expense, CurrentBalance = 0m },
+                new() { AccountCode = "5007", Name = "Staff Salaries & Advances", Type = AccountType.Expense, CurrentBalance = 0m },
+                new() { AccountCode = "5008", Name = "Lounge Hospitality & Refreshments", Type = AccountType.Expense, CurrentBalance = 0m },
+                new() { AccountCode = "5009", Name = "Advertising, Signage & Social Media", Type = AccountType.Expense, CurrentBalance = 0m },
+                new() { AccountCode = "5010", Name = "Store Maintenance & Cleaning", Type = AccountType.Expense, CurrentBalance = 0m },
+                new() { AccountCode = "5011", Name = "Miscellaneous Petty Expenses", Type = AccountType.Expense, CurrentBalance = 0m }
             };
 
             await context.Accounts.AddRangeAsync(accounts);
