@@ -8,6 +8,7 @@ using SasanERP.Services.Barcode;
 using SasanERP.Services.Billing;
 using SasanERP.Services.Printing;
 using SasanERP.Services.Reporting;
+using SasanERP.Services.Wireless;
 using SasanERP.UI.ViewModels;
 
 namespace SasanERP.UI;
@@ -49,13 +50,21 @@ public partial class App : Application
                 services.AddScoped<BillingService>();
                 services.AddScoped<GstReportService>();
 
+                // Wireless Services (NFC & UHF RFID)
+                services.AddSingleton<NfcTagService>();
+                services.AddSingleton<UhfRfidService>();
+                services.AddScoped<StockAuditService>();
+                services.AddSingleton<UnifiedWirelessManager>();
+
                 // ViewModels
                 services.AddTransient<PosViewModel>();
                 services.AddTransient<InventoryIntakeViewModel>();
+                services.AddTransient<WirelessStudioViewModel>();
 
                 // Views
                 services.AddSingleton<MainWindow>();
                 services.AddTransient<Views.InventoryIntakeWindow>();
+                services.AddTransient<Views.WirelessStudioWindow>();
             })
             .Build();
     }

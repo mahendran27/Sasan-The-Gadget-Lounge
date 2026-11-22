@@ -10,6 +10,7 @@ using SasanERP.Data.Context;
 using SasanERP.Services.Barcode;
 using SasanERP.Services.Billing;
 using SasanERP.Services.Printing;
+using SasanERP.Services.Wireless;
 using SasanERP.UI.Services;
 
 namespace SasanERP.UI.ViewModels;
@@ -25,6 +26,7 @@ public partial class PosViewModel : ObservableObject
     private readonly BillingService _billingService;
     private readonly BarcodeGeneratorService _barcodeService;
     private readonly InvoicePrintEngine _invoicePrintEngine;
+    private readonly UnifiedWirelessManager? _wirelessManager;
 
     public ObservableCollection<PosCartItemViewModel> CartItems { get; } = new();
     public ObservableCollection<Customer> Customers { get; } = new();
@@ -142,12 +144,31 @@ public partial class PosViewModel : ObservableObject
         AppDbContext context,
         BillingService billingService,
         BarcodeGeneratorService barcodeService,
-        InvoicePrintEngine invoicePrintEngine)
+        InvoicePrintEngine invoicePrintEngine,
+        UnifiedWirelessManager? wirelessManager = null)
     {
         _context = context;
         _billingService = billingService;
         _barcodeService = barcodeService;
         _invoicePrintEngine = invoicePrintEngine;
+        _wirelessManager = wirelessManager;
+
+        if (_wirelessManager != null)
+        {
+            _wirelessManager.OnTagTappedForCheckout += (imei, freq) =>
+            {
+                if (System.Windows.Application.Current?.Dispatcher != null && 
+                    !System.Windows.Application.Current.Dispatcher.CheckAccess())
+                {
+                    System.Windows.Application.Current.Dispatcher.Invoke(async () => 
+                        await ProcessCodeAsync(imei, isWirelessTap: true, freq: freq));
+                }
+                else
+                {
+                    _ = ProcessCodeAsync(imei, isWirelessTap: true, freq: freq);
+                }
+            };
+        }
     }
 
     /// <summary>
@@ -196,6 +217,15 @@ public partial class PosViewModel : ObservableObject
         if (string.IsNullOrWhiteSpace(rawCode)) return;
 
         BarcodeInput = string.Empty; // Reset input field immediately for next scan
+        await ProcessCodeAsync(rawCode, isWirelessTap: false);
+    }
+
+    /// <summary>
+    /// Core item identification method supporting USB Barcode Scanner, Counter NFC tap, and UHF RFID interrogation.
+    /// </summary>
+    public async Task ProcessCodeAsync(string rawCode, bool isWirelessTap = false, RfFrequencyType? freq = null)
+    {
+        if (string.IsNullOrWhiteSpace(rawCode)) return;
         IsBusy = true;
 
         try
@@ -212,7 +242,9 @@ public partial class PosViewModel : ObservableObject
                 // Prevent duplicate addition of the same unique device
                 if (CartItems.Any(ci => ci.SerializedUnitId == unit.Id))
                 {
-                    StatusMessage = $"[WARNING] Device with IMEI {unit.IMEI1} is already added in the cart!";
+                    StatusMessage = isWirelessTap
+                        ? $"[WIRELESS TAP] Device with IMEI {unit.IMEI1} is already in the cart!"
+                        : $"[WARNING] Device with IMEI {unit.IMEI1} is already added in the cart!";
                     return;
                 }
 
@@ -243,7 +275,9 @@ public partial class PosViewModel : ObservableObject
                 CartItems.Add(cartItem);
 
                 RecalculateInvoiceTotals();
-                StatusMessage = $"Added {unit.Product.Name} (IMEI: {unit.IMEI1}) - INR {cartItem.LineTotal:N0}";
+                StatusMessage = isWirelessTap
+                    ? $"[WIRELESS TAP - {freq}] Added {unit.Product.Name} (IMEI: {unit.IMEI1}) - INR {cartItem.LineTotal:N0}"
+                    : $"Added {unit.Product.Name} (IMEI: {unit.IMEI1}) - INR {cartItem.LineTotal:N0}";
                 return;
             }
 
@@ -278,7 +312,9 @@ public partial class PosViewModel : ObservableObject
                 }
 
                 RecalculateInvoiceTotals();
-                StatusMessage = $"Added {product.Name} (Stock: {product.CurrentStock}) - INR {product.SellingPrice:N0}";
+                StatusMessage = isWirelessTap
+                    ? $"[WIRELESS TAP - {freq}] Added {product.Name} - INR {product.SellingPrice:N0}"
+                    : $"Added {product.Name} (Stock: {product.CurrentStock}) - INR {product.SellingPrice:N0}";
                 return;
             }
 

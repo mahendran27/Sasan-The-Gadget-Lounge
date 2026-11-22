@@ -53,6 +53,11 @@ public partial class MainWindow : FluentWindow
                 e.Handled = true;
                 break;
 
+            case Key.F6:
+                OpenWirelessStudio();
+                e.Handled = true;
+                break;
+
             case Key.F7:
                 ViewModel.ToggleGstModeCommand.Execute(null);
                 e.Handled = true;
@@ -87,9 +92,21 @@ public partial class MainWindow : FluentWindow
         ViewModel.PrintBarcodeLabelCommand.Execute(null);
     }
 
+    private void BtnOpenWirelessStudio_Click(object sender, RoutedEventArgs e)
+    {
+        OpenWirelessStudio();
+    }
+
     private void OpenIntakeStudio()
     {
         var window = _serviceProvider.GetRequiredService<InventoryIntakeWindow>();
+        window.Owner = this;
+        window.ShowDialog();
+    }
+
+    private void OpenWirelessStudio()
+    {
+        var window = _serviceProvider.GetRequiredService<WirelessStudioWindow>();
         window.Owner = this;
         window.ShowDialog();
     }

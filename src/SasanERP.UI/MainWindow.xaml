@@ -100,6 +100,13 @@
                         </StackPanel>
                     </Button>
 
+                    <Button Click="BtnOpenWirelessStudio_Click" Background="#1E2A4A" BorderThickness="1" BorderBrush="#38BDF8" Padding="8,4" Margin="0,0,6,0" Cursor="Hand">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="[F6]" FontWeight="Bold" Foreground="#38BDF8" Margin="0,0,4,0"/>
+                            <TextBlock Text="📡 NFC &amp; RFID" FontSize="11" FontWeight="Bold" Foreground="#FFFFFF"/>
+                        </StackPanel>
+                    </Button>
+
                     <!-- GST Toggle Button [F7] -->
                     <Button Command="{Binding ToggleGstModeCommand}" Background="#202C3F" BorderThickness="1" BorderBrush="#FF9100" Padding="8,4" Margin="0,0,6,0" Cursor="Hand">
                         <StackPanel Orientation="Horizontal">
