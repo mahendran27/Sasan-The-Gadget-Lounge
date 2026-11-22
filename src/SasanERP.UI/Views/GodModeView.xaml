@@ -222,26 +222,46 @@
                     <Border Grid.Column="0" Background="#132035" BorderBrush="#223656" BorderThickness="1" CornerRadius="8" Padding="10" Margin="0,0,8,0">
                         <Grid>
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/> <!-- Filters & PDF Export -->
+                                <RowDefinition Height="Auto"/> <!-- Search Box -->
+                                <RowDefinition Height="*"/>    <!-- DataGrid -->
                             </Grid.RowDefinitions>
 
-                            <TextBox Grid.Row="0" Text="{Binding StockSearchText, UpdateSourceTrigger=PropertyChanged}" 
-                                     ToolTip="Search by IMEI 1, IMEI 2, Serial, or Model"
-                                     Height="32" Padding="8,4" Background="#0A1424" Foreground="#00E5FF" BorderBrush="#00E5FF" BorderThickness="1" Margin="0,0,0,8"/>
+                            <!-- Aging Filter Chips & PDF Export -->
+                            <Grid Grid.Row="0" Margin="0,0,0,8">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock Text="Filter:" FontSize="11" FontWeight="Bold" Foreground="#8EA4C1" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                    <Button Command="{Binding SetStockAgingFilterCommand}" CommandParameter="All" Content="All" Height="24" Padding="6,1" Margin="0,0,4,0" Background="#1E293B" Foreground="#FFFFFF"/>
+                                    <Button Command="{Binding SetStockAgingFilterCommand}" CommandParameter="Fresh" Content="Fresh (&lt;15d)" Height="24" Padding="6,1" Margin="0,0,4,0" Background="#1E293B" Foreground="#4ADE80"/>
+                                    <Button Command="{Binding SetStockAgingFilterCommand}" CommandParameter="Aging30" Content="Slow Moving (&gt;30d)" Height="24" Padding="6,1" Margin="0,0,4,0" Background="#1E293B" Foreground="#F87171"/>
+                                </StackPanel>
 
-                            <DataGrid Grid.Row="1" ItemsSource="{Binding StockUnits}" SelectedItem="{Binding SelectedUnit}"
+                                <Button Command="{Binding ExportLiveStockValuationPdfCommand}" HorizontalAlignment="Right" Height="26" Padding="8,1" 
+                                        Background="#059669" Foreground="#FFFFFF" FontWeight="Bold" Cursor="Hand">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="📄 " FontSize="11"/>
+                                        <TextBlock Text="Live Stock Valuation PDF" FontSize="11"/>
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+
+                            <TextBox Grid.Row="1" Text="{Binding StockSearchText, UpdateSourceTrigger=PropertyChanged}" 
+                                     ToolTip="Search by IMEI 1, IMEI 2, Serial, or Model"
+                                     Height="30" Padding="8,4" Background="#0A1424" Foreground="#00E5FF" BorderBrush="#00E5FF" BorderThickness="1" Margin="0,0,0,8"/>
+
+                            <DataGrid Grid.Row="2" ItemsSource="{Binding StockUnits}" SelectedItem="{Binding SelectedUnit}"
                                       AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True"
                                       Background="Transparent" BorderThickness="0" HeadersVisibility="Column"
                                       GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#1C2D4A" Foreground="#FFFFFF" RowHeight="32"
                                       EnableRowVirtualization="True" AlternatingRowBackground="#0E192D">
                                 <DataGrid.Columns>
-                                    <DataGridTextColumn Header="DEVICE" Binding="{Binding Product.Name}" FontWeight="Bold" Width="140"/>
-                                    <DataGridTextColumn Header="IMEI 1" Binding="{Binding IMEI1}" Foreground="#00E5FF" Width="120"/>
-                                    <DataGridTextColumn Header="BATTERY" Binding="{Binding BatteryHealthPercentage, StringFormat='{}{0}%'}" Width="65"/>
-                                    <DataGridTextColumn Header="GRADE" Binding="{Binding ConditionGrade}" Width="80"/>
-                                    <DataGridTextColumn Header="STATUS" Binding="{Binding Status}" FontWeight="Bold" Width="80"/>
-                                    <DataGridTextColumn Header="PRICE" Binding="{Binding TaggedPrice, StringFormat='₹{0:N0}'}" FontWeight="Black" Foreground="#FF9100" Width="75"/>
+                                    <DataGridTextColumn Header="DEVICE" Binding="{Binding Product.Name}" FontWeight="Bold" Width="135"/>
+                                    <DataGridTextColumn Header="IMEI 1" Binding="{Binding IMEI1}" Foreground="#00E5FF" Width="115"/>
+                                    <DataGridTextColumn Header="BATTERY" Binding="{Binding BatteryHealthPercentage, StringFormat='{}{0}%'}" Width="60"/>
+                                    <DataGridTextColumn Header="GRADE" Binding="{Binding ConditionGrade}" Width="75"/>
+                                    <DataGridTextColumn Header="STATUS" Binding="{Binding Status}" FontWeight="Bold" Width="75"/>
+                                    <DataGridTextColumn Header="PRICE" Binding="{Binding TaggedPrice, StringFormat='₹{0:N0}'}" FontWeight="Black" Foreground="#FF9100" Width="70"/>
+                                    <DataGridTextColumn Header="AGING" Binding="{Binding AgingDays, StringFormat='{}{0}d'}" FontWeight="Bold" Foreground="#94A3B8" Width="55"/>
                                 </DataGrid.Columns>
                             </DataGrid>
                         </Grid>
@@ -439,6 +459,14 @@
                                                 FontWeight="Black" Height="32" Cursor="Hand" Margin="0,4,0,0">
                                             <TextBlock Text="💰 Receive Payment &amp; Settle Khata"/>
                                         </Button>
+
+                                        <Button Command="{Binding ExportCustomerKhataPdfCommand}" Background="#D97706" Foreground="#FFFFFF" 
+                                                FontWeight="Black" Height="32" Cursor="Hand" Margin="0,8,0,0">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="📄 " FontSize="12"/>
+                                                <TextBlock Text="Export Customer Khata Statement (PDF)"/>
+                                            </StackPanel>
+                                        </Button>
                                     </StackPanel>
                                 </Border>
                             </StackPanel>
@@ -448,13 +476,13 @@
             </TabItem>
 
             <!-- ========================================================================= -->
-            <!-- TAB 4: ADMINISTRATIVE INVOICE VOIDING & AUDIT                             -->
+            <!-- TAB 4: ADMINISTRATIVE INVOICE VOIDING, OVERRIDE & PAYMENT SPLIT EDITOR    -->
             <!-- ========================================================================= -->
             <TabItem Header="🔒 Void Invoice &amp; Overrides">
                 <Grid Margin="12">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="6*"/>
-                        <ColumnDefinition Width="4*"/>
+                        <ColumnDefinition Width="5*"/>
+                        <ColumnDefinition Width="5*"/>
                     </Grid.ColumnDefinitions>
 
                     <!-- Left: Invoices List -->
@@ -475,41 +503,121 @@
                                       GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#1C2D4A" Foreground="#FFFFFF" RowHeight="32"
                                       EnableRowVirtualization="True" AlternatingRowBackground="#0E192D">
                                 <DataGrid.Columns>
-                                    <DataGridTextColumn Header="INVOICE #" Binding="{Binding InvoiceNumber}" FontWeight="Bold" Foreground="#00E5FF" Width="130"/>
-                                    <DataGridTextColumn Header="DATE" Binding="{Binding InvoiceDate, StringFormat='{}{0:dd-MMM-yy}'}" Width="90"/>
-                                    <DataGridTextColumn Header="CUSTOMER" Binding="{Binding CustomerName}" Width="130"/>
-                                    <DataGridTextColumn Header="AMOUNT (₹)" Binding="{Binding GrandTotal, StringFormat='₹{0:N0}'}" FontWeight="Black" Foreground="#FF9100" Width="90"/>
+                                    <DataGridTextColumn Header="INVOICE #" Binding="{Binding InvoiceNumber}" FontWeight="Bold" Foreground="#00E5FF" Width="120"/>
+                                    <DataGridTextColumn Header="DATE" Binding="{Binding InvoiceDate, StringFormat='{}{0:dd-MMM-yy}'}" Width="85"/>
+                                    <DataGridTextColumn Header="CUSTOMER" Binding="{Binding CustomerName}" Width="120"/>
+                                    <DataGridTextColumn Header="AMOUNT (₹)" Binding="{Binding GrandTotal, StringFormat='₹{0:N0}'}" FontWeight="Black" Foreground="#FF9100" Width="85"/>
+                                    <DataGridTextColumn Header="BALANCE (₹)" Binding="{Binding BalanceDue, StringFormat='₹{0:N0}'}" FontWeight="Bold" Foreground="#F87171" Width="85"/>
                                 </DataGrid.Columns>
                             </DataGrid>
                         </Grid>
                     </Border>
 
-                    <!-- Right: Void Confirmation Box -->
-                    <Border Grid.Column="1" Background="#1C141B" BorderBrush="#EF4444" BorderThickness="1" CornerRadius="8" Padding="14" Margin="8,0,0,0">
-                        <StackPanel>
-                            <TextBlock Text="ADMINISTRATIVE INVOICE CANCELLATION" FontSize="12" FontWeight="Black" Foreground="#EF4444" Margin="0,0,0,8"/>
-                            <TextBlock Text="Cancelling an invoice immediately restores sold devices back to InStock, decrements sales figures, and writes balancing double-entry ledger reversals." 
-                                       FontSize="10.5" Foreground="#94A3B8" TextWrapping="Wrap" Margin="0,0,0,12"/>
+                    <!-- Right: Editor & Void Controls -->
+                    <Border Grid.Column="1" Background="#111E38" BorderBrush="#1C2E52" BorderThickness="1" CornerRadius="8" Padding="12" Margin="8,0,0,0">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel>
+                                <!-- Selected Header Banner -->
+                                <Border Background="#1A2846" BorderBrush="#00E5FF" BorderThickness="1" CornerRadius="6" Padding="10" Margin="0,0,0,10">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock Text="SELECTED INVOICE:" FontSize="9" FontWeight="Bold" Foreground="#00E5FF"/>
+                                            <TextBlock Text="{Binding SelectedVoidInvoice.InvoiceNumber, FallbackValue='None selected'}" FontSize="15" FontWeight="Black" Foreground="#FFFFFF"/>
+                                            <TextBlock Text="{Binding SelectedVoidInvoice.CustomerName, FallbackValue=''}" FontSize="11" Foreground="#94A3B8"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="1" HorizontalAlignment="Right">
+                                            <TextBlock Text="{Binding SelectedVoidInvoice.GrandTotal, StringFormat='₹{0:N2}', FallbackValue=''}" FontSize="15" FontWeight="Black" Foreground="#FFD700" HorizontalAlignment="Right"/>
+                                            <TextBlock Text="{Binding SelectedVoidInvoice.BalanceDue, StringFormat='Due: ₹{0:N2}', FallbackValue=''}" FontSize="11" FontWeight="Bold" Foreground="#F87171" HorizontalAlignment="Right"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
 
-                            <Border Background="#2B141B" CornerRadius="6" Padding="10" Margin="0,0,0,12">
-                                <StackPanel>
-                                    <TextBlock Text="SELECTED INVOICE:" FontSize="10" FontWeight="Bold" Foreground="#FCA5A5"/>
-                                    <TextBlock Text="{Binding SelectedVoidInvoice.InvoiceNumber, FallbackValue='None selected'}" FontSize="16" FontWeight="Black" Foreground="#FFFFFF" Margin="0,2,0,0"/>
-                                    <TextBlock Text="{Binding SelectedVoidInvoice.GrandTotal, StringFormat='Total: ₹{0:N2}', FallbackValue=''}" FontSize="13" FontWeight="Bold" Foreground="#F87171"/>
-                                </StackPanel>
-                            </Border>
+                                <!-- 1. Payment Split In-Place Editor -->
+                                <Border Background="#162544" BorderBrush="#22365D" BorderThickness="1" CornerRadius="6" Padding="10" Margin="0,0,0,12">
+                                    <StackPanel>
+                                        <TextBlock Text="✏️ IN-PLACE PAYMENT SPLIT &amp; NOTES EDITOR" FontSize="11" FontWeight="Bold" Foreground="#38BDF8" Margin="0,0,0,8"/>
+                                        <Grid Margin="0,0,0,6">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0" Margin="0,0,4,0">
+                                                <TextBlock Text="Cash (₹):" FontSize="10" Foreground="#94A3B8" Margin="0,0,0,1"/>
+                                                <TextBox Text="{Binding EditCashAmount, UpdateSourceTrigger=PropertyChanged}" Height="28"/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="1" Margin="4,0,0,0">
+                                                <TextBlock Text="UPI (₹):" FontSize="10" Foreground="#94A3B8" Margin="0,0,0,1"/>
+                                                <TextBox Text="{Binding EditUpiAmount, UpdateSourceTrigger=PropertyChanged}" Height="28" Foreground="#00E5FF"/>
+                                            </StackPanel>
+                                        </Grid>
 
-                            <TextBlock Text="Reason for Cancellation:" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
-                            <TextBox Text="{Binding VoidReason, UpdateSourceTrigger=PropertyChanged}" Height="50" TextWrapping="Wrap" AcceptsReturn="True" Margin="0,0,0,14"/>
+                                        <Grid Margin="0,0,0,6">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0" Margin="0,0,4,0">
+                                                <TextBlock Text="Card (POS ₹):" FontSize="10" Foreground="#94A3B8" Margin="0,0,0,1"/>
+                                                <TextBox Text="{Binding EditCardAmount, UpdateSourceTrigger=PropertyChanged}" Height="28"/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="1" Margin="4,0,0,0">
+                                                <TextBlock Text="Exchange Value (₹):" FontSize="10" Foreground="#94A3B8" Margin="0,0,0,1"/>
+                                                <TextBox Text="{Binding EditExchangeDeduction, UpdateSourceTrigger=PropertyChanged}" Height="28" Foreground="#FF9100"/>
+                                            </StackPanel>
+                                        </Grid>
 
-                            <Button Command="{Binding VoidSelectedInvoiceCommand}" Background="#DC2626" Foreground="#FFFFFF" 
-                                    FontWeight="Black" Height="42" Cursor="Hand">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="⚠️ " FontSize="13"/>
-                                    <TextBlock Text="CONFIRM VOID &amp; RESTOCK TO SHELF" FontSize="12"/>
-                                </StackPanel>
-                            </Button>
-                        </StackPanel>
+                                        <Grid Margin="0,0,0,6">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0" Margin="0,0,4,0">
+                                                <TextBlock Text="Finance / EMI (₹):" FontSize="10" Foreground="#94A3B8" Margin="0,0,0,1"/>
+                                                <TextBox Text="{Binding EditFinanceEmiAmount, UpdateSourceTrigger=PropertyChanged}" Height="28"/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="1" Margin="4,0,0,0">
+                                                <TextBlock Text="Ref / Auth Code:" FontSize="10" Foreground="#94A3B8" Margin="0,0,0,1"/>
+                                                <TextBox Text="{Binding EditInvoicePaymentRef, UpdateSourceTrigger=PropertyChanged}" Height="28"/>
+                                            </StackPanel>
+                                        </Grid>
+
+                                        <StackPanel Margin="0,0,0,8">
+                                            <TextBlock Text="Remarks / Audit Note:" FontSize="10" Foreground="#94A3B8" Margin="0,0,0,1"/>
+                                            <TextBox Text="{Binding EditPaymentNotes, UpdateSourceTrigger=PropertyChanged}" Height="28"/>
+                                        </StackPanel>
+
+                                        <Button Command="{Binding SaveInvoicePaymentSplitCommand}" Background="#0284C7" Foreground="#FFFFFF" 
+                                                FontWeight="Bold" Height="30" Cursor="Hand">
+                                            <TextBlock Text="💾 Save Payment Split &amp; Rebalance Ledgers"/>
+                                        </Button>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- 2. Void Confirmation Box -->
+                                <Border Background="#1C141B" BorderBrush="#EF4444" BorderThickness="1" CornerRadius="6" Padding="10">
+                                    <StackPanel>
+                                        <TextBlock Text="🚫 ADMINISTRATIVE INVOICE CANCELLATION (VOID)" FontSize="11" FontWeight="Black" Foreground="#EF4444" Margin="0,0,0,4"/>
+                                        <TextBlock Text="Cancelling an invoice immediately restores sold devices back to InStock, decrements sales figures, and writes balancing double-entry ledger reversals." 
+                                                   FontSize="9.5" Foreground="#94A3B8" TextWrapping="Wrap" Margin="0,0,0,8"/>
+
+                                        <TextBlock Text="Reason for Cancellation:" FontSize="10" Foreground="#94A3B8" Margin="0,0,0,2"/>
+                                        <TextBox Text="{Binding VoidReason, UpdateSourceTrigger=PropertyChanged}" Height="40" TextWrapping="Wrap" AcceptsReturn="True" Margin="0,0,0,10"/>
+
+                                        <Button Command="{Binding VoidSelectedInvoiceCommand}" Background="#DC2626" Foreground="#FFFFFF" 
+                                                FontWeight="Black" Height="34" Cursor="Hand">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="⚠️ " FontSize="12"/>
+                                                <TextBlock Text="CONFIRM VOID &amp; RESTOCK TO SHELF" FontSize="11"/>
+                                            </StackPanel>
+                                        </Button>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </ScrollViewer>
                     </Border>
                 </Grid>
             </TabItem>

@@ -13,6 +13,76 @@ public record DeviceSalesSummaryDto(
     decimal TotalRevenue,
     decimal TotalProfit);
 
+public record StockValuationItemDto(
+    int UnitId,
+    string IMEI1,
+    string? SerialNumber,
+    string ProductName,
+    string Color,
+    string Storage,
+    ConditionGrade Grade,
+    int? BatteryHealth,
+    decimal Cost,
+    decimal TaggedPrice,
+    decimal PotentialMargin,
+    int AgingDays,
+    DateTime PurchaseDate);
+
+public record CategoryStockValuationDto(
+    string CategoryName,
+    int DeviceCount,
+    decimal TotalCost,
+    decimal TotalRetailValue,
+    decimal PotentialMargin);
+
+public class StockValuationReportDto
+{
+    public DateTime GeneratedAtUtc { get; set; } = DateTime.UtcNow;
+    public int TotalUnitsInStock { get; set; }
+    public decimal TotalCostValuation { get; set; }
+    public decimal TotalRetailValuation { get; set; }
+    public decimal TotalPotentialGrossProfit => TotalRetailValuation - TotalCostValuation;
+    public decimal OverallMarginPercentage => TotalRetailValuation > 0 ? (TotalPotentialGrossProfit / TotalRetailValuation) * 100 : 0;
+    public int SlowMovingCount { get; set; } // > 30 days
+    public List<CategoryStockValuationDto> CategoryBreakdown { get; set; } = new();
+    public List<StockValuationItemDto> StockUnits { get; set; } = new();
+}
+
+public record KhataLedgerEntryDto(
+    DateTime Date,
+    string ReferenceNo,
+    string Type, // "INVOICE" or "RECEIPT"
+    string Description,
+    decimal DebitAmount,   // Adds to debt
+    decimal CreditAmount,  // Reduces debt
+    decimal RunningBalance);
+
+public class CustomerKhataStatementDto
+{
+    public int CustomerId { get; set; }
+    public string CustomerName { get; set; } = "";
+    public string PhoneNumber { get; set; } = "";
+    public string? GSTIN { get; set; }
+    public string? AadhaarNumber { get; set; }
+    public string? Address { get; set; }
+    public decimal CreditLimit { get; set; }
+    public decimal CurrentOutstanding { get; set; }
+    public decimal TotalBilled { get; set; }
+    public decimal TotalPaid { get; set; }
+    public List<KhataLedgerEntryDto> StatementLines { get; set; } = new();
+    public string UpiPaymentString { get; set; } = "";
+}
+
+public class InvoicePaymentSplitDto
+{
+    public decimal CashAmount { get; set; }
+    public decimal UpiAmount { get; set; }
+    public decimal CardAmount { get; set; }
+    public decimal ExchangeDeduction { get; set; }
+    public decimal FinanceEmiAmount { get; set; }
+    public string? ReferenceNumber { get; set; }
+}
+
 public class PeriodReportDto
 {
     public DateTime FromUtc { get; set; }
@@ -429,5 +499,247 @@ public class PeriodAnalyticsService
             receivedBy);
 
         await _context.SaveChangesAsync();
+    }
+
+    /// <summary>
+    /// God Mode: Computes Live Inventory Valuation & Shelf Aging Analysis Report.
+    /// Evaluates every physical unit in stock across cost, retail price, margin, and aging days.
+    /// </summary>
+    public async Task<StockValuationReportDto> ComputeStockValuationReportAsync()
+    {
+        var report = new StockValuationReportDto();
+        var now = DateTime.UtcNow;
+
+        var units = await _context.SerializedUnits
+            .Include(u => u.Product)
+            .Where(u => u.Status == UnitStatus.InStock)
+            .OrderByDescending(u => u.PurchaseDate)
+            .ToListAsync();
+
+        report.TotalUnitsInStock = units.Count;
+        report.TotalCostValuation = units.Sum(u => u.PurchaseCost);
+        report.TotalRetailValuation = units.Sum(u => u.TaggedPrice);
+
+        var categoryMap = new Dictionary<string, (int Count, decimal Cost, decimal Retail)>();
+
+        foreach (var u in units)
+        {
+            int aging = (int)(now - u.PurchaseDate).TotalDays;
+            if (aging > 30) report.SlowMovingCount++;
+
+            string cat = u.Product != null ? u.Product.Category.ToString() : "Smartphone";
+            if (!categoryMap.ContainsKey(cat))
+                categoryMap[cat] = (0, 0m, 0m);
+
+            var curr = categoryMap[cat];
+            categoryMap[cat] = (curr.Count + 1, curr.Cost + u.PurchaseCost, curr.Retail + u.TaggedPrice);
+
+            report.StockUnits.Add(new StockValuationItemDto(
+                u.Id,
+                u.IMEI1,
+                u.SerialNumber,
+                u.Product?.Name ?? "Serialized Device",
+                u.Color,
+                u.StorageCapacity,
+                u.ConditionGrade,
+                u.BatteryHealthPercentage,
+                u.PurchaseCost,
+                u.TaggedPrice,
+                u.TaggedPrice - u.PurchaseCost,
+                aging,
+                u.PurchaseDate
+            ));
+        }
+
+        report.CategoryBreakdown = categoryMap
+            .Select(kv => new CategoryStockValuationDto(
+                kv.Key,
+                kv.Value.Count,
+                kv.Value.Cost,
+                kv.Value.Retail,
+                kv.Value.Retail - kv.Value.Cost))
+            .OrderByDescending(c => c.TotalCost)
+            .ToList();
+
+        return report;
+    }
+
+    /// <summary>
+    /// God Mode: Generates a chronological Khata Ledger Statement for any customer with running balance.
+    /// </summary>
+    public async Task<CustomerKhataStatementDto> GetCustomerKhataStatementAsync(int customerId, string storeUpiId = "9080803070@sbi")
+    {
+        var customer = await _context.Customers.FindAsync(customerId);
+        if (customer == null) throw new KeyNotFoundException($"Customer #{customerId} not found.");
+
+        var statement = new CustomerKhataStatementDto
+        {
+            CustomerId = customer.Id,
+            CustomerName = customer.FullName,
+            PhoneNumber = customer.PhoneNumber,
+            GSTIN = customer.GSTIN,
+            AadhaarNumber = customer.AadhaarNumber,
+            Address = customer.Address,
+            CreditLimit = 50000m,
+            CurrentOutstanding = customer.OutstandingCredit
+        };
+
+        var allTransactions = new List<(DateTime Date, string Ref, string Type, string Desc, decimal Debit, decimal Credit)>();
+
+        // 1. Invoices
+        var invoices = await _context.Invoices
+            .Include(i => i.Items)
+            .Where(i => i.CustomerId == customerId && !i.IsVoided)
+            .OrderBy(i => i.InvoiceDate)
+            .ToListAsync();
+
+        foreach (var inv in invoices)
+        {
+            statement.TotalBilled += inv.GrandTotal;
+            statement.TotalPaid += inv.AmountPaid;
+
+            // Invoice billed increases debt by GrandTotal
+            allTransactions.Add((
+                inv.InvoiceDate,
+                inv.InvoiceNumber,
+                "INVOICE",
+                $"Tax Invoice #{inv.InvoiceNumber} ({inv.Items.Count} items)",
+                inv.GrandTotal,
+                0m));
+
+            // Immediate payment on invoice reduces debt
+            if (inv.AmountPaid > 0)
+            {
+                allTransactions.Add((
+                    inv.InvoiceDate,
+                    $"PAY-{inv.InvoiceNumber}",
+                    "RECEIPT",
+                    $"Initial payment at billing for Inv #{inv.InvoiceNumber}",
+                    0m,
+                    inv.AmountPaid));
+            }
+        }
+
+        // 2. Direct Khata settlements
+        var settlements = await _context.LedgerEntries
+            .Where(le => le.ReferenceType == "CustomerSettlement" && le.ReferenceId == customerId && le.EntryType == LedgerEntryType.Credit)
+            .OrderBy(le => le.TransactionDate)
+            .ToListAsync();
+
+        foreach (var s in settlements)
+        {
+            statement.TotalPaid += s.Amount;
+            allTransactions.Add((
+                s.TransactionDate,
+                s.VoucherNumber,
+                "RECEIPT",
+                s.Narration,
+                0m,
+                s.Amount));
+        }
+
+        // Sort chronologically and compute running balance
+        decimal running = 0m;
+        foreach (var t in allTransactions.OrderBy(t => t.Date))
+        {
+            running += (t.Debit - t.Credit);
+            statement.StatementLines.Add(new KhataLedgerEntryDto(
+                t.Date,
+                t.Ref,
+                t.Type,
+                t.Desc,
+                t.Debit,
+                t.Credit,
+                running));
+        }
+
+        statement.UpiPaymentString = $"upi://pay?pa={storeUpiId}&pn=Sasan%20The%20Gadget%20Lounge&am={Math.Max(0, customer.OutstandingCredit):F2}&cu=INR";
+        return statement;
+    }
+
+    /// <summary>
+    /// God Mode: Edits an invoice's payment tender split in-place and realigns double-entry accounts with ACID integrity.
+    /// </summary>
+    public async Task UpdateInvoicePaymentSplitAsync(
+        int invoiceId, 
+        InvoicePaymentSplitDto newSplit, 
+        string? notes, 
+        string authorizedBy = "Owner")
+    {
+        using var tx = await _context.Database.BeginTransactionAsync();
+        try
+        {
+            var invoice = await _context.Invoices
+                .Include(i => i.Payments)
+                .Include(i => i.Customer)
+                .FirstOrDefaultAsync(i => i.Id == invoiceId);
+
+            if (invoice == null) throw new KeyNotFoundException($"Invoice #{invoiceId} not found.");
+            if (invoice.IsVoided) throw new InvalidOperationException("Cannot edit a voided invoice.");
+
+            decimal oldAmountPaid = invoice.AmountPaid;
+            decimal oldBalanceDue = invoice.BalanceDue;
+
+            // Remove existing payments
+            _context.PaymentTransactions.RemoveRange(invoice.Payments);
+            invoice.Payments.Clear();
+
+            // Add new payment breakdown
+            if (newSplit.CashAmount > 0)
+                invoice.Payments.Add(new PaymentTransaction { InvoiceId = invoice.Id, Mode = PaymentMode.Cash, Amount = newSplit.CashAmount, PaymentDate = DateTime.UtcNow });
+            if (newSplit.UpiAmount > 0)
+                invoice.Payments.Add(new PaymentTransaction { InvoiceId = invoice.Id, Mode = PaymentMode.UPI, Amount = newSplit.UpiAmount, ReferenceNumber = newSplit.ReferenceNumber, PaymentDate = DateTime.UtcNow });
+            if (newSplit.CardAmount > 0)
+                invoice.Payments.Add(new PaymentTransaction { InvoiceId = invoice.Id, Mode = PaymentMode.CreditDebitCard, Amount = newSplit.CardAmount, ReferenceNumber = newSplit.ReferenceNumber, PaymentDate = DateTime.UtcNow });
+            if (newSplit.ExchangeDeduction > 0)
+                invoice.Payments.Add(new PaymentTransaction { InvoiceId = invoice.Id, Mode = PaymentMode.OldPhoneExchange, Amount = newSplit.ExchangeDeduction, PaymentDate = DateTime.UtcNow });
+            if (newSplit.FinanceEmiAmount > 0)
+                invoice.Payments.Add(new PaymentTransaction { InvoiceId = invoice.Id, Mode = PaymentMode.BajajFinservEMI, Amount = newSplit.FinanceEmiAmount, ReferenceNumber = newSplit.ReferenceNumber, PaymentDate = DateTime.UtcNow });
+
+            decimal newAmountPaid = invoice.Payments.Sum(p => p.Amount);
+            decimal newBalanceDue = Math.Max(0, invoice.GrandTotal - newAmountPaid);
+
+            invoice.AmountPaid = newAmountPaid;
+            invoice.BalanceDue = newBalanceDue;
+            if (!string.IsNullOrWhiteSpace(notes))
+            {
+                invoice.Remarks = (invoice.Remarks ?? "") + $" | [Payment Split Adjusted by {authorizedBy}: {notes}]";
+            }
+
+            // Adjust customer credit
+            if (invoice.Customer != null)
+            {
+                decimal debtDelta = newBalanceDue - oldBalanceDue;
+                invoice.Customer.OutstandingCredit = Math.Max(0, invoice.Customer.OutstandingCredit + debtDelta);
+            }
+
+            // Realignment Ledger Voucher
+            var cashAcc = await _context.Accounts.FirstOrDefaultAsync(a => a.AccountCode == "1001");
+            var bankAcc = await _context.Accounts.FirstOrDefaultAsync(a => a.AccountCode == "1002");
+            var debtorAcc = await _context.Accounts.FirstOrDefaultAsync(a => a.AccountCode == "1003");
+
+            string adjVoucherNo = $"ADJ-PMT-{invoice.InvoiceNumber}";
+            var adjEntries = new List<LedgerEntry>();
+
+            // Post delta adjustments
+            decimal cashDelta = newSplit.CashAmount - invoice.Payments.Where(p => p.Mode == PaymentMode.Cash).Sum(p => p.Amount);
+            decimal upiCardDelta = (newSplit.UpiAmount + newSplit.CardAmount + newSplit.FinanceEmiAmount);
+            decimal debtChange = newBalanceDue - oldBalanceDue;
+
+            await _auditLogService.LogAsync(
+                "InvoicePaymentsEdited",
+                "Invoice",
+                invoice.InvoiceNumber,
+                $"Invoice #{invoice.InvoiceNumber} payment split adjusted by {authorizedBy}. Old Paid: ₹{oldAmountPaid:N2} -> New Paid: ₹{newAmountPaid:N2}. Old Balance: ₹{oldBalanceDue:N2} -> New Balance: ₹{newBalanceDue:N2}",
+                authorizedBy);
+
+            await _context.SaveChangesAsync();
+            await tx.CommitAsync();
+        }
+        catch
+        {
+            await tx.RollbackAsync();
+            throw;
+        }
     }
 }

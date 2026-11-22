@@ -40,6 +40,7 @@ public partial class GodModeViewModel : ObservableObject
     public ObservableCollection<SerializedUnit> StockUnits { get; } = new();
     [ObservableProperty] private SerializedUnit? _selectedUnit;
     [ObservableProperty] private string _stockSearchText = string.Empty;
+    [ObservableProperty] private string _stockAgingFilter = "All"; // "All", "Fresh", "Aging30"
 
     // Unit Editing Properties
     [ObservableProperty] private string _editImei1 = string.Empty;
@@ -117,12 +118,29 @@ public partial class GodModeViewModel : ObservableObject
     }
 
     // =========================================================================
-    // TAB 4: ADMINISTRATIVE INVOICE VOIDING & AUDIT
+    // TAB 4: ADMINISTRATIVE INVOICE VOIDING, OVERRIDE & PAYMENT SPLIT EDITOR
     // =========================================================================
     public ObservableCollection<InvoiceSummaryDto> VoidableInvoices { get; } = new();
     [ObservableProperty] private InvoiceSummaryDto? _selectedVoidInvoice;
     [ObservableProperty] private string _voidSearchText = string.Empty;
     [ObservableProperty] private string _voidReason = "Customer Returned / Billing Mistake";
+
+    // Payment Split In-Place Editing
+    [ObservableProperty] private decimal _editCashAmount;
+    [ObservableProperty] private decimal _editUpiAmount;
+    [ObservableProperty] private decimal _editCardAmount;
+    [ObservableProperty] private decimal _editExchangeDeduction;
+    [ObservableProperty] private decimal _editFinanceEmiAmount;
+    [ObservableProperty] private string _editInvoicePaymentRef = string.Empty;
+    [ObservableProperty] private string _editPaymentNotes = string.Empty;
+
+    partial void OnSelectedVoidInvoiceChanged(InvoiceSummaryDto? value)
+    {
+        if (value != null)
+        {
+            _ = LoadSelectedInvoicePaymentSplitAsync(value.Id);
+        }
+    }
 
     partial void OnVoidSearchTextChanged(string value)
     {
@@ -270,8 +288,15 @@ public partial class GodModeViewModel : ObservableObject
     }
 
     // =========================================================================
-    // TAB 2 ACTIONS: STOCK FULL CRUD
+    // TAB 2 ACTIONS: STOCK FULL CRUD & SHELF AGING
     // =========================================================================
+    [RelayCommand]
+    public void SetStockAgingFilter(string filter)
+    {
+        StockAgingFilter = filter;
+        _ = LoadStockUnitsAsync();
+    }
+
     [RelayCommand]
     public async Task LoadStockUnitsAsync()
     {
@@ -289,12 +314,62 @@ public partial class GodModeViewModel : ObservableObject
                 u.Product.Name.ToLower().Contains(t));
         }
 
+        if (StockAgingFilter == "Fresh")
+        {
+            var freshThreshold = DateTime.UtcNow.AddDays(-15);
+            query = query.Where(u => u.PurchaseDate >= freshThreshold);
+        }
+        else if (StockAgingFilter == "Aging30")
+        {
+            var slowThreshold = DateTime.UtcNow.AddDays(-30);
+            query = query.Where(u => u.PurchaseDate < slowThreshold);
+        }
+
         var units = await query.OrderByDescending(u => u.PurchaseDate).Take(150).ToListAsync();
         StockUnits.Clear();
         foreach (var u in units) StockUnits.Add(u);
 
         if (StockUnits.Any() && SelectedUnit == null)
             SelectedUnit = StockUnits.First();
+    }
+
+    [RelayCommand]
+    public async Task ExportLiveStockValuationPdfAsync()
+    {
+        IsBusy = true;
+        try
+        {
+            var report = await _analyticsService.ComputeStockValuationReportAsync();
+            var company = await _context.CompanyProfiles.FirstAsync();
+
+            var saveDialog = new SaveFileDialog
+            {
+                Title = "Export Live Inventory Valuation Report as PDF",
+                Filter = "PDF Files (*.pdf)|*.pdf|All Files (*.*)|*.*",
+                FileName = $"Sasan_StockValuation_{DateTime.Now:yyyyMMdd_HHmm}.pdf",
+                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
+            };
+
+            if (saveDialog.ShowDialog() == true)
+            {
+                _reportPdfEngine.GenerateStockValuationReportPdf(report, company, saveDialog.FileName);
+                StatusMessage = $"[SUCCESS] Stock Valuation PDF exported to: {Path.GetFileName(saveDialog.FileName)}";
+
+                try
+                {
+                    Process.Start(new ProcessStartInfo(saveDialog.FileName) { UseShellExecute = true });
+                }
+                catch { }
+            }
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Export Stock Valuation error: {ex.Message}";
+        }
+        finally
+        {
+            IsBusy = false;
+        }
     }
 
     [RelayCommand]
@@ -407,9 +482,108 @@ public partial class GodModeViewModel : ObservableObject
         }
     }
 
+    [RelayCommand]
+    public async Task ExportCustomerKhataPdfAsync()
+    {
+        if (SelectedCustomer == null) return;
+        IsBusy = true;
+        try
+        {
+            var company = await _context.CompanyProfiles.FirstAsync();
+            var statement = await _analyticsService.GetCustomerKhataStatementAsync(SelectedCustomer.Id, company.UpiId ?? "9080803070@sbi");
+
+            var saveDialog = new SaveFileDialog
+            {
+                Title = $"Export Khata Statement for {SelectedCustomer.FullName}",
+                Filter = "PDF Files (*.pdf)|*.pdf|All Files (*.*)|*.*",
+                FileName = $"Sasan_KhataStatement_{SelectedCustomer.PhoneNumber}_{DateTime.Now:yyyyMMdd}.pdf",
+                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
+            };
+
+            if (saveDialog.ShowDialog() == true)
+            {
+                _reportPdfEngine.GenerateCustomerKhataStatementPdf(statement, company, saveDialog.FileName);
+                StatusMessage = $"[SUCCESS] Khata Statement exported to: {Path.GetFileName(saveDialog.FileName)}";
+
+                try
+                {
+                    Process.Start(new ProcessStartInfo(saveDialog.FileName) { UseShellExecute = true });
+                }
+                catch { }
+            }
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Export Khata Statement error: {ex.Message}";
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
     // =========================================================================
-    // TAB 4 ACTIONS: INVOICE VOIDING
+    // TAB 4 ACTIONS: INVOICE VOIDING & IN-PLACE PAYMENT SPLIT EDITING
     // =========================================================================
+    public async Task LoadSelectedInvoicePaymentSplitAsync(int invoiceId)
+    {
+        try
+        {
+            var inv = await _context.Invoices
+                .Include(i => i.Payments)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(i => i.Id == invoiceId);
+
+            if (inv != null)
+            {
+                EditCashAmount = inv.Payments.Where(p => p.Mode == PaymentMode.Cash).Sum(p => p.Amount);
+                EditUpiAmount = inv.Payments.Where(p => p.Mode == PaymentMode.UPI).Sum(p => p.Amount);
+                EditCardAmount = inv.Payments.Where(p => p.Mode == PaymentMode.CreditDebitCard).Sum(p => p.Amount);
+                EditExchangeDeduction = inv.Payments.Where(p => p.Mode == PaymentMode.OldPhoneExchange).Sum(p => p.Amount);
+                EditFinanceEmiAmount = inv.Payments.Where(p => p.Mode == PaymentMode.BajajFinservEMI || p.Mode == PaymentMode.HdbFinanceEMI || p.Mode == PaymentMode.PineLabsEMI).Sum(p => p.Amount);
+                EditInvoicePaymentRef = inv.Payments.FirstOrDefault(p => !string.IsNullOrEmpty(p.ReferenceNumber))?.ReferenceNumber ?? "";
+                EditPaymentNotes = inv.Remarks ?? "";
+            }
+        }
+        catch { }
+    }
+
+    [RelayCommand]
+    public async Task SaveInvoicePaymentSplitAsync()
+    {
+        if (SelectedVoidInvoice == null) return;
+        IsBusy = true;
+        try
+        {
+            var split = new InvoicePaymentSplitDto
+            {
+                CashAmount = EditCashAmount,
+                UpiAmount = EditUpiAmount,
+                CardAmount = EditCardAmount,
+                ExchangeDeduction = EditExchangeDeduction,
+                FinanceEmiAmount = EditFinanceEmiAmount,
+                ReferenceNumber = EditInvoicePaymentRef
+            };
+
+            await _analyticsService.UpdateInvoicePaymentSplitAsync(
+                SelectedVoidInvoice.Id,
+                split,
+                EditPaymentNotes,
+                "AdminOwner");
+
+            StatusMessage = $"[SUCCESS] Invoice #{SelectedVoidInvoice.InvoiceNumber} payment split & ledgers updated.";
+            await LoadVoidableInvoicesAsync();
+            await GenerateReportAsync();
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Save Payment Split error: {ex.Message}";
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
     [RelayCommand]
     public async Task LoadVoidableInvoicesAsync()
     {
