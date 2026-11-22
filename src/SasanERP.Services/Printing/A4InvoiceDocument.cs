@@ -83,10 +83,18 @@ public class A4InvoiceDocument : IDocument
                 // Right: Invoice Header & Type
                 row.RelativeItem(5).Column(c =>
                 {
+                    string invoiceTitle = !_invoice.IsGstEnabled
+                        ? "RETAIL BILL / CASH MEMO"
+                        : (_invoice.HasMarginSchemeItems ? "TAX INVOICE / MARGIN SCHEME" : "TAX INVOICE");
+
+                    string titleBg = !_invoice.IsGstEnabled
+                        ? "#1565C0"
+                        : (_invoice.HasMarginSchemeItems ? WarmAmber : PrimaryColor);
+
                     c.Item().AlignRight().Container()
-                        .Background(_invoice.HasMarginSchemeItems ? WarmAmber : PrimaryColor)
+                        .Background(titleBg)
                         .PaddingVertical(4).PaddingHorizontal(10)
-                        .Text(_invoice.HasMarginSchemeItems ? "TAX INVOICE / MARGIN SCHEME" : "TAX INVOICE")
+                        .Text(invoiceTitle)
                         .FontSize(11).Bold().FontColor(Colors.White);
 
                     c.Item().PaddingTop(4).AlignRight().Text(t =>
@@ -141,8 +149,8 @@ public class A4InvoiceDocument : IDocument
             // Items Grid
             col.Item().Element(ComposeItemsTable);
 
-            // Statutory Margin Scheme Notice (if applicable)
-            if (_invoice.HasMarginSchemeItems)
+            // Statutory Margin Scheme Notice (if applicable and GST is enabled)
+            if (_invoice.IsGstEnabled && _invoice.HasMarginSchemeItems)
             {
                 col.Item().PaddingTop(4).Container()
                     .Border(1).BorderColor(WarmAmber).Background("#FFF8E1").Padding(6)
@@ -214,9 +222,17 @@ public class A4InvoiceDocument : IDocument
                             cd.RelativeColumn(2);
                         });
 
-                        AddSummaryRow(table, "Total Taxable Value:", $"INR {_invoice.StandardTaxableValue:N2}");
-                        AddSummaryRow(table, "CGST (Central Tax):", $"INR {_invoice.TotalCGST:N2}");
-                        AddSummaryRow(table, "SGST (State Tax):", $"INR {_invoice.TotalSGST:N2}");
+                        if (_invoice.IsGstEnabled)
+                        {
+                            AddSummaryRow(table, "Total Taxable Value:", $"INR {_invoice.StandardTaxableValue:N2}");
+                            AddSummaryRow(table, "CGST (Central Tax):", $"INR {_invoice.TotalCGST:N2}");
+                            AddSummaryRow(table, "SGST (State Tax):", $"INR {_invoice.TotalSGST:N2}");
+                        }
+                        else
+                        {
+                            AddSummaryRow(table, "Total Item Value:", $"INR {_invoice.GrossTotal:N2}");
+                            AddSummaryRow(table, "GST (Non-Taxable Bill):", "INR 0.00 (Exempt/Retail)");
+                        }
 
                         if (_invoice.InvoiceDiscount > 0)
                             AddSummaryRow(table, "Bill Discount:", $"- INR {_invoice.InvoiceDiscount:N2}");

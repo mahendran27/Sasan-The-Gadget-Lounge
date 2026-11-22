@@ -69,37 +69,66 @@
 
         <!-- 2. KEYBOARD SHORTCUTS LEGEND BAR -->
         <Border Grid.Row="1" Background="#0C182B" BorderBrush="#1C2D4A" BorderThickness="0,0,0,1" Padding="16,6">
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Text="QUICK KEYS:" FontSize="11" FontWeight="Bold" Foreground="#728AA8" VerticalAlignment="Center" Margin="0,0,12,0"/>
-                
-                <Border Background="#182A45" CornerRadius="4" Padding="8,3" Margin="0,0,8,0">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="[F2]" FontWeight="Bold" Foreground="#00E5FF" Margin="0,0,4,0"/>
-                        <TextBlock Text="New Bill" FontSize="11" Foreground="#C8D4E6"/>
-                    </StackPanel>
-                </Border>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
 
-                <Border Background="#182A45" CornerRadius="4" Padding="8,3" Margin="0,0,8,0">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="[F4]" FontWeight="Bold" Foreground="#FF9100" Margin="0,0,4,0"/>
-                        <TextBlock Text="Print 50x25 Sticker" FontSize="11" Foreground="#C8D4E6"/>
-                    </StackPanel>
-                </Border>
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="QUICK KEYS:" FontSize="11" FontWeight="Bold" Foreground="#728AA8" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                    
+                    <Button Click="BtnNewBill_Click" Background="#182A45" BorderThickness="0" Padding="8,4" Margin="0,0,8,0" Cursor="Hand">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="[F2]" FontWeight="Bold" Foreground="#00E5FF" Margin="0,0,4,0"/>
+                            <TextBlock Text="New Bill" FontSize="11" Foreground="#C8D4E6"/>
+                        </StackPanel>
+                    </Button>
 
-                <Border Background="#182A45" CornerRadius="4" Padding="8,3" Margin="0,0,8,0">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="[F8]" FontWeight="Bold" Foreground="#A0C8FF" Margin="0,0,4,0"/>
-                        <TextBlock Text="Bill Discount" FontSize="11" Foreground="#C8D4E6"/>
-                    </StackPanel>
-                </Border>
+                    <Button Click="BtnOpenIntake_Click" Background="#1B3B36" BorderThickness="1" BorderBrush="#00E5FF" Padding="8,4" Margin="0,0,8,0" Cursor="Hand">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="[F3]" FontWeight="Bold" Foreground="#00E5FF" Margin="0,0,4,0"/>
+                            <TextBlock Text="🏷️ Add Stock &amp; Print Sticker" FontSize="11" FontWeight="Bold" Foreground="#FFFFFF"/>
+                        </StackPanel>
+                    </Button>
 
-                <Border Background="#00E5FF" CornerRadius="4" Padding="8,3" Margin="0,0,8,0">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="[F9]" FontWeight="Black" Foreground="#08101E" Margin="0,0,4,0"/>
-                        <TextBlock Text="Save &amp; Print A4 Invoice" FontSize="11" FontWeight="Bold" Foreground="#08101E"/>
-                    </StackPanel>
-                </Border>
-            </StackPanel>
+                    <Button Click="BtnPrintSticker_Click" Background="#182A45" BorderThickness="0" Padding="8,4" Margin="0,0,8,0" Cursor="Hand">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="[F4]" FontWeight="Bold" Foreground="#FF9100" Margin="0,0,4,0"/>
+                            <TextBlock Text="Print Sticker" FontSize="11" Foreground="#C8D4E6"/>
+                        </StackPanel>
+                    </Button>
+
+                    <!-- GST Toggle Button [F7] -->
+                    <Button Command="{Binding ToggleGstModeCommand}" Background="#202C3F" BorderThickness="1" BorderBrush="#FF9100" Padding="8,4" Margin="0,0,8,0" Cursor="Hand">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="[F7]" FontWeight="Bold" Foreground="#FF9100" Margin="0,0,4,0"/>
+                            <TextBlock Text="GST Mode: " FontSize="11" Foreground="#C8D4E6"/>
+                            <TextBlock Text="ON" FontWeight="Black" Foreground="#00E5FF" 
+                                       Visibility="{Binding IsGstEnabled, Converter={StaticResource BoolToVis}}"/>
+                            <TextBlock Text="OFF (₹0 Tax)" FontWeight="Black" Foreground="#FF9100">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsGstEnabled}" Value="False">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </StackPanel>
+                    </Button>
+
+                    <Button Command="{Binding CheckoutAndPrintInvoiceCommand}" Background="#00E5FF" BorderThickness="0" Padding="10,4" Margin="0,0,8,0" Cursor="Hand">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="[F9]" FontWeight="Black" Foreground="#08101E" Margin="0,0,4,0"/>
+                            <TextBlock Text="Save &amp; Print A4 Invoice" FontSize="11" FontWeight="Bold" Foreground="#08101E"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Grid>
         </Border>
 
         <!-- 3. MAIN WORKSPACE -->

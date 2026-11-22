@@ -140,3 +140,5 @@ D:\Sasan - The Gadget Lounge\src\SasanERP.UI\obj\Debug\net8.0-windows\ref\SasanE
 D:\Sasan - The Gadget Lounge\src\SasanERP.UI\bin\Debug\net8.0-windows\System.Drawing.Common.dll
 D:\Sasan - The Gadget Lounge\src\SasanERP.UI\bin\Debug\net8.0-windows\Wpf.Ui.Abstractions.dll
 D:\Sasan - The Gadget Lounge\src\SasanERP.UI\obj\Debug\net8.0-windows\App.baml
+D:\Sasan - The Gadget Lounge\src\SasanERP.UI\obj\Debug\net8.0-windows\Views\InventoryIntakeWindow.g.cs
+D:\Sasan - The Gadget Lounge\src\SasanERP.UI\obj\Debug\net8.0-windows\Views\InventoryIntakeWindow.baml

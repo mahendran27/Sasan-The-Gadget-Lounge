@@ -22,6 +22,11 @@ public class Invoice
     public InvoiceType InvoiceType { get; set; } = InvoiceType.TaxInvoice;
 
     /// <summary>
+    /// Toggle to enable or disable GST on this invoice. When disabled, tax is 0.
+    /// </summary>
+    public bool IsGstEnabled { get; set; } = true;
+
+    /// <summary>
     /// Indicates whether any items in this bill are billed under GST Rule 32(5) Margin Scheme
     /// </summary>
     public bool HasMarginSchemeItems { get; set; }

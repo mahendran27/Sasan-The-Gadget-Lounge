@@ -45,11 +45,11 @@ public static class GstCalculator
     /// <summary>
     /// Computes standard GST breakdown when price is inclusive of GST (Standard Indian Retail POS)
     /// </summary>
-    public static GstTaxBreakdown ComputeTaxInclusive(decimal grossPrice, decimal gstRate, bool isInterstate = false)
+    public static GstTaxBreakdown ComputeTaxInclusive(decimal grossPrice, decimal gstRate, bool isInterstate = false, bool isGstEnabled = true)
     {
-        if (grossPrice <= 0 || gstRate <= 0)
+        if (grossPrice <= 0 || gstRate <= 0 || !isGstEnabled)
         {
-            return new GstTaxBreakdown(grossPrice, gstRate, 0, 0, 0, 0, 0, 0, 0, grossPrice);
+            return new GstTaxBreakdown(grossPrice, isGstEnabled ? gstRate : 0, 0, 0, 0, 0, 0, 0, 0, grossPrice);
         }
 
         // Taxable = Gross / (1 + Rate / 100)
@@ -95,20 +95,20 @@ public static class GstCalculator
     /// <summary>
     /// Computes GST under Rule 32(5) Margin Scheme strictly on (Selling Price - Purchase Cost)
     /// </summary>
-    public static MarginSchemeTaxBreakdown ComputeMarginScheme(decimal sellingPrice, decimal purchaseCost, decimal gstRate, bool isInterstate = false)
+    public static MarginSchemeTaxBreakdown ComputeMarginScheme(decimal sellingPrice, decimal purchaseCost, decimal gstRate, bool isInterstate = false, bool isGstEnabled = true)
     {
         decimal margin = sellingPrice - purchaseCost;
 
-        if (margin <= 0 || gstRate <= 0)
+        if (margin <= 0 || gstRate <= 0 || !isGstEnabled)
         {
-            // Under Rule 32(5) proviso: where margin is negative or zero, it shall be ignored and Tax is Zero.
+            // Under Rule 32(5) proviso or when GST is disabled: Tax is Zero.
             return new MarginSchemeTaxBreakdown(
                 SellingPrice: sellingPrice,
                 PurchaseCost: purchaseCost,
                 GrossMargin: margin,
-                IsMarginPositive: false,
+                IsMarginPositive: margin > 0,
                 TaxableMarginValue: 0,
-                RatePercentage: gstRate,
+                RatePercentage: isGstEnabled ? gstRate : 0,
                 CgstPercentage: 0,
                 CgstAmount: 0,
                 SgstPercentage: 0,

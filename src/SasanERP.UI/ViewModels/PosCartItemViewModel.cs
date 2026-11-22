@@ -85,15 +85,25 @@ public partial class PosCartItemViewModel : ObservableObject
         }
     }
 
-    public void RecalculateTaxes(bool isInterstate = false)
+    public void RecalculateTaxes(bool isInterstate = false, bool isGstEnabled = true)
     {
         decimal effectivePrice = Math.Max(0, (UnitPrice * Quantity) - Discount);
+
+        if (!isGstEnabled)
+        {
+            TaxableValue = effectivePrice;
+            CgstAmount = 0;
+            SgstAmount = 0;
+            MarginAmount = 0;
+            LineTotal = effectivePrice;
+            return;
+        }
 
         if (IsMarginScheme)
         {
             // Rule 32(5) CGST Margin Scheme for Pre-Owned gadgets
             decimal totalCost = UnitCostPrice * Quantity;
-            var marginBreakdown = GstCalculator.ComputeMarginScheme(effectivePrice, totalCost, GstPercentage, isInterstate);
+            var marginBreakdown = GstCalculator.ComputeMarginScheme(effectivePrice, totalCost, GstPercentage, isInterstate, isGstEnabled);
 
             MarginAmount = marginBreakdown.GrossMargin;
             TaxableValue = marginBreakdown.TaxableMarginValue;
@@ -104,7 +114,7 @@ public partial class PosCartItemViewModel : ObservableObject
         else
         {
             // Standard Indian GST (Tax Inclusive retail price)
-            var taxBreakdown = GstCalculator.ComputeTaxInclusive(effectivePrice, GstPercentage, isInterstate);
+            var taxBreakdown = GstCalculator.ComputeTaxInclusive(effectivePrice, GstPercentage, isInterstate, isGstEnabled);
 
             TaxableValue = taxBreakdown.TaxableValue;
             CgstAmount = taxBreakdown.CgstAmount;

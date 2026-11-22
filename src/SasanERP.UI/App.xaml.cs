@@ -48,9 +48,11 @@ public partial class App : Application
 
                 // ViewModels
                 services.AddTransient<PosViewModel>();
+                services.AddTransient<InventoryIntakeViewModel>();
 
                 // Views
                 services.AddSingleton<MainWindow>();
+                services.AddTransient<Views.InventoryIntakeWindow>();
             })
             .Build();
     }

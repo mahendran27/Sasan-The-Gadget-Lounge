@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SasanERP.Services")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+abc62668e7d7569557aa4714314669775a4f35ac")]
 [assembly: System.Reflection.AssemblyProductAttribute("SasanERP.Services")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SasanERP.Services")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

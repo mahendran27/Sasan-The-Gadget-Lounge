@@ -92,6 +92,27 @@ public partial class PosViewModel : ObservableObject
     private bool _hasMarginSchemeItems;
 
     [ObservableProperty]
+    private bool _isGstEnabled = true;
+
+    partial void OnIsGstEnabledChanged(bool value)
+    {
+        foreach (var item in CartItems)
+        {
+            item.RecalculateTaxes(isGstEnabled: value);
+        }
+        RecalculateInvoiceTotals();
+        StatusMessage = value 
+            ? "GST Billed: ON (Standard GST & Rule 32(5) Active)" 
+            : "GST Billed: OFF (Non-GST / Retail Bill Active - Tax is ₹0)";
+    }
+
+    [RelayCommand]
+    public void ToggleGstMode()
+    {
+        IsGstEnabled = !IsGstEnabled;
+    }
+
+    [ObservableProperty]
     private string _statusMessage = "Ready. Scan barcode or IMEI (F2: New Bill, F9: Checkout & Print).";
 
     [ObservableProperty]
@@ -188,7 +209,7 @@ public partial class PosViewModel : ObservableObject
                     IsMarginScheme = isPreOwned
                 };
 
-                cartItem.RecalculateTaxes();
+                cartItem.RecalculateTaxes(isGstEnabled: IsGstEnabled);
                 CartItems.Add(cartItem);
 
                 RecalculateInvoiceTotals();
@@ -206,7 +227,7 @@ public partial class PosViewModel : ObservableObject
                 if (existingItem != null)
                 {
                     existingItem.Quantity++;
-                    existingItem.RecalculateTaxes();
+                    existingItem.RecalculateTaxes(isGstEnabled: IsGstEnabled);
                 }
                 else
                 {
@@ -222,7 +243,7 @@ public partial class PosViewModel : ObservableObject
                         GstPercentage = product.GSTPercentage,
                         IsMarginScheme = false
                     };
-                    cartItem.RecalculateTaxes();
+                    cartItem.RecalculateTaxes(isGstEnabled: IsGstEnabled);
                     CartItems.Add(cartItem);
                 }
 
@@ -331,15 +352,18 @@ public partial class PosViewModel : ObservableObject
                 InvoiceNumber = InvoiceNumber,
                 CustomerId = SelectedCustomer.Id,
                 Customer = SelectedCustomer,
-                InvoiceType = HasMarginSchemeItems ? InvoiceType.MarginSchemeInvoice : InvoiceType.TaxInvoice,
-                HasMarginSchemeItems = HasMarginSchemeItems,
+                IsGstEnabled = IsGstEnabled,
+                InvoiceType = !IsGstEnabled 
+                    ? InvoiceType.BillOfSupply 
+                    : (HasMarginSchemeItems ? InvoiceType.MarginSchemeInvoice : InvoiceType.TaxInvoice),
+                HasMarginSchemeItems = IsGstEnabled && HasMarginSchemeItems,
                 GrossTotal = SubTotal,
                 InvoiceDiscount = InvoiceDiscount,
-                StandardTaxableValue = TotalTaxableValue,
-                TotalCGST = TotalCGST,
-                TotalSGST = TotalSGST,
-                TotalMarginAmount = CartItems.Where(i => i.IsMarginScheme).Sum(i => i.MarginAmount),
-                TotalMarginTax = TotalMarginTax,
+                StandardTaxableValue = IsGstEnabled ? TotalTaxableValue : SubTotal,
+                TotalCGST = IsGstEnabled ? TotalCGST : 0,
+                TotalSGST = IsGstEnabled ? TotalSGST : 0,
+                TotalMarginAmount = IsGstEnabled ? CartItems.Where(i => i.IsMarginScheme).Sum(i => i.MarginAmount) : 0,
+                TotalMarginTax = IsGstEnabled ? TotalMarginTax : 0,
                 GrandTotal = GrandTotal,
                 RoundOff = RoundOff
             };
@@ -445,12 +469,24 @@ public partial class PosViewModel : ObservableObject
             }
         }
 
-        HasMarginSchemeItems = anyMarginScheme;
-        SubTotal = sumSubtotal;
-        TotalTaxableValue = sumTaxable;
-        TotalCGST = sumCgst;
-        TotalSGST = sumSgst;
-        TotalMarginTax = sumMarginTax;
+        if (IsGstEnabled)
+        {
+            HasMarginSchemeItems = anyMarginScheme;
+            SubTotal = sumSubtotal;
+            TotalTaxableValue = sumTaxable;
+            TotalCGST = sumCgst;
+            TotalSGST = sumSgst;
+            TotalMarginTax = sumMarginTax;
+        }
+        else
+        {
+            HasMarginSchemeItems = false;
+            SubTotal = sumSubtotal;
+            TotalTaxableValue = sumSubtotal;
+            TotalCGST = 0;
+            TotalSGST = 0;
+            TotalMarginTax = 0;
+        }
 
         decimal netAmount = Math.Max(0, SubTotal - InvoiceDiscount);
         decimal rounded = Math.Round(netAmount, MidpointRounding.AwayFromZero);

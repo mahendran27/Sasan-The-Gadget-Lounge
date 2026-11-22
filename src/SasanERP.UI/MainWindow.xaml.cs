@@ -1,21 +1,26 @@
-﻿using System.Windows.Input;
+﻿using System.Windows;
+using System.Windows.Input;
+using Microsoft.Extensions.DependencyInjection;
 using SasanERP.UI.ViewModels;
+using SasanERP.UI.Views;
 using Wpf.Ui.Controls;
 
 namespace SasanERP.UI;
 
 /// <summary>
 /// Interaction logic for MainWindow.xaml
-/// Provides global keyboard listeners for F2, F4, F9 and scanner auto-focus.
+/// Provides global keyboard listeners for F2, F3, F4, F7, F9 and scanner auto-focus.
 /// </summary>
 public partial class MainWindow : FluentWindow
 {
+    private readonly IServiceProvider _serviceProvider;
     public PosViewModel ViewModel { get; }
 
-    public MainWindow(PosViewModel viewModel)
+    public MainWindow(PosViewModel viewModel, IServiceProvider serviceProvider)
     {
         InitializeComponent();
         ViewModel = viewModel;
+        _serviceProvider = serviceProvider;
         DataContext = ViewModel;
 
         Loaded += async (s, e) =>
@@ -38,8 +43,18 @@ public partial class MainWindow : FluentWindow
                 e.Handled = true;
                 break;
 
+            case Key.F3:
+                OpenIntakeStudio();
+                e.Handled = true;
+                break;
+
             case Key.F4:
                 ViewModel.PrintBarcodeLabelCommand.Execute(null);
+                e.Handled = true;
+                break;
+
+            case Key.F7:
+                ViewModel.ToggleGstModeCommand.Execute(null);
                 e.Handled = true;
                 break;
 
@@ -54,6 +69,29 @@ public partial class MainWindow : FluentWindow
                 e.Handled = true;
                 break;
         }
+    }
+
+    private void BtnNewBill_Click(object sender, RoutedEventArgs e)
+    {
+        ViewModel.NewBillCommand.Execute(null);
+        TxtBarcode.Focus();
+    }
+
+    private void BtnOpenIntake_Click(object sender, RoutedEventArgs e)
+    {
+        OpenIntakeStudio();
+    }
+
+    private void BtnPrintSticker_Click(object sender, RoutedEventArgs e)
+    {
+        ViewModel.PrintBarcodeLabelCommand.Execute(null);
+    }
+
+    private void OpenIntakeStudio()
+    {
+        var window = _serviceProvider.GetRequiredService<InventoryIntakeWindow>();
+        window.Owner = this;
+        window.ShowDialog();
     }
 
     /// <summary>

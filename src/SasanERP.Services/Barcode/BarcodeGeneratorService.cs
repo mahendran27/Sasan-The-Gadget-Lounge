@@ -107,6 +107,46 @@ public class BarcodeGeneratorService
     }
 
     /// <summary>
+    /// Generates detailed raw TSPL command for 50mm x 38mm or 50mm x 25mm thermal stickers
+    /// with complete device specifications (Battery, Condition, Warranty, Storage, Price, IMEI).
+    /// </summary>
+    public string GenerateTsplDetailedLabelCommand(
+        string modelName,
+        string specs,
+        string imei,
+        decimal price,
+        string condition,
+        int? batteryHealth,
+        string warranty)
+    {
+        string batteryText = batteryHealth.HasValue ? $"Bat: {batteryHealth}%" : string.Empty;
+        string conditionWarranty = $"{condition} | {warranty}";
+
+        return $@"
+SIZE 50 mm, 38 mm
+GAP 2 mm, 0 mm
+DIRECTION 1
+CLS
+TEXT 20,15,""2"",0,1,1,""SASAN THE GADGET LOUNGE""
+TEXT 20,42,""1"",0,1,1,""{Truncate(modelName, 26)}""
+TEXT 20,64,""1"",0,1,1,""{Truncate(specs, 28)}""
+BARCODE 20,88,""128"",50,1,0,2,2,""{imei}""
+TEXT 20,148,""1"",0,1,1,""IMEI: {imei}""
+TEXT 20,170,""1"",0,1,1,""{Truncate(conditionWarranty, 30)} {batteryText}""
+TEXT 20,195,""3"",0,1,1,""INR {price:N0}""
+PRINT 1,1
+";
+    }
+
+    /// <summary>
+    /// Builds structured payload for customer QR code scan (e.g. opens verification or warranty details)
+    /// </summary>
+    public static string BuildDeviceQrPayload(string model, string imei, decimal price, int? battery, string condition, string warranty)
+    {
+        return $"SASAN GADGET LOUNGE | {model} | IMEI: {imei} | Price: INR {price:N0} | Batt: {battery}% | Grade: {condition} | Warranty: {warranty} | Support: 9080803070";
+    }
+
+    /// <summary>
     /// Generates raw TSPL (Thermal Printer Command Language) for standard 50mm x 25mm barcode stickers.
     /// Used by TSC, TVS, Zebra, and Xprinter thermal barcode label printers.
     /// </summary>
