@@ -10,22 +10,42 @@ using SasanERP.Data.Context;
 using SasanERP.Services.Barcode;
 using SasanERP.Services.Billing;
 using SasanERP.Services.Printing;
+using SasanERP.UI.Services;
 
 namespace SasanERP.UI.ViewModels;
 
 /// <summary>
 /// Production-Ready POS Billing ViewModel for Sasan The Gadget Lounge
 /// Features USB Barcode scanner listener, serialized IMEI checkout, multi-tender split payment,
-/// and automated QuestPDF A4 tax invoice generation.
+/// 7 Invoice Templates, and 6 Ergonomic UI Themes.
 /// </summary>
 public partial class PosViewModel : ObservableObject
 {
     private readonly AppDbContext _context;
     private readonly BillingService _billingService;
     private readonly BarcodeGeneratorService _barcodeService;
+    private readonly InvoicePrintEngine _invoicePrintEngine;
 
     public ObservableCollection<PosCartItemViewModel> CartItems { get; } = new();
     public ObservableCollection<Customer> Customers { get; } = new();
+
+    public ObservableCollection<InvoiceTemplateStyle> AvailableInvoiceTemplates { get; } = 
+        new(Enum.GetValues<InvoiceTemplateStyle>());
+
+    [ObservableProperty]
+    private InvoiceTemplateStyle _selectedInvoiceTemplate = InvoiceTemplateStyle.LuxuryGadgetLounge;
+
+    public ObservableCollection<AppThemeMode> AvailableThemeModes { get; } = 
+        new(Enum.GetValues<AppThemeMode>());
+
+    [ObservableProperty]
+    private AppThemeMode _selectedThemeMode = AppThemeMode.ElectricCyberCyan;
+
+    partial void OnSelectedThemeModeChanged(AppThemeMode value)
+    {
+        ThemeService.Instance.ApplyTheme(value);
+        StatusMessage = $"UI Theme changed to: {value}";
+    }
 
     [ObservableProperty]
     private Customer? _selectedCustomer;
@@ -121,11 +141,13 @@ public partial class PosViewModel : ObservableObject
     public PosViewModel(
         AppDbContext context,
         BillingService billingService,
-        BarcodeGeneratorService barcodeService)
+        BarcodeGeneratorService barcodeService,
+        InvoicePrintEngine invoicePrintEngine)
     {
         _context = context;
         _billingService = billingService;
         _barcodeService = barcodeService;
+        _invoicePrintEngine = invoicePrintEngine;
     }
 
     /// <summary>
@@ -136,6 +158,14 @@ public partial class PosViewModel : ObservableObject
         IsBusy = true;
         try
         {
+            var company = await _context.CompanyProfiles.FirstOrDefaultAsync();
+            if (company != null)
+            {
+                SelectedInvoiceTemplate = company.DefaultInvoiceTemplate;
+                SelectedThemeMode = company.DefaultThemeMode;
+                ThemeService.Instance.ApplyTheme(company.DefaultThemeMode);
+            }
+
             var customers = await _context.Customers.OrderBy(c => c.FullName).ToListAsync();
             Customers.Clear();
             foreach (var c in customers)
@@ -414,19 +444,17 @@ public partial class PosViewModel : ObservableObject
             // Atomic database commit & stock status transition
             var savedInvoice = await _billingService.ProcessCheckoutAsync(invoice, payments);
 
-            // Fetch Company Profile for QuestPDF A4 Document
+            // Fetch Company Profile for QuestPDF Document
             var company = await _context.CompanyProfiles.FirstOrDefaultAsync() ?? new CompanyProfile();
-
-            // Generate crisp vector A4 GST Tax Invoice via QuestPDF
-            var pdfDoc = new A4InvoiceDocument(savedInvoice, company, _barcodeService);
 
             string invoiceFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "SasanERP_Invoices");
             Directory.CreateDirectory(invoiceFolder);
             string pdfPath = Path.Combine(invoiceFolder, $"{savedInvoice.InvoiceNumber.Replace('/', '_')}.pdf");
 
-            pdfDoc.GeneratePdf(pdfPath);
+            // Generate invoice using the cashier's chosen template (Choices 1 to 7)
+            _invoicePrintEngine.SavePdf(SelectedInvoiceTemplate, savedInvoice, company, pdfPath);
 
-            StatusMessage = $"[SUCCESS] Invoice {savedInvoice.InvoiceNumber} saved & generated: {pdfPath}";
+            StatusMessage = $"[SUCCESS] Invoice {savedInvoice.InvoiceNumber} generated ({SelectedInvoiceTemplate}): {pdfPath}";
 
             // Reset POS for next sale
             await NewBillAsync();

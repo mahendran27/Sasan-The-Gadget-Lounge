@@ -20,12 +20,25 @@ public partial class InventoryIntakeViewModel : ObservableObject
 {
     private readonly AppDbContext _context;
     private readonly BarcodeGeneratorService _barcodeService;
+    private readonly BarcodeLabelEngine _barcodeLabelEngine;
 
     public ObservableCollection<DeviceType> Categories { get; } = new(Enum.GetValues<DeviceType>());
     public ObservableCollection<ConditionGrade> ConditionGrades { get; } = new(Enum.GetValues<ConditionGrade>());
     public ObservableCollection<WarrantyStatus> WarrantyOptions { get; } = new(Enum.GetValues<WarrantyStatus>());
     public ObservableCollection<PurchaseSource> PurchaseSources { get; } = new(Enum.GetValues<PurchaseSource>());
     public ObservableCollection<Supplier> Suppliers { get; } = new();
+
+    public ObservableCollection<BarcodeLabelStyle> AvailableBarcodeStyles { get; } = 
+        new(Enum.GetValues<BarcodeLabelStyle>());
+
+    [ObservableProperty]
+    private BarcodeLabelStyle _selectedBarcodeStyle = BarcodeLabelStyle.Flagship_50x30mm;
+
+    partial void OnSelectedBarcodeStyleChanged(BarcodeLabelStyle value)
+    {
+        UpdatePreviewBarcode();
+        StatusMessage = $"Label format switched to: {value}";
+    }
 
     [ObservableProperty]
     private DeviceType _selectedCategory = DeviceType.Smartphone;
@@ -90,10 +103,14 @@ public partial class InventoryIntakeViewModel : ObservableObject
     [ObservableProperty]
     private bool _isBusy;
 
-    public InventoryIntakeViewModel(AppDbContext context, BarcodeGeneratorService barcodeService)
+    public InventoryIntakeViewModel(
+        AppDbContext context, 
+        BarcodeGeneratorService barcodeService,
+        BarcodeLabelEngine barcodeLabelEngine)
     {
         _context = context;
         _barcodeService = barcodeService;
+        _barcodeLabelEngine = barcodeLabelEngine;
         GenerateRandomSampleImei();
         UpdatePreviewBarcode();
     }
@@ -273,26 +290,18 @@ public partial class InventoryIntakeViewModel : ObservableObject
             Category: SelectedCategory.ToString()
         );
 
-        // 1. Generate TSPL Command for direct thermal printer
-        string tspl = _barcodeService.GenerateTsplDetailedLabelCommand(
-            $"{Brand} {ModelName}",
-            specsText,
-            identifier,
-            SellingPrice,
-            SelectedCondition.ToString(),
-            BatteryHealthPercentage,
-            SelectedWarranty.ToString());
-
-        // 2. Generate vector PDF sticker for preview / universal printing
-        var labelDoc = new BarcodeLabelDocument(stickerData, _barcodeService, 50f, 32f);
-
         string stickerFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "SasanERP_Stickers");
         Directory.CreateDirectory(stickerFolder);
-        string stickerPdfPath = Path.Combine(stickerFolder, $"Sticker_{identifier}.pdf");
+        string stickerPdfPath = Path.Combine(stickerFolder, $"Sticker_{SelectedBarcodeStyle}_{identifier}.pdf");
 
+        // 1. Generate vector PDF sticker using the selected design style (Choices 1 to 7)
+        var labelDoc = _barcodeLabelEngine.CreateDocument(SelectedBarcodeStyle, stickerData);
         labelDoc.GeneratePdf(stickerPdfPath);
 
-        StatusMessage = $"[PRINTED] Barcode sticker generated: {stickerPdfPath}";
+        // 2. Generate TSPL stream for direct thermal hardware
+        byte[] tsplBytes = _barcodeLabelEngine.GenerateTsplStream(SelectedBarcodeStyle, stickerData);
+
+        StatusMessage = $"[PRINTED] Barcode sticker generated ({SelectedBarcodeStyle}): {stickerPdfPath} ({tsplBytes.Length} TSPL bytes)";
     }
 
     private string GenerateSku()

@@ -109,3 +109,44 @@ public enum LedgerEntryType
     Debit = 1,
     Credit = 2
 }
+
+/// <summary>
+/// Available Invoice Template Layout Styles (Choices 1 to 7)
+/// </summary>
+public enum InvoiceTemplateStyle
+{
+    ExecutiveMinimalist = 1,          // Choice 1: Clean hairline dividers, monospaced numbers, B2B corporate look
+    LuxuryGadgetLounge = 2,           // Choice 2: Obsidian/Cyan accent, watermark, platinum diagnostic card
+    Rule32_5_MarginSchemeAudit = 3,   // Choice 3: Pre-owned focus, statutory preamble, CA-auditable margin breakdown
+    ThermalRoll_80mm = 4,             // Choice 4: 3-inch 80mm ESC/POS continuous roll with bottom dynamic UPI QR
+    DualCopyCounterfoil = 5,          // Choice 5: A4 halved into Buyer Copy + Shop Signed Warranty Counterfoil
+    EcoDigitalWhatsApp = 6,           // Choice 6: Smartphone 9:16 portrait layout with clickable Maps/Instagram links
+    DeviceHealthCertificate = 7       // Choice 7: Includes 12-point technician hardware inspection checklist
+}
+
+/// <summary>
+/// Available UI Themes and Ergonomic Display Modes (Choices 1 to 6)
+/// </summary>
+public enum AppThemeMode
+{
+    ElectricCyberCyan = 1,            // Choice 1: Windows 11 Fluent Dark (Obsidian #08101E, Cyan #00E5FF, Amber #FF9100)
+    WarmTitaniumQuartz = 2,           // Choice 2: Architectural Light Mode (White #F8F9FA, Slate #334155, Titanium Gold #D4AF37)
+    NordicFrost = 3,                  // Choice 3: Mica & Acrylic translucent glass surfaces with subtle elevation
+    KioskTouchMode = 4,               // Choice 4: Touchscreen-friendly 48px+ targets and on-screen numpad
+    TerminalSpeedHud = 5,             // Choice 5: Bloomberg/FinTech ultra-fast keyboard-only HUD
+    AdaptiveDayNightShift = 6         // Choice 6: Auto shifts between Light (9am-6pm) and Dark (6pm-10pm) based on clock
+}
+
+/// <summary>
+/// Available Barcode Sticker & Label Designs (Choices 1 to 7)
+/// </summary>
+public enum BarcodeLabelStyle
+{
+    Flagship_50x30mm = 1,             // Choice 1: All-in-one thermal sticker (Shop, Model, Battery %, Grade, Warranty, Barcode, IMEI, Price)
+    CompactAccessory_50x25mm = 2,     // Choice 2: Streamlined tag for chargers, power banks, earphones (SKU, Barcode, Price)
+    DumbbellJewelryTag = 3,           // Choice 3: Butterfly/dumbbell wrap tag for smartwatches, earbuds cases, braided cables
+    TamperWarrantyVoidSeal_25mm = 4,  // Choice 4: Round 25mm warranty seal over screw/SIM tray ("Warranty Void If Broken", Micro-QR)
+    DualQrTechExplorer = 5,           // Choice 5: Left Code-128 scanner barcode + Right Customer Tech Explorer QR code
+    MultiStickerA4Sheet_24Up = 6,     // Choice 6: Standard A4 24-up label sheet for batch import shipment intake
+    MetallicSilverWeatherproof = 7    // Choice 7: Ultra-durable silver polyester layout with high-contrast borders
+}

@@ -180,7 +180,18 @@
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
 
-                    <TextBlock Grid.Row="0" Text="LIVE BARCODE STICKER PREVIEW (50x30mm)" FontWeight="Bold" FontSize="12" Foreground="#7A93B2" Margin="0,0,0,10"/>
+                    <!-- Barcode Style Selector (Choices 1 to 7) -->
+                    <Grid Grid.Row="0" Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="LIVE STICKER STUDIO" FontWeight="Bold" FontSize="12" Foreground="#00E5FF" VerticalAlignment="Center"/>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="🏷️ Style: " FontSize="11" FontWeight="Bold" Foreground="#8FA3BF" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                            <ComboBox ItemsSource="{Binding AvailableBarcodeStyles}" SelectedItem="{Binding SelectedBarcodeStyle}" Width="190" Height="28" FontSize="11"/>
+                        </StackPanel>
+                    </Grid>
 
                     <!-- THE PHYSICAL STICKER SIMULATION -->
                     <Border Grid.Row="1" Background="#FFFFFF" BorderBrush="#000000" BorderThickness="1.5" CornerRadius="4" Padding="10" Margin="10,0" VerticalAlignment="Center" Height="220">

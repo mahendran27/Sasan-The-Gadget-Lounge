@@ -75,24 +75,25 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
+                <!-- Quick Action Buttons & Format Selectors -->
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="QUICK KEYS:" FontSize="11" FontWeight="Bold" Foreground="#728AA8" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                    <TextBlock Text="QUICK KEYS:" FontSize="11" FontWeight="Bold" Foreground="#728AA8" VerticalAlignment="Center" Margin="0,0,8,0"/>
                     
-                    <Button Click="BtnNewBill_Click" Background="#182A45" BorderThickness="0" Padding="8,4" Margin="0,0,8,0" Cursor="Hand">
+                    <Button Click="BtnNewBill_Click" Background="#182A45" BorderThickness="0" Padding="8,4" Margin="0,0,6,0" Cursor="Hand">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="[F2]" FontWeight="Bold" Foreground="#00E5FF" Margin="0,0,4,0"/>
                             <TextBlock Text="New Bill" FontSize="11" Foreground="#C8D4E6"/>
                         </StackPanel>
                     </Button>
 
-                    <Button Click="BtnOpenIntake_Click" Background="#1B3B36" BorderThickness="1" BorderBrush="#00E5FF" Padding="8,4" Margin="0,0,8,0" Cursor="Hand">
+                    <Button Click="BtnOpenIntake_Click" Background="#1B3B36" BorderThickness="1" BorderBrush="#00E5FF" Padding="8,4" Margin="0,0,6,0" Cursor="Hand">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="[F3]" FontWeight="Bold" Foreground="#00E5FF" Margin="0,0,4,0"/>
-                            <TextBlock Text="🏷️ Add Stock &amp; Print Sticker" FontSize="11" FontWeight="Bold" Foreground="#FFFFFF"/>
+                            <TextBlock Text="🏷️ Stock &amp; Sticker Studio" FontSize="11" FontWeight="Bold" Foreground="#FFFFFF"/>
                         </StackPanel>
                     </Button>
 
-                    <Button Click="BtnPrintSticker_Click" Background="#182A45" BorderThickness="0" Padding="8,4" Margin="0,0,8,0" Cursor="Hand">
+                    <Button Click="BtnPrintSticker_Click" Background="#182A45" BorderThickness="0" Padding="8,4" Margin="0,0,6,0" Cursor="Hand">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="[F4]" FontWeight="Bold" Foreground="#FF9100" Margin="0,0,4,0"/>
                             <TextBlock Text="Print Sticker" FontSize="11" Foreground="#C8D4E6"/>
@@ -100,10 +101,10 @@
                     </Button>
 
                     <!-- GST Toggle Button [F7] -->
-                    <Button Command="{Binding ToggleGstModeCommand}" Background="#202C3F" BorderThickness="1" BorderBrush="#FF9100" Padding="8,4" Margin="0,0,8,0" Cursor="Hand">
+                    <Button Command="{Binding ToggleGstModeCommand}" Background="#202C3F" BorderThickness="1" BorderBrush="#FF9100" Padding="8,4" Margin="0,0,6,0" Cursor="Hand">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="[F7]" FontWeight="Bold" Foreground="#FF9100" Margin="0,0,4,0"/>
-                            <TextBlock Text="GST Mode: " FontSize="11" Foreground="#C8D4E6"/>
+                            <TextBlock Text="GST: " FontSize="11" Foreground="#C8D4E6"/>
                             <TextBlock Text="ON" FontWeight="Black" Foreground="#00E5FF" 
                                        Visibility="{Binding IsGstEnabled, Converter={StaticResource BoolToVis}}"/>
                             <TextBlock Text="OFF (₹0 Tax)" FontWeight="Black" Foreground="#FF9100">
@@ -121,12 +122,31 @@
                         </StackPanel>
                     </Button>
 
-                    <Button Command="{Binding CheckoutAndPrintInvoiceCommand}" Background="#00E5FF" BorderThickness="0" Padding="10,4" Margin="0,0,8,0" Cursor="Hand">
+                    <Button Command="{Binding CheckoutAndPrintInvoiceCommand}" Background="#00E5FF" BorderThickness="0" Padding="8,4" Margin="0,0,10,0" Cursor="Hand">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="[F9]" FontWeight="Black" Foreground="#08101E" Margin="0,0,4,0"/>
-                            <TextBlock Text="Save &amp; Print A4 Invoice" FontSize="11" FontWeight="Bold" Foreground="#08101E"/>
+                            <TextBlock Text="Save &amp; Print" FontSize="11" FontWeight="Bold" Foreground="#08101E"/>
                         </StackPanel>
                     </Button>
+                </StackPanel>
+
+                <!-- Section 1 & Section 2 Selectors (UI Themes & Invoice Templates) -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <!-- UI Theme Selector (6 Choices) -->
+                    <Border Background="#16253D" CornerRadius="6" Padding="6,2" Margin="0,0,6,0">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="🎨 Theme:" FontSize="11" FontWeight="Bold" Foreground="#00E5FF" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                            <ComboBox ItemsSource="{Binding AvailableThemeModes}" SelectedItem="{Binding SelectedThemeMode}" Width="150" Height="26" FontSize="11" />
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Invoice Template Selector (7 Choices) -->
+                    <Border Background="#16253D" CornerRadius="6" Padding="6,2">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="📄 Invoice:" FontSize="11" FontWeight="Bold" Foreground="#FF9100" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                            <ComboBox ItemsSource="{Binding AvailableInvoiceTemplates}" SelectedItem="{Binding SelectedInvoiceTemplate}" Width="180" Height="26" FontSize="11" />
+                        </StackPanel>
+                    </Border>
                 </StackPanel>
             </Grid>
         </Border>

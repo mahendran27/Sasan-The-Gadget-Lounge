@@ -6,6 +6,7 @@ using SasanERP.Data.Context;
 using SasanERP.Data.Seeding;
 using SasanERP.Services.Barcode;
 using SasanERP.Services.Billing;
+using SasanERP.Services.Printing;
 using SasanERP.Services.Reporting;
 using SasanERP.UI.ViewModels;
 
@@ -43,6 +44,8 @@ public partial class App : Application
 
                 // Core Services
                 services.AddSingleton<BarcodeGeneratorService>();
+                services.AddSingleton<InvoicePrintEngine>();
+                services.AddSingleton<BarcodeLabelEngine>();
                 services.AddScoped<BillingService>();
                 services.AddScoped<GstReportService>();
 
