@@ -53,6 +53,8 @@ public partial class App : Application
                 services.AddScoped<SasanERP.Services.Security.AuditLogService>();
                 services.AddScoped<SasanERP.Services.Backup.DatabaseBackupService>();
                 services.AddScoped<SasanERP.Services.Invoicing.InvoiceHistoryService>();
+                services.AddScoped<SasanERP.Services.Analytics.PeriodAnalyticsService>();
+                services.AddSingleton<SasanERP.Services.Printing.ExecutiveReportPdfEngine>();
 
                 // Wireless Services (NFC & UHF RFID)
                 services.AddSingleton<NfcTagService>();
@@ -71,6 +73,7 @@ public partial class App : Application
                 services.AddTransient<GstReportsViewModel>();
                 services.AddTransient<WirelessStudioViewModel>();
                 services.AddTransient<CompanySettingsViewModel>();
+                services.AddTransient<GodModeViewModel>();
 
                 // Views
                 services.AddSingleton<MainWindow>();
@@ -83,6 +86,7 @@ public partial class App : Application
                 services.AddTransient<Views.GstReportsView>();
                 services.AddTransient<Views.WirelessStudioView>();
                 services.AddTransient<Views.StoreSettingsView>();
+                services.AddTransient<Views.GodModeView>();
                 services.AddTransient<Views.InventoryIntakeWindow>();
                 services.AddTransient<Views.WirelessStudioWindow>();
                 services.AddTransient<Views.CompanySettingsWindow>();

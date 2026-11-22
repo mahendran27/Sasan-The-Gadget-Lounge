@@ -87,6 +87,11 @@ public partial class MainWindow : FluentWindow
                 ViewModel.SettingsVM.CreateInstantBackupCommand.Execute(null);
                 e.Handled = true;
                 break;
+
+            case Key.F12:
+                ViewModel.NavigateToSection(NavigationSection.GodMode);
+                e.Handled = true;
+                break;
         }
     }
 
@@ -133,5 +138,10 @@ public partial class MainWindow : FluentWindow
     private void BtnNavSettings_Click(object sender, RoutedEventArgs e)
     {
         ViewModel.NavigateToSection(NavigationSection.StoreSettings);
+    }
+
+    private void BtnNavGodMode_Click(object sender, RoutedEventArgs e)
+    {
+        ViewModel.NavigateToSection(NavigationSection.GodMode);
     }
 }

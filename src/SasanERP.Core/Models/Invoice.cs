@@ -95,6 +95,13 @@ public class Invoice
     public string BilledBy { get; set; } = "Admin";
     public string? Remarks { get; set; }
 
+    /// <summary>
+    /// Administrative void / cancellation state (God Mode)
+    /// </summary>
+    public bool IsVoided { get; set; }
+    public string? VoidReason { get; set; }
+    public DateTime? VoidedDate { get; set; }
+
     // Navigation properties
     public virtual ICollection<InvoiceItem> Items { get; set; } = new List<InvoiceItem>();
     public virtual ICollection<PaymentTransaction> Payments { get; set; } = new List<PaymentTransaction>();

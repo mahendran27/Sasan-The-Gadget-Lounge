@@ -16,7 +16,8 @@ public enum NavigationSection
     DaybookLedger,
     GstReports,
     WirelessStudio,
-    StoreSettings
+    StoreSettings,
+    GodMode
 }
 
 public partial class MainViewModel : ObservableObject
@@ -32,6 +33,7 @@ public partial class MainViewModel : ObservableObject
     public GstReportsViewModel GstReportsVM { get; }
     public WirelessStudioViewModel WirelessVM { get; }
     public CompanySettingsViewModel SettingsVM { get; }
+    public GodModeViewModel GodModeVM { get; }
 
     [ObservableProperty]
     private NavigationSection _currentSection = NavigationSection.Dashboard;
@@ -65,6 +67,7 @@ public partial class MainViewModel : ObservableObject
         GstReportsViewModel gstReportsVM,
         WirelessStudioViewModel wirelessVM,
         CompanySettingsViewModel settingsVM,
+        GodModeViewModel godModeVM,
         UnifiedWirelessManager? wirelessManager = null)
     {
         _context = context;
@@ -77,6 +80,7 @@ public partial class MainViewModel : ObservableObject
         GstReportsVM = gstReportsVM;
         WirelessVM = wirelessVM;
         SettingsVM = settingsVM;
+        GodModeVM = godModeVM;
 
         _currentViewModel = dashboardVM;
 
@@ -118,6 +122,7 @@ public partial class MainViewModel : ObservableObject
             NavigationSection.GstReports => GstReportsVM,
             NavigationSection.WirelessStudio => WirelessVM,
             NavigationSection.StoreSettings => SettingsVM,
+            NavigationSection.GodMode => GodModeVM,
             _ => DashboardVM
         };
 
@@ -128,5 +133,6 @@ public partial class MainViewModel : ObservableObject
         else if (section == NavigationSection.DaybookLedger) _ = DaybookVM.LoadDaybookAsync();
         else if (section == NavigationSection.GstReports) _ = GstReportsVM.LoadGstDataAsync();
         else if (section == NavigationSection.PosBilling) _ = PosVM.InitializeAsync();
+        else if (section == NavigationSection.GodMode) _ = GodModeVM.InitializeAsync();
     }
 }
