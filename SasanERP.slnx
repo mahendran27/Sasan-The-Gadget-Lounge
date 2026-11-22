@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/SasanERP.Core/SasanERP.Core.csproj" />
+    <Project Path="src/SasanERP.Data/SasanERP.Data.csproj" />
+    <Project Path="src/SasanERP.Services/SasanERP.Services.csproj" />
+    <Project Path="src/SasanERP.UI/SasanERP.UI.csproj" />
+    <Project Path="src/SasanERP.Verification/SasanERP.Verification.csproj" />
+  </Folder>
+</Solution>

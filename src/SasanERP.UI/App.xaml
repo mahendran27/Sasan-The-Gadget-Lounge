@@ -1,0 +1,21 @@
+﻿<Application x:Class="SasanERP.UI.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             Startup="Application_Startup">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/Wpf.Ui;component/Resources/Theme/Dark.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/Wpf.Ui;component/Resources/Wpf.Ui.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <!-- Custom Sasan The Gadget Lounge Brand Colors -->
+            <SolidColorBrush x:Key="SasanPrimaryBrush" Color="#0B192C" />
+            <SolidColorBrush x:Key="SasanCyanAccentBrush" Color="#00E5FF" />
+            <SolidColorBrush x:Key="SasanAmberAccentBrush" Color="#FF9100" />
+            <SolidColorBrush x:Key="SasanCardBgBrush" Color="#162238" />
+            <SolidColorBrush x:Key="SasanBorderBrush" Color="#283958" />
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

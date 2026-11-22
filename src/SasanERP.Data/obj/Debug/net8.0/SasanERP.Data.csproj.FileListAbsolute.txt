@@ -1,0 +1,17 @@
+D:\Sasan - The Gadget Lounge\src\SasanERP.Data\bin\Debug\net8.0\SasanERP.Data.deps.json
+D:\Sasan - The Gadget Lounge\src\SasanERP.Data\bin\Debug\net8.0\SasanERP.Data.runtimeconfig.json
+D:\Sasan - The Gadget Lounge\src\SasanERP.Data\bin\Debug\net8.0\SasanERP.Data.dll
+D:\Sasan - The Gadget Lounge\src\SasanERP.Data\bin\Debug\net8.0\SasanERP.Data.pdb
+D:\Sasan - The Gadget Lounge\src\SasanERP.Data\bin\Debug\net8.0\SasanERP.Core.dll
+D:\Sasan - The Gadget Lounge\src\SasanERP.Data\bin\Debug\net8.0\SasanERP.Core.pdb
+D:\Sasan - The Gadget Lounge\src\SasanERP.Data\obj\Debug\net8.0\SasanERP.Data.csproj.AssemblyReference.cache
+D:\Sasan - The Gadget Lounge\src\SasanERP.Data\obj\Debug\net8.0\SasanERP.Data.GeneratedMSBuildEditorConfig.editorconfig
+D:\Sasan - The Gadget Lounge\src\SasanERP.Data\obj\Debug\net8.0\SasanERP.Data.AssemblyInfoInputs.cache
+D:\Sasan - The Gadget Lounge\src\SasanERP.Data\obj\Debug\net8.0\SasanERP.Data.AssemblyInfo.cs
+D:\Sasan - The Gadget Lounge\src\SasanERP.Data\obj\Debug\net8.0\SasanERP.Data.csproj.CoreCompileInputs.cache
+D:\Sasan - The Gadget Lounge\src\SasanERP.Data\obj\Debug\net8.0\SasanERP.8FBB2C00.Up2Date
+D:\Sasan - The Gadget Lounge\src\SasanERP.Data\obj\Debug\net8.0\SasanERP.Data.dll
+D:\Sasan - The Gadget Lounge\src\SasanERP.Data\obj\Debug\net8.0\refint\SasanERP.Data.dll
+D:\Sasan - The Gadget Lounge\src\SasanERP.Data\obj\Debug\net8.0\SasanERP.Data.pdb
+D:\Sasan - The Gadget Lounge\src\SasanERP.Data\obj\Debug\net8.0\SasanERP.Data.genruntimeconfig.cache
+D:\Sasan - The Gadget Lounge\src\SasanERP.Data\obj\Debug\net8.0\ref\SasanERP.Data.dll
