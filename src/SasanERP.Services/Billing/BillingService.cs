@@ -149,11 +149,14 @@ public class BillingService
         var cashAcc = await _context.Accounts.FirstOrDefaultAsync(a => a.AccountCode == "1001");
         var bankAcc = await _context.Accounts.FirstOrDefaultAsync(a => a.AccountCode == "1002");
         var debtorAcc = await _context.Accounts.FirstOrDefaultAsync(a => a.AccountCode == "1003");
+        var exchangeAcc = await _context.Accounts.FirstOrDefaultAsync(a => a.AccountCode == "1005") ?? cashAcc;
         var stdSalesAcc = await _context.Accounts.FirstOrDefaultAsync(a => a.AccountCode == "4001");
         var marginSalesAcc = await _context.Accounts.FirstOrDefaultAsync(a => a.AccountCode == "4002");
         var cgstAcc = await _context.Accounts.FirstOrDefaultAsync(a => a.AccountCode == "2002");
         var sgstAcc = await _context.Accounts.FirstOrDefaultAsync(a => a.AccountCode == "2003");
         var marginGstAcc = await _context.Accounts.FirstOrDefaultAsync(a => a.AccountCode == "2004");
+        var roundOffAcc = await _context.Accounts.FirstOrDefaultAsync(a => a.AccountCode == "4004");
+        var discountAcc = await _context.Accounts.FirstOrDefaultAsync(a => a.AccountCode == "5006");
 
         // DEBITS: Payment tenders received
         foreach (var p in payments)
@@ -166,6 +169,7 @@ public class BillingService
                 PaymentMode.BajajFinservEMI => bankAcc,
                 PaymentMode.HdbFinanceEMI => bankAcc,
                 PaymentMode.PineLabsEMI => bankAcc,
+                PaymentMode.OldPhoneExchange => exchangeAcc,
                 _ => cashAcc
             };
 
@@ -201,6 +205,23 @@ public class BillingService
                 ReferenceType = "Invoice"
             });
             debtorAcc.CurrentBalance += invoice.BalanceDue;
+        }
+
+        // DEBIT: Discount Allowed on Sales
+        if (invoice.InvoiceDiscount > 0 && discountAcc != null)
+        {
+            ledgerEntries.Add(new LedgerEntry
+            {
+                AccountId = discountAcc.Id,
+                VoucherNumber = voucherNo,
+                TransactionDate = invoice.InvoiceDate,
+                EntryType = LedgerEntryType.Debit,
+                Amount = invoice.InvoiceDiscount,
+                Narration = $"Discount allowed on Inv #{invoice.InvoiceNumber}",
+                ReferenceId = invoice.Id,
+                ReferenceType = "Invoice"
+            });
+            discountAcc.CurrentBalance += invoice.InvoiceDiscount;
         }
 
         // CREDITS: Sales Revenues and Tax Payables
@@ -288,6 +309,42 @@ public class BillingService
                     ReferenceType = "Invoice"
                 });
                 marginGstAcc.CurrentBalance += invoice.TotalMarginTax;
+            }
+        }
+
+        // Round Off Balancing Entry
+        if (invoice.RoundOff != 0 && roundOffAcc != null)
+        {
+            if (invoice.RoundOff > 0)
+            {
+                ledgerEntries.Add(new LedgerEntry
+                {
+                    AccountId = roundOffAcc.Id,
+                    VoucherNumber = voucherNo,
+                    TransactionDate = invoice.InvoiceDate,
+                    EntryType = LedgerEntryType.Credit,
+                    Amount = invoice.RoundOff,
+                    Narration = $"Round off upward rounding adjustment on Inv #{invoice.InvoiceNumber}",
+                    ReferenceId = invoice.Id,
+                    ReferenceType = "Invoice"
+                });
+                roundOffAcc.CurrentBalance += invoice.RoundOff;
+            }
+            else
+            {
+                decimal absRound = Math.Abs(invoice.RoundOff);
+                ledgerEntries.Add(new LedgerEntry
+                {
+                    AccountId = roundOffAcc.Id,
+                    VoucherNumber = voucherNo,
+                    TransactionDate = invoice.InvoiceDate,
+                    EntryType = LedgerEntryType.Debit,
+                    Amount = absRound,
+                    Narration = $"Round off downward rounding adjustment on Inv #{invoice.InvoiceNumber}",
+                    ReferenceId = invoice.Id,
+                    ReferenceType = "Invoice"
+                });
+                roundOffAcc.CurrentBalance -= absRound;
             }
         }
 

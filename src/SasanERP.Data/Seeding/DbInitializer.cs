@@ -48,6 +48,7 @@ public static class DbInitializer
                 new() { AccountCode = "1002", Name = "SBI Current Account (UPI/Card)", Type = AccountType.Asset, CurrentBalance = 150000.00m },
                 new() { AccountCode = "1003", Name = "Customer Debtors / Receivables", Type = AccountType.Asset, CurrentBalance = 0m },
                 new() { AccountCode = "1004", Name = "Closing Stock / Inventory", Type = AccountType.Asset, CurrentBalance = 850000.00m },
+                new() { AccountCode = "1005", Name = "Exchange / Buyback Stock Clearing", Type = AccountType.Asset, CurrentBalance = 0m },
                 
                 new() { AccountCode = "2001", Name = "Supplier Creditors / Payables", Type = AccountType.Liability, CurrentBalance = 0m },
                 new() { AccountCode = "2002", Name = "Output CGST Payable (Standard)", Type = AccountType.Liability, CurrentBalance = 0m },
@@ -59,12 +60,14 @@ public static class DbInitializer
                 new() { AccountCode = "4001", Name = "Revenue - Standard Gadget Sales", Type = AccountType.Revenue, CurrentBalance = 0m },
                 new() { AccountCode = "4002", Name = "Revenue - Pre-Owned Margin Sales (Rule 32(5))", Type = AccountType.Revenue, CurrentBalance = 0m },
                 new() { AccountCode = "4003", Name = "Revenue - Accessories & Toys Sales", Type = AccountType.Revenue, CurrentBalance = 0m },
+                new() { AccountCode = "4004", Name = "Round Off Adjustment Reserve", Type = AccountType.Revenue, CurrentBalance = 0m },
                 
                 new() { AccountCode = "5001", Name = "Cost of Goods Sold (COGS)", Type = AccountType.Expense, CurrentBalance = 0m },
                 new() { AccountCode = "5002", Name = "Import Customs Duty & Clearance", Type = AccountType.Expense, CurrentBalance = 0m },
                 new() { AccountCode = "5003", Name = "Courier & Air Freight", Type = AccountType.Expense, CurrentBalance = 0m },
                 new() { AccountCode = "5004", Name = "Showroom Rent (Karthik Mahall)", Type = AccountType.Expense, CurrentBalance = 0m },
-                new() { AccountCode = "5005", Name = "Electricity & Utilities", Type = AccountType.Expense, CurrentBalance = 0m }
+                new() { AccountCode = "5005", Name = "Electricity & Utilities", Type = AccountType.Expense, CurrentBalance = 0m },
+                new() { AccountCode = "5006", Name = "Discounts Allowed on Sales", Type = AccountType.Expense, CurrentBalance = 0m }
             };
 
             await context.Accounts.AddRangeAsync(accounts);
