@@ -10,6 +10,13 @@ public partial class PosView : UserControl
     {
         InitializeComponent();
         Loaded += (s, e) => TxtBarcode.Focus();
+        IsVisibleChanged += (s, e) =>
+        {
+            if (IsVisible)
+            {
+                Dispatcher.BeginInvoke(new Action(() => TxtBarcode.Focus()), System.Windows.Threading.DispatcherPriority.Input);
+            }
+        };
     }
 
     private void TxtBarcode_KeyDown(object sender, KeyEventArgs e)

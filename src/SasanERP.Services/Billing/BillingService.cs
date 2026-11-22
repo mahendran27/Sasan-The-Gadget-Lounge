@@ -125,6 +125,19 @@ public class BillingService
 
             // 4. Generate Balanced Double-Entry Accounting Ledger Entries
             await CreateLedgerEntriesForInvoiceAsync(invoice, payments);
+
+            // 5. Record Security Audit Log
+            _context.AuditLogs.Add(new AuditLog
+            {
+                TimestampUtc = DateTime.UtcNow,
+                Action = "InvoiceCheckout",
+                EntityType = "Invoice",
+                EntityId = invoice.InvoiceNumber,
+                PerformedBy = billedBy,
+                Details = $"Billed Inv #{invoice.InvoiceNumber}: Total ₹{invoice.GrandTotal:N2} via {payments.Count} payment tenders.",
+                MachineName = Environment.MachineName
+            });
+
             await _context.SaveChangesAsync();
 
             await transaction.CommitAsync();
@@ -346,6 +359,15 @@ public class BillingService
                 });
                 roundOffAcc.CurrentBalance -= absRound;
             }
+        }
+
+        // STRICT DOUBLE-ENTRY INVARIANT GUARD (Banking & CA Ledger Protection)
+        decimal sumDebits = ledgerEntries.Where(e => e.EntryType == LedgerEntryType.Debit).Sum(e => e.Amount);
+        decimal sumCredits = ledgerEntries.Where(e => e.EntryType == LedgerEntryType.Credit).Sum(e => e.Amount);
+        if (Math.Abs(sumDebits - sumCredits) > 0.01m)
+        {
+            throw new InvalidOperationException(
+                $"[ACID INVARIANT VIOLATION] Double-entry ledger is not balanced! Total Debits: ₹{sumDebits:N2}, Total Credits: ₹{sumCredits:N2}, Discrepancy: ₹{Math.Abs(sumDebits - sumCredits):N2}");
         }
 
         await _context.LedgerEntries.AddRangeAsync(ledgerEntries);

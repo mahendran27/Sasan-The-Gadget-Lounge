@@ -487,8 +487,8 @@ public partial class PosViewModel : ObservableObject
             Directory.CreateDirectory(invoiceFolder);
             string pdfPath = Path.Combine(invoiceFolder, $"{savedInvoice.InvoiceNumber.Replace('/', '_')}.pdf");
 
-            // Generate invoice using the cashier's chosen template (Choices 1 to 7)
-            _invoicePrintEngine.SavePdf(SelectedInvoiceTemplate, savedInvoice, company, pdfPath);
+            // Asynchronous vector PDF compilation (Non-blocking: UI never drops frames)
+            await Task.Run(() => _invoicePrintEngine.SavePdf(SelectedInvoiceTemplate, savedInvoice, company, pdfPath));
 
             StatusMessage = $"[SUCCESS] Invoice {savedInvoice.InvoiceNumber} generated ({SelectedInvoiceTemplate}): {pdfPath}";
 

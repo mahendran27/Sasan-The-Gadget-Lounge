@@ -87,7 +87,11 @@
             <Border Grid.Column="0" Background="#132035" BorderBrush="#223656" BorderThickness="1" CornerRadius="8" Padding="10" Margin="0,0,8,0">
                 <DataGrid ItemsSource="{Binding Vouchers}" AutoGenerateColumns="False" CanUserAddRows="False"
                           IsReadOnly="True" Background="Transparent" BorderThickness="0" HeadersVisibility="Column"
-                          GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#1C2D4A" Foreground="#FFFFFF" RowHeight="32">
+                          GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#1C2D4A" Foreground="#FFFFFF" RowHeight="32"
+                          EnableRowVirtualization="True"
+                          VirtualizingStackPanel.IsVirtualizing="True"
+                          VirtualizingStackPanel.VirtualizationMode="Recycling"
+                          AlternatingRowBackground="#0E192D">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="VOUCHER NO" Binding="{Binding VoucherNumber}" FontWeight="Bold" Width="130"/>
                         <DataGridTextColumn Header="ACCOUNT" Binding="{Binding AccountName}" Width="160"/>

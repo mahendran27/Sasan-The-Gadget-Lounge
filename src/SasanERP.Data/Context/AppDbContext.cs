@@ -24,6 +24,7 @@ public class AppDbContext : DbContext
     public DbSet<Account> Accounts => Set<Account>();
     public DbSet<LedgerEntry> LedgerEntries => Set<LedgerEntry>();
     public DbSet<Expense> Expenses => Set<Expense>();
+    public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -232,6 +233,20 @@ public class AppDbContext : DbContext
             entity.Property(e => e.PaidTo).IsRequired().HasMaxLength(150);
             entity.Property(e => e.ReferenceNumber).HasMaxLength(100);
             entity.Property(e => e.Description).HasMaxLength(300);
+        });
+
+        modelBuilder.Entity<AuditLog>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Action).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.EntityType).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.EntityId).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.PerformedBy).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.Details).HasMaxLength(500);
+            entity.Property(e => e.MachineName).HasMaxLength(100);
+
+            entity.HasIndex(e => e.TimestampUtc);
+            entity.HasIndex(e => e.Action);
         });
     }
 }

@@ -47,6 +47,7 @@
 
                 <!-- Search Input -->
                 <TextBox Grid.Column="0" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" 
+                         ToolTip="Type IMEI, Serial, Model, Brand, or SKU to search stock instantly"
                          FontSize="14" Height="36" Padding="10,6" Background="#0A1424" Foreground="#00E5FF"
                          BorderBrush="#00E5FF" BorderThickness="1"/>
 
@@ -72,7 +73,11 @@
                       AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True"
                       Background="Transparent" BorderThickness="0" HeadersVisibility="Column"
                       GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#1C2D4A"
-                      Foreground="#FFFFFF" RowHeight="36">
+                      Foreground="#FFFFFF" RowHeight="36"
+                      EnableRowVirtualization="True" EnableColumnVirtualization="True"
+                      VirtualizingStackPanel.IsVirtualizing="True"
+                      VirtualizingStackPanel.VirtualizationMode="Recycling"
+                      AlternatingRowBackground="#0E192D">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="DEVICE NAME" Binding="{Binding Name}" FontWeight="Bold" Width="180"/>
                     <DataGridTextColumn Header="CATEGORY" Binding="{Binding Category}" Width="90"/>

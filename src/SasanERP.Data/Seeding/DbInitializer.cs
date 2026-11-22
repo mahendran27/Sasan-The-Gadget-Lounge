@@ -14,6 +14,13 @@ public static class DbInitializer
     {
         await context.Database.EnsureCreatedAsync();
 
+        // 0. SQLite WAL High-Performance Tuning & Pragma Configuration
+        if (context.Database.IsSqlite())
+        {
+            await context.Database.ExecuteSqlRawAsync(
+                "PRAGMA journal_mode=WAL; PRAGMA synchronous=NORMAL; PRAGMA cache_size=10000; PRAGMA foreign_keys=ON;");
+        }
+
         // 1. Seed Company Profile
         if (!await context.CompanyProfiles.AnyAsync())
         {

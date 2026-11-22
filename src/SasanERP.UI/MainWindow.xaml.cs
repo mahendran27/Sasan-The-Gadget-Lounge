@@ -77,6 +77,11 @@ public partial class MainWindow : FluentWindow
                 ViewModel.PosVM.CheckoutAndPrintInvoiceCommand.Execute(null);
                 e.Handled = true;
                 break;
+
+            case Key.F10:
+                ViewModel.SettingsVM.CreateInstantBackupCommand.Execute(null);
+                e.Handled = true;
+                break;
         }
     }
 

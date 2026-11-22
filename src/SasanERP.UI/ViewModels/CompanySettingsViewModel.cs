@@ -5,6 +5,7 @@ using Microsoft.Win32;
 using SasanERP.Core.Enums;
 using SasanERP.Core.Models;
 using SasanERP.Data.Context;
+using SasanERP.Services.Backup;
 using SasanERP.Services.Printing;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -18,6 +19,7 @@ namespace SasanERP.UI.ViewModels;
 public partial class CompanySettingsViewModel : ObservableObject
 {
     private readonly AppDbContext _context;
+    private readonly DatabaseBackupService? _backupService;
 
     public ObservableCollection<InvoiceTemplateStyle> AvailableTemplates { get; } =
         new(Enum.GetValues<InvoiceTemplateStyle>());
@@ -55,9 +57,17 @@ public partial class CompanySettingsViewModel : ObservableObject
     [ObservableProperty] private string _statusMessage = "Ready. You can edit any store details and click Save.";
     [ObservableProperty] private bool _isBusy;
 
-    public CompanySettingsViewModel(AppDbContext context)
+    // Database & Backup Telemetry
+    [ObservableProperty] private string _databasePath = string.Empty;
+    [ObservableProperty] private string _databaseSizeFormatted = "Loading...";
+    [ObservableProperty] private int _totalBackupsCount = 0;
+    [ObservableProperty] private string _latestBackupTimestamp = "No backups found";
+    [ObservableProperty] private string _sqliteEngineStatus = "🟢 High-Performance WAL Mode (Active)";
+
+    public CompanySettingsViewModel(AppDbContext context, DatabaseBackupService? backupService = null)
     {
         _context = context;
+        _backupService = backupService;
     }
 
     /// <summary>
@@ -98,6 +108,8 @@ public partial class CompanySettingsViewModel : ObservableObject
 
                 StatusMessage = "Shop Profile & Store Address loaded successfully.";
             }
+
+            RefreshBackupStats();
         }
         finally
         {
@@ -215,5 +227,47 @@ public partial class CompanySettingsViewModel : ObservableObject
         LogoPath = "Assets/logo.png";
         IsMonochromePrintMode = false;
         StatusMessage = "Address fields reset to official Theni location. Click Save to persist.";
+    }
+
+    /// <summary>
+    /// Creates an instant offline snapshot of the database with zero downtime
+    /// </summary>
+    [RelayCommand]
+    public async Task CreateInstantBackupAsync()
+    {
+        if (_backupService == null)
+        {
+            StatusMessage = "Backup service is not available.";
+            return;
+        }
+
+        IsBusy = true;
+        try
+        {
+            var result = await _backupService.CreateBackupAsync("ManualFromSettings");
+            RefreshBackupStats();
+            StatusMessage = $"[BACKUP SUCCESS] Instant snapshot saved: {result.FileName} ({result.SizeInBytes / 1024.0:F2} KB)";
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"[BACKUP ERROR] Failed to create backup: {ex.Message}";
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    public void RefreshBackupStats()
+    {
+        if (_backupService != null)
+        {
+            DatabasePath = _backupService.DatabasePath;
+            long size = _backupService.GetDatabaseSizeInBytes();
+            DatabaseSizeFormatted = $"{size / 1024.0:F2} KB";
+            var backups = _backupService.GetAvailableBackups();
+            TotalBackupsCount = backups.Count;
+            LatestBackupTimestamp = backups.FirstOrDefault()?.CreatedAt.ToString("dd-MMM-yyyy hh:mm tt") ?? "None";
+        }
     }
 }
