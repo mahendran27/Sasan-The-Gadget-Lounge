@@ -7,8 +7,10 @@ using QuestPDF.Fluent;
 using SasanERP.Core.Enums;
 using SasanERP.Core.Models;
 using SasanERP.Data.Context;
+using SasanERP.Services.Audio;
 using SasanERP.Services.Barcode;
 using SasanERP.Services.Billing;
+using SasanERP.Services.Hardware;
 using SasanERP.Services.Printing;
 using SasanERP.Services.Wireless;
 using SasanERP.UI.Services;
@@ -27,6 +29,8 @@ public partial class PosViewModel : ObservableObject
     private readonly BarcodeGeneratorService _barcodeService;
     private readonly InvoicePrintEngine _invoicePrintEngine;
     private readonly UnifiedWirelessManager? _wirelessManager;
+    private readonly PosAudioFeedbackService? _audioService;
+    private readonly SerialPortBarcodeListener? _barcodeListener;
 
     public ObservableCollection<PosCartItemViewModel> CartItems { get; } = new();
     public ObservableCollection<Customer> Customers { get; } = new();
@@ -145,13 +149,34 @@ public partial class PosViewModel : ObservableObject
         BillingService billingService,
         BarcodeGeneratorService barcodeService,
         InvoicePrintEngine invoicePrintEngine,
-        UnifiedWirelessManager? wirelessManager = null)
+        UnifiedWirelessManager? wirelessManager = null,
+        PosAudioFeedbackService? audioService = null,
+        SerialPortBarcodeListener? barcodeListener = null)
     {
         _context = context;
         _billingService = billingService;
         _barcodeService = barcodeService;
         _invoicePrintEngine = invoicePrintEngine;
         _wirelessManager = wirelessManager;
+        _audioService = audioService;
+        _barcodeListener = barcodeListener;
+
+        if (_barcodeListener != null)
+        {
+            _barcodeListener.OnBarcodeScanned += (code, port) =>
+            {
+                if (System.Windows.Application.Current?.Dispatcher != null &&
+                    !System.Windows.Application.Current.Dispatcher.CheckAccess())
+                {
+                    System.Windows.Application.Current.Dispatcher.Invoke(async () =>
+                        await ProcessCodeAsync(code, isWirelessTap: false));
+                }
+                else
+                {
+                    _ = ProcessCodeAsync(code, isWirelessTap: false);
+                }
+            };
+        }
 
         if (_wirelessManager != null)
         {
@@ -242,6 +267,7 @@ public partial class PosViewModel : ObservableObject
                 // Prevent duplicate addition of the same unique device
                 if (CartItems.Any(ci => ci.SerializedUnitId == unit.Id))
                 {
+                    _audioService?.PlayScanError();
                     StatusMessage = isWirelessTap
                         ? $"[WIRELESS TAP] Device with IMEI {unit.IMEI1} is already in the cart!"
                         : $"[WARNING] Device with IMEI {unit.IMEI1} is already added in the cart!";
@@ -275,6 +301,7 @@ public partial class PosViewModel : ObservableObject
                 CartItems.Add(cartItem);
 
                 RecalculateInvoiceTotals();
+                _audioService?.PlayScanSuccess();
                 StatusMessage = isWirelessTap
                     ? $"[WIRELESS TAP - {freq}] Added {unit.Product.Name} (IMEI: {unit.IMEI1}) - INR {cartItem.LineTotal:N0}"
                     : $"Added {unit.Product.Name} (IMEI: {unit.IMEI1}) - INR {cartItem.LineTotal:N0}";
@@ -312,12 +339,14 @@ public partial class PosViewModel : ObservableObject
                 }
 
                 RecalculateInvoiceTotals();
+                _audioService?.PlayScanSuccess();
                 StatusMessage = isWirelessTap
                     ? $"[WIRELESS TAP - {freq}] Added {product.Name} - INR {product.SellingPrice:N0}"
                     : $"Added {product.Name} (Stock: {product.CurrentStock}) - INR {product.SellingPrice:N0}";
                 return;
             }
 
+            _audioService?.PlayScanError();
             StatusMessage = $"[NOT FOUND] No in-stock gadget or product matches '{rawCode}'.";
         }
         finally
@@ -390,12 +419,14 @@ public partial class PosViewModel : ObservableObject
     {
         if (!CartItems.Any())
         {
+            _audioService?.PlayScanError();
             StatusMessage = "[ERROR] Cart is empty! Scan items before checkout.";
             return;
         }
 
         if (SelectedCustomer == null)
         {
+            _audioService?.PlayScanError();
             StatusMessage = "[ERROR] Please select or add a Customer before checkout.";
             return;
         }
@@ -490,6 +521,7 @@ public partial class PosViewModel : ObservableObject
             // Asynchronous vector PDF compilation (Non-blocking: UI never drops frames)
             await Task.Run(() => _invoicePrintEngine.SavePdf(SelectedInvoiceTemplate, savedInvoice, company, pdfPath));
 
+            _audioService?.PlayCheckoutComplete();
             StatusMessage = $"[SUCCESS] Invoice {savedInvoice.InvoiceNumber} generated ({SelectedInvoiceTemplate}): {pdfPath}";
 
             // Reset POS for next sale
@@ -497,6 +529,7 @@ public partial class PosViewModel : ObservableObject
         }
         catch (Exception ex)
         {
+            _audioService?.PlayScanError();
             StatusMessage = $"[ERROR] Checkout failed: {ex.Message}";
         }
         finally

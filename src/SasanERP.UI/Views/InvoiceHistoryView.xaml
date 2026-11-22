@@ -82,6 +82,14 @@
                         </StackPanel>
                     </Button>
 
+                    <Button Command="{Binding ShareViaWhatsAppCommand}" Background="#10B981" Foreground="#FFFFFF" 
+                            FontWeight="Black" Padding="14,7" BorderThickness="0" Cursor="Hand" Margin="0,0,8,0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="💬 " FontSize="12"/>
+                            <TextBlock Text="WhatsApp" FontSize="12"/>
+                        </StackPanel>
+                    </Button>
+
                     <Button Command="{Binding OpenPdfPreviewCommand}" Background="#1E3A8A" Foreground="#FFFFFF" 
                             FontWeight="Bold" Padding="12,7" BorderBrush="#3B82F6" BorderThickness="1" Cursor="Hand">
                         <StackPanel Orientation="Horizontal">

@@ -9,3 +9,7 @@
 .vs/
 *.pdf
 *.xlsx
+dist/
+BackupVault/
+SecondaryDriveVault/
+*.aes

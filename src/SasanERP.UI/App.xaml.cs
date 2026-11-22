@@ -63,6 +63,12 @@ public partial class App : Application
                 services.AddScoped<StockAuditService>();
                 services.AddSingleton<UnifiedWirelessManager>();
 
+                // Hardware, Acoustics & Cloud Communication
+                services.AddSingleton<SasanERP.Services.Hardware.SerialPortBarcodeListener>();
+                services.AddSingleton<SasanERP.Services.Audio.PosAudioFeedbackService>();
+                services.AddSingleton<SasanERP.Services.Communication.WhatsAppBillService>();
+                services.AddScoped<SasanERP.Services.Backup.CloudBackupSyncService>();
+
                 // ViewModels
                 services.AddSingleton<MainViewModel>();
                 services.AddTransient<DashboardViewModel>();

@@ -104,6 +104,14 @@ public class InvoiceHistoryService
     }
 
     /// <summary>
+    /// Retrieves company profile for branding, tax headers, and WhatsApp messages
+    /// </summary>
+    public async Task<CompanyProfile> GetCompanyProfileAsync()
+    {
+        return await _context.CompanyProfiles.FirstOrDefaultAsync() ?? new CompanyProfile();
+    }
+
+    /// <summary>
     /// Generates vector PDF in chosen template style and writes to specified path
     /// </summary>
     public async Task<string> ExportPdfAsync(

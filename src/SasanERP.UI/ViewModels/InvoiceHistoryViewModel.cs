@@ -6,17 +6,19 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.Win32;
 using SasanERP.Core.Enums;
 using SasanERP.Core.Models;
+using SasanERP.Services.Communication;
 using SasanERP.Services.Invoicing;
 
 namespace SasanERP.UI.ViewModels;
 
 /// <summary>
 /// ViewModel for searching past sales invoices, inspecting device IMEI telemetry,
-/// re-printing receipts, and exporting vector PDFs across all 12 templates.
+/// re-printing receipts, exporting vector PDFs across all 12 templates, and WhatsApp sharing.
 /// </summary>
 public partial class InvoiceHistoryViewModel : ObservableObject
 {
     private readonly InvoiceHistoryService _historyService;
+    private readonly WhatsAppBillService? _whatsAppService;
 
     public ObservableCollection<InvoiceSummaryDto> Invoices { get; } = new();
 
@@ -58,9 +60,10 @@ public partial class InvoiceHistoryViewModel : ObservableObject
     [ObservableProperty]
     private bool _isBusy;
 
-    public InvoiceHistoryViewModel(InvoiceHistoryService historyService)
+    public InvoiceHistoryViewModel(InvoiceHistoryService historyService, WhatsAppBillService? whatsAppService = null)
     {
         _historyService = historyService;
+        _whatsAppService = whatsAppService;
     }
 
     public async Task InitializeAsync()
@@ -107,6 +110,45 @@ public partial class InvoiceHistoryViewModel : ObservableObject
             StatusMessage = SelectedInvoiceDetails != null
                 ? $"Loaded Invoice #{SelectedInvoiceDetails.InvoiceNumber} with {SelectedInvoiceDetails.Items.Count} items."
                 : "Invoice details not found.";
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    /// <summary>
+    /// Launches WhatsApp with branded invoice text and luxury gadget details
+    /// </summary>
+    [RelayCommand]
+    public async Task ShareViaWhatsAppAsync()
+    {
+        if (SelectedInvoiceDetails == null)
+        {
+            StatusMessage = "Please select an invoice to send via WhatsApp.";
+            return;
+        }
+
+        string phone = SelectedInvoiceDetails.Customer?.PhoneNumber ?? string.Empty;
+        if (string.IsNullOrWhiteSpace(phone))
+        {
+            StatusMessage = "Customer phone number is missing on this invoice.";
+            return;
+        }
+
+        IsBusy = true;
+        try
+        {
+            var company = await _historyService.GetCompanyProfileAsync();
+            var service = _whatsAppService ?? new WhatsAppBillService();
+            bool launched = service.LaunchWhatsAppInBrowserOrApp(phone, SelectedInvoiceDetails, company);
+            StatusMessage = launched
+                ? $"[WHATSAPP LAUNCHED] Message opened for customer {phone} (#{SelectedInvoiceDetails.InvoiceNumber})."
+                : $"[WHATSAPP LINK] Generated link for customer {phone}.";
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"WhatsApp dispatch error: {ex.Message}";
         }
         finally
         {
