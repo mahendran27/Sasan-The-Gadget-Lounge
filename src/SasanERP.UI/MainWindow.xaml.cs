@@ -1,142 +1,122 @@
 ﻿using System.Windows;
 using System.Windows.Input;
-using Microsoft.Extensions.DependencyInjection;
 using SasanERP.UI.ViewModels;
-using SasanERP.UI.Views;
 using Wpf.Ui.Controls;
 
 namespace SasanERP.UI;
 
 /// <summary>
 /// Interaction logic for MainWindow.xaml
-/// Provides global keyboard listeners for F2, F3, F4, F7, F9 and scanner auto-focus.
+/// Coordinates enterprise ERP navigation across Dashboard, POS, Stock Registry, Intake, Daybook, GST &amp; Wireless Hub.
 /// </summary>
 public partial class MainWindow : FluentWindow
 {
-    private readonly IServiceProvider _serviceProvider;
-    public PosViewModel ViewModel { get; }
+    public MainViewModel ViewModel { get; }
 
-    public MainWindow(PosViewModel viewModel, IServiceProvider serviceProvider)
+    public MainWindow(MainViewModel viewModel)
     {
         InitializeComponent();
         ViewModel = viewModel;
-        _serviceProvider = serviceProvider;
         DataContext = ViewModel;
 
         Loaded += async (s, e) =>
         {
             await ViewModel.InitializeAsync();
-            TxtBarcode.Focus();
         };
     }
 
-    /// <summary>
-    /// Global keyboard shortcuts handler for POS cashier operations
-    /// </summary>
     private void Window_KeyDown(object sender, KeyEventArgs e)
     {
         switch (e.Key)
         {
+            case Key.F1:
+                ViewModel.NavigateToSection(NavigationSection.Dashboard);
+                e.Handled = true;
+                break;
+
             case Key.F2:
-                ViewModel.NewBillCommand.Execute(null);
-                TxtBarcode.Focus();
+                ViewModel.NavigateToSection(NavigationSection.PosBilling);
                 e.Handled = true;
                 break;
 
             case Key.F3:
-                OpenIntakeStudio();
+                ViewModel.NavigateToSection(NavigationSection.InventoryRegistry);
                 e.Handled = true;
                 break;
 
             case Key.F4:
-                ViewModel.PrintBarcodeLabelCommand.Execute(null);
+                ViewModel.NavigateToSection(NavigationSection.DeviceIntake);
                 e.Handled = true;
                 break;
 
             case Key.F5:
-                OpenSettings();
+                ViewModel.NavigateToSection(NavigationSection.StoreSettings);
                 e.Handled = true;
                 break;
 
             case Key.F6:
-                OpenWirelessStudio();
+                ViewModel.NavigateToSection(NavigationSection.DaybookLedger);
                 e.Handled = true;
                 break;
 
             case Key.F7:
-                ViewModel.ToggleGstModeCommand.Execute(null);
+                ViewModel.NavigateToSection(NavigationSection.GstReports);
+                e.Handled = true;
+                break;
+
+            case Key.F8:
+                ViewModel.NavigateToSection(NavigationSection.WirelessStudio);
                 e.Handled = true;
                 break;
 
             case Key.F9:
-                ViewModel.CheckoutAndPrintInvoiceCommand.Execute(null);
-                TxtBarcode.Focus();
-                e.Handled = true;
-                break;
-
-            case Key.Escape:
-                TxtBarcode.Focus();
+                if (ViewModel.CurrentSection != NavigationSection.PosBilling)
+                {
+                    ViewModel.NavigateToSection(NavigationSection.PosBilling);
+                }
+                ViewModel.PosVM.CheckoutAndPrintInvoiceCommand.Execute(null);
                 e.Handled = true;
                 break;
         }
     }
 
-    private void BtnNewBill_Click(object sender, RoutedEventArgs e)
+    private void BtnNavDashboard_Click(object sender, RoutedEventArgs e)
     {
-        ViewModel.NewBillCommand.Execute(null);
-        TxtBarcode.Focus();
+        ViewModel.NavigateToSection(NavigationSection.Dashboard);
     }
 
-    private void BtnOpenIntake_Click(object sender, RoutedEventArgs e)
+    private void BtnNavPos_Click(object sender, RoutedEventArgs e)
     {
-        OpenIntakeStudio();
+        ViewModel.NavigateToSection(NavigationSection.PosBilling);
     }
 
-    private void BtnPrintSticker_Click(object sender, RoutedEventArgs e)
+    private void BtnNavInventory_Click(object sender, RoutedEventArgs e)
     {
-        ViewModel.PrintBarcodeLabelCommand.Execute(null);
+        ViewModel.NavigateToSection(NavigationSection.InventoryRegistry);
     }
 
-    private void BtnOpenSettings_Click(object sender, RoutedEventArgs e)
+    private void BtnNavIntake_Click(object sender, RoutedEventArgs e)
     {
-        OpenSettings();
+        ViewModel.NavigateToSection(NavigationSection.DeviceIntake);
     }
 
-    private void BtnOpenWirelessStudio_Click(object sender, RoutedEventArgs e)
+    private void BtnNavDaybook_Click(object sender, RoutedEventArgs e)
     {
-        OpenWirelessStudio();
+        ViewModel.NavigateToSection(NavigationSection.DaybookLedger);
     }
 
-    private void OpenIntakeStudio()
+    private void BtnNavGstReports_Click(object sender, RoutedEventArgs e)
     {
-        var window = _serviceProvider.GetRequiredService<InventoryIntakeWindow>();
-        window.Owner = this;
-        window.ShowDialog();
+        ViewModel.NavigateToSection(NavigationSection.GstReports);
     }
 
-    private void OpenWirelessStudio()
+    private void BtnNavWireless_Click(object sender, RoutedEventArgs e)
     {
-        var window = _serviceProvider.GetRequiredService<WirelessStudioWindow>();
-        window.Owner = this;
-        window.ShowDialog();
+        ViewModel.NavigateToSection(NavigationSection.WirelessStudio);
     }
 
-    private void OpenSettings()
+    private void BtnNavSettings_Click(object sender, RoutedEventArgs e)
     {
-        var window = _serviceProvider.GetRequiredService<CompanySettingsWindow>();
-        window.Owner = this;
-        window.ShowDialog();
-    }
-
-    /// <summary>
-    /// Triggers immediate barcode lookup when scanner sends CR/Enter
-    /// </summary>
-    private void TxtBarcode_KeyDown(object sender, KeyEventArgs e)
-    {
-        if (e.Key == Key.Enter)
-        {
-            ViewModel.ProcessBarcodeScanCommand.Execute(null);
-            e.Handled = true;
-        }
+        ViewModel.NavigateToSection(NavigationSection.StoreSettings);
     }
 }

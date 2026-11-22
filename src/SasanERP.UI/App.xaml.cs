@@ -49,6 +49,7 @@ public partial class App : Application
                 services.AddSingleton<BarcodeLabelEngine>();
                 services.AddScoped<BillingService>();
                 services.AddScoped<GstReportService>();
+                services.AddScoped<SasanERP.Services.Analytics.ExecutiveDashboardService>();
 
                 // Wireless Services (NFC & UHF RFID)
                 services.AddSingleton<NfcTagService>();
@@ -57,13 +58,26 @@ public partial class App : Application
                 services.AddSingleton<UnifiedWirelessManager>();
 
                 // ViewModels
+                services.AddSingleton<MainViewModel>();
+                services.AddTransient<DashboardViewModel>();
                 services.AddTransient<PosViewModel>();
+                services.AddTransient<InventoryViewModel>();
                 services.AddTransient<InventoryIntakeViewModel>();
+                services.AddTransient<DaybookViewModel>();
+                services.AddTransient<GstReportsViewModel>();
                 services.AddTransient<WirelessStudioViewModel>();
                 services.AddTransient<CompanySettingsViewModel>();
 
                 // Views
                 services.AddSingleton<MainWindow>();
+                services.AddTransient<Views.DashboardView>();
+                services.AddTransient<Views.PosView>();
+                services.AddTransient<Views.InventoryView>();
+                services.AddTransient<Views.DeviceIntakeView>();
+                services.AddTransient<Views.DaybookView>();
+                services.AddTransient<Views.GstReportsView>();
+                services.AddTransient<Views.WirelessStudioView>();
+                services.AddTransient<Views.StoreSettingsView>();
                 services.AddTransient<Views.InventoryIntakeWindow>();
                 services.AddTransient<Views.WirelessStudioWindow>();
                 services.AddTransient<Views.CompanySettingsWindow>();

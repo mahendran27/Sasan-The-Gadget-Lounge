@@ -1,0 +1,427 @@
+<UserControl x:Class="SasanERP.UI.Views.WirelessStudioView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d" 
+             d:DesignHeight="700" d:DesignWidth="1100">
+
+    <Grid Margin="16,10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" /> <!-- Header & Hardware Indicator -->
+            <RowDefinition Height="*" />    <!-- 3-Tab Main Workspace -->
+            <RowDefinition Height="Auto" /> <!-- Status Bar -->
+        </Grid.RowDefinitions>
+
+        <!-- 1. HEADER & HARDWARE STATUS BAR -->
+        <Border Grid.Row="0" Background="#111D36" BorderBrush="#1E2F52" BorderThickness="1" CornerRadius="8" Padding="14,10" Margin="0,0,0,10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="WIRELESS HARDWARE STUDIO" FontWeight="Black" FontSize="16" Foreground="#00E5FF"/>
+                        <Border Background="#FF9100" CornerRadius="4" Padding="6,1" Margin="10,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="NFC 13.56MHz + UHF 860-960MHz" FontSize="10" FontWeight="Bold" Foreground="#08101E"/>
+                        </Border>
+                    </StackPanel>
+                    <TextBlock Text="Program NFC customer tap tags, edit EPC Gen2 memory banks, and run high-speed bulk stock audits" 
+                               FontSize="11" Foreground="#94A3B8" Margin="0,2,0,0"/>
+                </StackPanel>
+
+                <!-- Hardware Status Pills -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Background="#064E3B" BorderBrush="#10B981" BorderThickness="1" CornerRadius="6" Padding="8,4" Margin="0,0,8,0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="● " Foreground="#34D399" FontWeight="Bold"/>
+                            <TextBlock Text="NFC (ACR122U): ONLINE" FontSize="10" FontWeight="Bold" Foreground="#ECFDF5"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Background="#1E3A8A" BorderBrush="#3B82F6" BorderThickness="1" CornerRadius="6" Padding="8,4">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="● " Foreground="#60A5FA" FontWeight="Bold"/>
+                            <TextBlock Text="UHF (Gen2 Reader): ONLINE" FontSize="10" FontWeight="Bold" Foreground="#EFF6FF"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- 2. TABBED STUDIO -->
+        <TabControl Grid.Row="1" Background="#111D36" BorderBrush="#1E2F52">
+            
+            <!-- TAB 1: NFC PROGRAMMER (13.56 MHz) -->
+            <TabItem Header="📱 NFC Tag Studio &amp; Programmer (13.56 MHz)">
+                <Grid Margin="12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="6*" />
+                        <ColumnDefinition Width="4*" />
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Left: NFC Parameters -->
+                    <Border Grid.Column="0" Background="#162544" BorderBrush="#22365D" BorderThickness="1" CornerRadius="8" Padding="14" Margin="0,0,10,0">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel>
+                                <TextBlock Text="NFC CHIP &amp; SPECIFICATION CONFIGURATION" FontSize="12" FontWeight="Bold" Foreground="#00E5FF" Margin="0,0,0,10"/>
+
+                                <!-- Chip Type & UID -->
+                                <Grid Margin="0,0,0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0" Margin="0,0,6,0">
+                                        <TextBlock Text="Target Chip Type:" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
+                                        <ComboBox ItemsSource="{Binding NfcChipTypes}" SelectedItem="{Binding SelectedNfcChip}" Height="30"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1" Margin="6,0,0,0">
+                                        <TextBlock Text="Factory Tag UID:" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
+                                        <TextBox Text="{Binding NfcTagUid}" Height="30" IsReadOnly="True" FontWeight="Bold" Foreground="#38BDF8"/>
+                                    </StackPanel>
+                                </Grid>
+
+                                <!-- Model & IMEI -->
+                                <Grid Margin="0,0,0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="6*" />
+                                        <ColumnDefinition Width="4*" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0" Margin="0,0,6,0">
+                                        <TextBlock Text="Gadget Model Name:" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
+                                        <TextBox Text="{Binding NfcModelName, UpdateSourceTrigger=PropertyChanged}" Height="30"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1" Margin="6,0,0,0">
+                                        <TextBlock Text="Device IMEI:" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
+                                        <TextBox Text="{Binding NfcImei, UpdateSourceTrigger=PropertyChanged}" Height="30" FontWeight="Bold"/>
+                                    </StackPanel>
+                                </Grid>
+
+                                <!-- Storage & Battery -->
+                                <Grid Margin="0,0,0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0" Margin="0,0,4,0">
+                                        <TextBlock Text="Specs (RAM/ROM):" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
+                                        <TextBox Text="{Binding NfcSpecs, UpdateSourceTrigger=PropertyChanged}" Height="30"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1" Margin="4,0,4,0">
+                                        <TextBlock Text="Battery Health %:" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
+                                        <TextBox Text="{Binding NfcBatteryHealth, UpdateSourceTrigger=PropertyChanged}" Height="30"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2" Margin="4,0,0,0">
+                                        <TextBlock Text="Tagged Price (₹):" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
+                                        <TextBox Text="{Binding NfcPrice, UpdateSourceTrigger=PropertyChanged}" Height="30" FontWeight="Bold" Foreground="#FF9100"/>
+                                    </StackPanel>
+                                </Grid>
+
+                                <!-- Customer Tap URL -->
+                                <StackPanel Margin="0,0,0,10">
+                                    <TextBlock Text="Customer Phone Tap URL (NDEF URI):" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
+                                    <TextBox Text="{Binding NfcCustomerUrl, UpdateSourceTrigger=PropertyChanged}" Height="30" Foreground="#00E5FF"/>
+                                </StackPanel>
+
+                                <!-- 32-bit Password Protection Box -->
+                                <Border Background="#0B132B" BorderBrush="#FF9100" BorderThickness="1" CornerRadius="6" Padding="10" Margin="0,0,0,12">
+                                    <StackPanel>
+                                        <CheckBox IsChecked="{Binding IsNfcPasswordProtected}" Content="🔒 Enable 32-bit Hardware Password Lock (Anti-Tamper)"
+                                                  FontWeight="Bold" Foreground="#FF9100" Margin="0,0,0,6"/>
+                                        <TextBlock Text="Prevents customer smartphones or external apps from modifying/wiping tag memory."
+                                                   FontSize="10" Foreground="#94A3B8" Margin="0,0,0,6"/>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0" Margin="0,0,6,0">
+                                                <TextBlock Text="Master PWD (ASCII):" FontSize="10" Foreground="#CBD5E1"/>
+                                                <TextBox Text="{Binding NfcAccessPassword}" Height="28" MaxLength="4"/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="1" Margin="6,0,0,0">
+                                                <TextBlock Text="Lock Status:" FontSize="10" Foreground="#CBD5E1"/>
+                                                <TextBlock Text="PASSWORD ACTIVE" FontWeight="Bold" Foreground="#10B981" Margin="0,4,0,0"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Action Buttons -->
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Button Grid.Column="0" Command="{Binding ReadNfcTagCommand}"
+                                            Content="📡 Read NFC Tag" Height="40" Background="#1E3A8A" Foreground="#FFFFFF" FontWeight="Bold" Margin="0,0,4,0" Cursor="Hand"/>
+                                    <Button Grid.Column="1" Command="{Binding ProgramNfcTagCommand}"
+                                            Content="⚡ Program &amp; Lock Tag" Height="40" Background="#00E5FF" Foreground="#08101E" FontWeight="Black" Margin="4,0,0,0" Cursor="Hand"/>
+                                </Grid>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Border>
+
+                    <!-- Right: Simulated Smartphone Tap Preview -->
+                    <Border Grid.Column="1" Background="#162544" BorderBrush="#22365D" BorderThickness="1" CornerRadius="8" Padding="14">
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="CUSTOMER SMARTPHONE TAP SIMULATION" FontSize="12" FontWeight="Bold" Foreground="#FF9100" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+
+                            <!-- Smartphone Screen Shell -->
+                            <Border Background="#08101E" BorderBrush="#00E5FF" BorderThickness="2" CornerRadius="16" Padding="14" Width="260" Height="400">
+                                <StackPanel VerticalAlignment="Top">
+                                    <Border Background="#00E5FF" CornerRadius="4" Padding="6,2" HorizontalAlignment="Center" Margin="0,0,0,8">
+                                        <TextBlock Text="SASAN NFC VERIFIED" FontSize="9" FontWeight="Black" Foreground="#08101E"/>
+                                    </Border>
+
+                                    <TextBlock Text="{Binding NfcModelName}" FontSize="13" FontWeight="Bold" Foreground="#FFFFFF" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{Binding NfcSpecs}" FontSize="10" Foreground="#94A3B8" HorizontalAlignment="Center" Margin="0,2,0,0"/>
+                                    
+                                    <Border Background="#162544" CornerRadius="6" Padding="8" Margin="0,10,0,0">
+                                        <StackPanel>
+                                            <Grid Margin="0,0,0,4">
+                                                <TextBlock Text="IMEI:" FontSize="10" Foreground="#94A3B8"/>
+                                                <TextBlock Text="{Binding NfcImei}" FontSize="10" FontWeight="Bold" Foreground="#38BDF8" HorizontalAlignment="Right"/>
+                                            </Grid>
+                                            <Grid Margin="0,0,0,4">
+                                                <TextBlock Text="Battery Health:" FontSize="10" Foreground="#94A3B8"/>
+                                                <TextBlock Text="{Binding NfcBatteryHealth, StringFormat='{}{0}%'}" FontSize="10" FontWeight="Bold" Foreground="#10B981" HorizontalAlignment="Right"/>
+                                            </Grid>
+                                            <Grid>
+                                                <TextBlock Text="Warranty:" FontSize="10" Foreground="#94A3B8"/>
+                                                <TextBlock Text="90 Days Shop" FontSize="10" FontWeight="Bold" Foreground="#FF9100" HorizontalAlignment="Right"/>
+                                            </Grid>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <Border Background="#00E5FF" CornerRadius="6" Padding="8" Margin="0,12,0,0">
+                                        <TextBlock Text="{Binding NfcPrice, StringFormat='SPECIAL PRICE: ₹{0:N0}'}" FontSize="12" FontWeight="Black" Foreground="#08101E" HorizontalAlignment="Center"/>
+                                    </Border>
+
+                                    <Button Command="{Binding TestCounterNfcTapCommand}"
+                                            Content="🛒 Send Tap to POS Cart" Height="34" Margin="0,14,0,0" Background="#10B981" Foreground="#FFFFFF" FontWeight="Bold" Cursor="Hand"/>
+                                </StackPanel>
+                            </Border>
+
+                            <TextBlock Text="{Binding NfcStatus}" FontSize="11" Foreground="#38BDF8" HorizontalAlignment="Center" Margin="0,10,0,0" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </TabItem>
+
+            <!-- TAB 2: UHF RFID GEN2 4-MEMORY-BANK EDITOR (860-960 MHz) -->
+            <TabItem Header="📡 UHF RFID Gen2 Memory Bank Editor (860-960 MHz)">
+                <Grid Margin="12">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <!-- Top: EPC SGTIN-96 Encoder from IMEI -->
+                    <Border Grid.Row="0" Background="#162544" BorderBrush="#22365D" BorderThickness="1" CornerRadius="8" Padding="12" Margin="0,0,0,10">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="3*" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="5*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Device IMEI:" FontSize="11" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                            <TextBox Grid.Column="1" Text="{Binding UhfImeiInput, UpdateSourceTrigger=PropertyChanged}" Height="30" VerticalAlignment="Center"/>
+                            <Button Grid.Column="2" Command="{Binding GenerateEpcFromImeiCommand}"
+                                    Content="⚡ Encode SGTIN-96 EPC" Height="30" Margin="8,0" Background="#00E5FF" Foreground="#08101E" FontWeight="Bold" Cursor="Hand"/>
+                            <TextBox Grid.Column="3" Text="{Binding UhfEpcHex}" Height="30" FontWeight="Bold" Foreground="#38BDF8" IsReadOnly="True" VerticalAlignment="Center"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- Middle: 4-Memory-Bank Hex Inspector -->
+                    <Grid Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="5*" />
+                            <ColumnDefinition Width="5*" />
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Left: All 4 Banks Overview -->
+                        <Border Grid.Column="0" Background="#162544" BorderBrush="#22365D" BorderThickness="1" CornerRadius="8" Padding="12" Margin="0,0,6,0">
+                            <StackPanel>
+                                <TextBlock Text="EPC GEN2 4-MEMORY-BANK ARCHITECTURE" FontSize="12" FontWeight="Bold" Foreground="#00E5FF" Margin="0,0,0,8"/>
+
+                                <Border Background="#0B132B" CornerRadius="4" Padding="8" Margin="0,0,0,6">
+                                    <StackPanel>
+                                        <TextBlock Text="BANK 00: RESERVED (Kill PWD &amp; Access PWD - 64 bits)" FontSize="10" FontWeight="Bold" Foreground="#FF9100"/>
+                                        <TextBlock Text="Access: 53 41 53 31 | Kill: 00 00 00 00" FontSize="11" FontFamily="Consolas" Foreground="#CBD5E1"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <Border Background="#0B132B" CornerRadius="4" Padding="8" Margin="0,0,0,6">
+                                    <StackPanel>
+                                        <TextBlock Text="BANK 01: EPC (CRC16 + PC + 96-bit SGTIN Data)" FontSize="10" FontWeight="Bold" Foreground="#38BDF8"/>
+                                        <TextBlock Text="{Binding UhfEpcHex}" FontSize="12" FontWeight="Bold" FontFamily="Consolas" Foreground="#38BDF8"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <Border Background="#0B132B" CornerRadius="4" Padding="8" Margin="0,0,0,6">
+                                    <StackPanel>
+                                        <TextBlock Text="BANK 10: TID (Silicon Factory Unique ID - Unalterable ROM)" FontSize="10" FontWeight="Bold" Foreground="#10B981"/>
+                                        <TextBlock Text="{Binding UhfTidHex}" FontSize="11" FontFamily="Consolas" Foreground="#A7F3D0"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <Border Background="#0B132B" CornerRadius="4" Padding="8">
+                                    <StackPanel>
+                                        <TextBlock Text="BANK 11: USER MEMORY (Diagnostic Specs, Battery, Price Hex)" FontSize="10" FontWeight="Bold" Foreground="#A855F7"/>
+                                        <TextBlock Text="{Binding UhfUserMemoryHex}" FontSize="11" FontFamily="Consolas" Foreground="#DDD6FE"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Right: Bank Hex Editor & EAS Security Control -->
+                        <Border Grid.Column="1" Background="#162544" BorderBrush="#22365D" BorderThickness="1" CornerRadius="8" Padding="12" Margin="6,0,0,0">
+                            <StackPanel>
+                                <TextBlock Text="BANK WRITE &amp; EAS ANTI-THEFT MANAGER" FontSize="12" FontWeight="Bold" Foreground="#FF9100" Margin="0,0,0,8"/>
+
+                                <TextBlock Text="Target Memory Bank:" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
+                                <ComboBox ItemsSource="{Binding MemoryBanks}" SelectedItem="{Binding SelectedBank}" Height="30" Margin="0,0,0,8"/>
+
+                                <TextBlock Text="Hex Data Payload (16-bit Word Aligned):" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
+                                <TextBox Text="{Binding BankEditHex, UpdateSourceTrigger=PropertyChanged}" Height="32" FontFamily="Consolas" FontWeight="Bold" Foreground="#00E5FF" Margin="0,0,0,8"/>
+
+                                <!-- EAS Anti Theft Bit Box -->
+                                <Border Background="#0B132B" BorderBrush="#DC2626" BorderThickness="1" CornerRadius="6" Padding="8" Margin="0,0,0,10">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock Text="EAS Anti-Theft Security Gate Alarm" FontWeight="Bold" FontSize="11" Foreground="#F87171"/>
+                                            <TextBlock Text="Triggers alarm at shop exit doors if unpaid" FontSize="9.5" Foreground="#94A3B8"/>
+                                        </StackPanel>
+                                        <Button Grid.Column="1" Command="{Binding ToggleEasAntiTheftCommand}"
+                                                Content="ARM / DISARM" Height="28" Padding="8,2" Background="#DC2626" Foreground="#FFFFFF" FontWeight="Bold" Cursor="Hand"/>
+                                    </Grid>
+                                </Border>
+
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Button Grid.Column="0" Command="{Binding ReadUhfTagBanksCommand}"
+                                            Content="📡 Interrogate Tag" Height="36" Background="#1E3A8A" Foreground="#FFFFFF" FontWeight="Bold" Margin="0,0,4,0" Cursor="Hand"/>
+                                    <Button Grid.Column="1" Command="{Binding WriteSelectedBankCommand}"
+                                            Content="💾 Write Bank Hex" Height="36" Background="#00E5FF" Foreground="#08101E" FontWeight="Black" Margin="4,0,0,0" Cursor="Hand"/>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+
+                    <Border Grid.Row="2" Background="#08101E" CornerRadius="4" Padding="8" Margin="0,10,0,0">
+                        <TextBlock Text="{Binding UhfStatus}" FontSize="11" Foreground="#00E5FF"/>
+                    </Border>
+                </Grid>
+            </TabItem>
+
+            <!-- TAB 3: RAPID BULK STOCK AUDIT RADAR -->
+            <TabItem Header="📊 Rapid Bulk Stock Audit Radar (Shelf Sweep)">
+                <Grid Margin="12">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <!-- KPI Cards Row -->
+                    <Grid Grid.Row="0" Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <Border Grid.Column="0" Background="#162544" CornerRadius="6" Padding="10" Margin="0,0,4,0">
+                            <StackPanel>
+                                <TextBlock Text="EXPECTED (DB)" FontSize="9.5" FontWeight="Bold" Foreground="#94A3B8"/>
+                                <TextBlock Text="{Binding AuditTotalExpected}" FontSize="20" FontWeight="Black" Foreground="#FFFFFF"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Grid.Column="1" Background="#162544" CornerRadius="6" Padding="10" Margin="2,0,4,0">
+                            <StackPanel>
+                                <TextBlock Text="PHYSICAL READ" FontSize="9.5" FontWeight="Bold" Foreground="#38BDF8"/>
+                                <TextBlock Text="{Binding AuditTotalScanned}" FontSize="20" FontWeight="Black" Foreground="#38BDF8"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Grid.Column="2" Background="#064E3B" CornerRadius="6" Padding="10" Margin="2,0,4,0">
+                            <StackPanel>
+                                <TextBlock Text="MATCHED [OK]" FontSize="9.5" FontWeight="Bold" Foreground="#34D399"/>
+                                <TextBlock Text="{Binding AuditMatched}" FontSize="20" FontWeight="Black" Foreground="#34D399"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Grid.Column="3" Background="#7F1D1D" CornerRadius="6" Padding="10" Margin="2,0,4,0">
+                            <StackPanel>
+                                <TextBlock Text="MISSING FROM SHELF" FontSize="9.5" FontWeight="Bold" Foreground="#F87171"/>
+                                <TextBlock Text="{Binding AuditMissing}" FontSize="20" FontWeight="Black" Foreground="#F87171"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Grid.Column="4" Background="#78350F" CornerRadius="6" Padding="10" Margin="2,0,0,0">
+                            <StackPanel>
+                                <TextBlock Text="ANOMALIES / LEAKS" FontSize="9.5" FontWeight="Bold" Foreground="#FBBF24"/>
+                                <TextBlock Text="{Binding AuditUnexpected}" FontSize="20" FontWeight="Black" Foreground="#FBBF24"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+
+                    <!-- Discrepancy Table -->
+                    <Border Grid.Row="1" Background="#162544" BorderBrush="#22365D" BorderThickness="1" CornerRadius="8" Padding="6">
+                        <DataGrid ItemsSource="{Binding AuditItems}" AutoGenerateColumns="False" 
+                                  CanUserAddRows="False" IsReadOnly="True"
+                                  Background="#162544" Foreground="#FFFFFF" RowBackground="#162544" AlternatingRowBackground="#1B2E52"
+                                  GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#22365D" BorderThickness="0">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="IDENTIFIER (IMEI)" Binding="{Binding Identifier}" Width="160" FontWeight="Bold"/>
+                                <DataGridTextColumn Header="DEVICE DESCRIPTION" Binding="{Binding DeviceDescription}" Width="240"/>
+                                <DataGridTextColumn Header="COLOR" Binding="{Binding Color}" Width="90"/>
+                                <DataGridTextColumn Header="PRICE (₹)" Binding="{Binding SystemPrice, StringFormat='₹{0:N0}'}" Width="100"/>
+                                <DataGridTextColumn Header="DB STATUS" Binding="{Binding SystemStatus}" Width="90"/>
+                                <DataGridTextColumn Header="RECONCILIATION RESULT" Binding="{Binding MatchStatus}" Width="150" FontWeight="Bold"/>
+                                <DataGridTextColumn Header="AUDIT BENCH REMARKS" Binding="{Binding Remarks}" Width="*"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Border>
+
+                    <!-- Sweep Trigger & Summary -->
+                    <Grid Grid.Row="2" Margin="0,10,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="{Binding AuditSummaryText}" FontSize="12" FontWeight="Bold" Foreground="#00E5FF" VerticalAlignment="Center"/>
+                        <Button Grid.Column="1" Command="{Binding StartRapidShelfSweepCommand}"
+                                Height="40" Padding="16,4" Background="#00E5FF" Foreground="#08101E" FontWeight="Black" Cursor="Hand">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="⚡ START RAPID SHELF SWEEP (UHF RFID)" FontSize="12" FontWeight="Black"/>
+                            </StackPanel>
+                        </Button>
+                    </Grid>
+                </Grid>
+            </TabItem>
+        </TabControl>
+
+        <!-- 3. FOOTER STATUS -->
+        <Border Grid.Row="2" Background="#08101E" BorderBrush="#1C2D4A" BorderThickness="0,1,0,0" Padding="12,6" Margin="0,10,0,0">
+            <TextBlock Text="Sasan The Gadget Lounge • Dual NFC (13.56 MHz) + UHF RFID (860-960 MHz) Integrated Engine Active." 
+                       FontSize="11" Foreground="#94A3B8"/>
+        </Border>
+    </Grid>
+</UserControl>

@@ -3,34 +3,64 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
         xmlns:vm="clr-namespace:SasanERP.UI.ViewModels"
-        Title="Sasan The Gadget Lounge - Enterprise POS &amp; Inventory System"
-        Height="800" Width="1280"
-        MinHeight="720" MinWidth="1024"
+        xmlns:views="clr-namespace:SasanERP.UI.Views"
+        Title="Sasan The Gadget Lounge - Commercial Enterprise ERP, POS &amp; Inventory Suite"
+        Height="840" Width="1380"
+        MinHeight="720" MinWidth="1100"
         WindowStartupLocation="CenterScreen"
-        Background="#0E1626"
+        Background="#0A111E"
         Foreground="#E0E6ED"
         KeyDown="Window_KeyDown">
 
     <ui:FluentWindow.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
+
+        <!-- View DataTemplates for In-Place Dynamic Module Navigation -->
+        <DataTemplate DataType="{x:Type vm:DashboardViewModel}">
+            <views:DashboardView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:PosViewModel}">
+            <views:PosView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:InventoryViewModel}">
+            <views:InventoryView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:InventoryIntakeViewModel}">
+            <views:DeviceIntakeView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:DaybookViewModel}">
+            <views:DaybookView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:GstReportsViewModel}">
+            <views:GstReportsView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:WirelessStudioViewModel}">
+            <views:WirelessStudioView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:CompanySettingsViewModel}">
+            <views:StoreSettingsView />
+        </DataTemplate>
     </ui:FluentWindow.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" /> <!-- Top Bar -->
-            <RowDefinition Height="Auto" /> <!-- Shortcut Bar -->
-            <RowDefinition Height="*" />    <!-- POS Workspace -->
-            <RowDefinition Height="Auto" /> <!-- Status Bar -->
+            <RowDefinition Height="Auto" /> <!-- Top Header Bar -->
+            <RowDefinition Height="*" />    <!-- Main Shell (Left Nav Rail + Workspace) -->
+            <RowDefinition Height="Auto" /> <!-- Bottom Status Bar -->
         </Grid.RowDefinitions>
 
-        <!-- 1. TOP HEADER & BRANDING -->
-        <Border Grid.Row="0" Background="#08101E" BorderBrush="#1C2D4A" BorderThickness="0,0,0,1" Padding="16,10">
+        <!-- ============================================================== -->
+        <!-- 1. TOP HEADER & STORE IDENTITY BAR                             -->
+        <!-- ============================================================== -->
+        <Border Grid.Row="0" Background="#070E1A" BorderBrush="#1C2D4A" BorderThickness="0,0,0,1" Padding="16,8">
             <Grid>
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
+                <!-- Store Brand & Logo -->
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
                     <Border Background="#08101E" BorderBrush="#00E5FF" BorderThickness="1.5" CornerRadius="22" Width="44" Height="44" Margin="0,0,12,0" ClipToBounds="True">
                         <Image Source="pack://application:,,,/Assets/logo.png" Width="40" Height="40" HorizontalAlignment="Center" VerticalAlignment="Center"
@@ -38,377 +68,293 @@
                     </Border>
                     <StackPanel VerticalAlignment="Center">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="SASAN" FontWeight="Black" FontSize="18" Foreground="#FFFFFF" />
-                            <TextBlock Text=" THE GADGET LOUNGE" FontWeight="SemiBold" FontSize="18" Foreground="#00E5FF" Margin="4,0,0,0"/>
+                            <TextBlock Text="{Binding StoreName}" FontWeight="Black" FontSize="17" Foreground="#FFFFFF" />
                             <Border Background="#FF9100" CornerRadius="4" Padding="6,1" Margin="10,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="THENI" FontSize="10" FontWeight="Bold" Foreground="#08101E"/>
+                                <TextBlock Text="THENI OUTLET" FontSize="10" FontWeight="Bold" Foreground="#08101E"/>
+                            </Border>
+                            <Border Background="#16253D" CornerRadius="4" Padding="8,1" Margin="8,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="GSTIN: 33AAECS4821N1ZH" FontSize="10" FontWeight="Bold" Foreground="#00E5FF"/>
                             </Border>
                         </StackPanel>
-                        <TextBlock Text="106/7, Karthik Mahall, Subban St, Opposite Theni, Suppan Ragavan Colony, NRT Nagar | Tel: 9080803070" 
-                                   FontSize="11" Foreground="#8FA3BF" Margin="0,2,0,0"/>
+                        <TextBlock Text="{Binding StoreAddress}" FontSize="11" Foreground="#8FA3BF" Margin="0,2,0,0"/>
                     </StackPanel>
                 </StackPanel>
 
-                <!-- Current Bill Meta -->
-                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Border Background="#16253D" CornerRadius="6" Padding="12,6" Margin="0,0,8,0">
+                <!-- Center Active Module Indicator -->
+                <StackPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Border Background="#132035" BorderBrush="#223656" BorderThickness="1" CornerRadius="6" Padding="16,4">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="BILL NO: " FontSize="12" FontWeight="Bold" Foreground="#8FA3BF"/>
-                            <TextBlock Text="{Binding InvoiceNumber}" FontSize="13" FontWeight="Bold" Foreground="#00E5FF"/>
+                            <TextBlock Text="ACTIVE MODULE: " FontSize="11" FontWeight="Bold" Foreground="#8FA3BF"/>
+                            <TextBlock Text="{Binding CurrentSection}" FontSize="12" FontWeight="Black" Foreground="#00E5FF"/>
                         </StackPanel>
                     </Border>
-                    <Border Background="#16253D" CornerRadius="6" Padding="12,6">
+                </StackPanel>
+
+                <!-- Top Right Quick Controls -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                    <!-- Cashier Badge -->
+                    <Border Background="#16253D" CornerRadius="6" Padding="10,5" Margin="0,0,10,0">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="GST STATE: " FontSize="12" FontWeight="Bold" Foreground="#8FA3BF"/>
-                            <TextBlock Text="33-TAMIL NADU" FontSize="12" FontWeight="Bold" Foreground="#A0E0A0"/>
+                            <TextBlock Text="👤 " FontSize="12"/>
+                            <TextBlock Text="{Binding ActiveCashier}" FontSize="11" FontWeight="Bold" Foreground="#FFFFFF"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Theme Selector -->
+                    <Border Background="#16253D" CornerRadius="6" Padding="6,2" Margin="0,0,8,0">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="🎨" FontSize="12" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                            <ComboBox ItemsSource="{Binding PosVM.AvailableThemeModes}" SelectedItem="{Binding PosVM.SelectedThemeMode}" Width="140" Height="26" FontSize="11" />
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Invoice Template Selector -->
+                    <Border Background="#16253D" CornerRadius="6" Padding="6,2">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="📄" FontSize="12" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                            <ComboBox ItemsSource="{Binding PosVM.AvailableInvoiceTemplates}" SelectedItem="{Binding PosVM.SelectedInvoiceTemplate}" Width="160" Height="26" FontSize="11" />
                         </StackPanel>
                     </Border>
                 </StackPanel>
             </Grid>
         </Border>
 
-        <!-- 2. KEYBOARD SHORTCUTS LEGEND BAR -->
-        <Border Grid.Row="1" Background="#0C182B" BorderBrush="#1C2D4A" BorderThickness="0,0,0,1" Padding="16,6">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
+        <!-- ============================================================== -->
+        <!-- 2. MAIN SHELL (NAVIGATION RAIL + DYNAMIC WORKSPACE)            -->
+        <!-- ============================================================== -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="220" /> <!-- Left Navigation Sidebar -->
+                <ColumnDefinition Width="*" />   <!-- Dynamic Module View Workspace -->
+            </Grid.ColumnDefinitions>
 
-                <!-- Quick Action Buttons & Format Selectors -->
-                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="QUICK KEYS:" FontSize="11" FontWeight="Bold" Foreground="#728AA8" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                    
-                    <Button Click="BtnNewBill_Click" Background="#182A45" BorderThickness="0" Padding="8,4" Margin="0,0,6,0" Cursor="Hand">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="[F2]" FontWeight="Bold" Foreground="#00E5FF" Margin="0,0,4,0"/>
-                            <TextBlock Text="New Bill" FontSize="11" Foreground="#C8D4E6"/>
-                        </StackPanel>
-                    </Button>
+            <!-- LEFT NAVIGATION RAIL -->
+            <Border Grid.Column="0" Background="#070E1A" BorderBrush="#1C2D4A" BorderThickness="0,0,1,0" Padding="8,10">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />    <!-- Navigation Items -->
+                        <RowDefinition Height="Auto" /> <!-- Bottom Action Buttons -->
+                    </Grid.RowDefinitions>
 
-                    <Button Click="BtnOpenIntake_Click" Background="#1B3B36" BorderThickness="1" BorderBrush="#00E5FF" Padding="8,4" Margin="0,0,6,0" Cursor="Hand">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="[F3]" FontWeight="Bold" Foreground="#00E5FF" Margin="0,0,4,0"/>
-                            <TextBlock Text="🏷️ Stock &amp; Sticker Studio" FontSize="11" FontWeight="Bold" Foreground="#FFFFFF"/>
-                        </StackPanel>
-                    </Button>
+                    <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
+                        <StackPanel>
+                            <!-- Section Title -->
+                            <TextBlock Text="ERP MODULES" FontSize="10" FontWeight="Black" Foreground="#64748B" Margin="10,4,0,8"/>
 
-                    <Button Click="BtnPrintSticker_Click" Background="#182A45" BorderThickness="0" Padding="8,4" Margin="0,0,6,0" Cursor="Hand">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="[F4]" FontWeight="Bold" Foreground="#FF9100" Margin="0,0,4,0"/>
-                            <TextBlock Text="Print Sticker" FontSize="11" Foreground="#C8D4E6"/>
-                        </StackPanel>
-                    </Button>
-
-                    <Button Click="BtnOpenSettings_Click" Background="#241B3B" BorderThickness="1" BorderBrush="#C084FC" Padding="8,4" Margin="0,0,6,0" Cursor="Hand">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="[F5]" FontWeight="Bold" Foreground="#C084FC" Margin="0,0,4,0"/>
-                            <TextBlock Text="⚙️ Store Profile" FontSize="11" FontWeight="Bold" Foreground="#FFFFFF"/>
-                        </StackPanel>
-                    </Button>
-
-                    <Button Click="BtnOpenWirelessStudio_Click" Background="#1E2A4A" BorderThickness="1" BorderBrush="#38BDF8" Padding="8,4" Margin="0,0,6,0" Cursor="Hand">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="[F6]" FontWeight="Bold" Foreground="#38BDF8" Margin="0,0,4,0"/>
-                            <TextBlock Text="📡 NFC &amp; RFID" FontSize="11" FontWeight="Bold" Foreground="#FFFFFF"/>
-                        </StackPanel>
-                    </Button>
-
-                    <!-- GST Toggle Button [F7] -->
-                    <Button Command="{Binding ToggleGstModeCommand}" Background="#202C3F" BorderThickness="1" BorderBrush="#FF9100" Padding="8,4" Margin="0,0,6,0" Cursor="Hand">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="[F7]" FontWeight="Bold" Foreground="#FF9100" Margin="0,0,4,0"/>
-                            <TextBlock Text="GST: " FontSize="11" Foreground="#C8D4E6"/>
-                            <TextBlock Text="ON" FontWeight="Black" Foreground="#00E5FF" 
-                                       Visibility="{Binding IsGstEnabled, Converter={StaticResource BoolToVis}}"/>
-                            <TextBlock Text="OFF (₹0 Tax)" FontWeight="Black" Foreground="#FF9100">
-                                <TextBlock.Style>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="Visibility" Value="Collapsed"/>
+                            <!-- Nav Item 1: Dashboard [F1] -->
+                            <Button Click="BtnNavDashboard_Click" HorizontalContentAlignment="Left" Padding="12,10" Margin="0,0,0,4"
+                                    BorderThickness="0" Cursor="Hand">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Background" Value="Transparent"/>
                                         <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsGstEnabled}" Value="False">
-                                                <Setter Property="Visibility" Value="Visible"/>
+                                            <DataTrigger Binding="{Binding CurrentSection}" Value="Dashboard">
+                                                <Setter Property="Background" Value="#162744"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
-                                </TextBlock.Style>
-                            </TextBlock>
-                        </StackPanel>
-                    </Button>
+                                </Button.Style>
+                                <Grid Width="170">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="📊 " FontSize="14" Margin="0,0,8,0"/>
+                                        <TextBlock Text="Dashboard" FontSize="13" FontWeight="Bold" Foreground="#FFFFFF"/>
+                                    </StackPanel>
+                                    <TextBlock Text="[F1]" FontSize="10" FontWeight="Bold" Foreground="#00E5FF" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                </Grid>
+                            </Button>
 
-                    <Button Command="{Binding CheckoutAndPrintInvoiceCommand}" Background="#00E5FF" BorderThickness="0" Padding="8,4" Margin="0,0,10,0" Cursor="Hand">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="[F9]" FontWeight="Black" Foreground="#08101E" Margin="0,0,4,0"/>
-                            <TextBlock Text="Save &amp; Print" FontSize="11" FontWeight="Bold" Foreground="#08101E"/>
-                        </StackPanel>
-                    </Button>
-                </StackPanel>
+                            <!-- Nav Item 2: POS Billing [F2] -->
+                            <Button Click="BtnNavPos_Click" HorizontalContentAlignment="Left" Padding="12,10" Margin="0,0,0,4"
+                                    BorderThickness="0" Cursor="Hand">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Background" Value="Transparent"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding CurrentSection}" Value="PosBilling">
+                                                <Setter Property="Background" Value="#162744"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                                <Grid Width="170">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="⚡ " FontSize="14" Margin="0,0,8,0"/>
+                                        <TextBlock Text="POS Billing" FontSize="13" FontWeight="Bold" Foreground="#FFFFFF"/>
+                                    </StackPanel>
+                                    <TextBlock Text="[F2]" FontSize="10" FontWeight="Bold" Foreground="#00E5FF" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                </Grid>
+                            </Button>
 
-                <!-- Section 1 & Section 2 Selectors (UI Themes & Invoice Templates) -->
-                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                    <!-- UI Theme Selector (6 Choices) -->
-                    <Border Background="#16253D" CornerRadius="6" Padding="6,2" Margin="0,0,6,0">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="🎨 Theme:" FontSize="11" FontWeight="Bold" Foreground="#00E5FF" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                            <ComboBox ItemsSource="{Binding AvailableThemeModes}" SelectedItem="{Binding SelectedThemeMode}" Width="150" Height="26" FontSize="11" />
-                        </StackPanel>
-                    </Border>
+                            <!-- Nav Item 3: Inventory & IMEI Registry [F3] -->
+                            <Button Click="BtnNavInventory_Click" HorizontalContentAlignment="Left" Padding="12,10" Margin="0,0,0,4"
+                                    BorderThickness="0" Cursor="Hand">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Background" Value="Transparent"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding CurrentSection}" Value="InventoryRegistry">
+                                                <Setter Property="Background" Value="#162744"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                                <Grid Width="170">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="📦 " FontSize="14" Margin="0,0,8,0"/>
+                                        <TextBlock Text="Stock Registry" FontSize="13" FontWeight="Bold" Foreground="#FFFFFF"/>
+                                    </StackPanel>
+                                    <TextBlock Text="[F3]" FontSize="10" FontWeight="Bold" Foreground="#00E5FF" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                </Grid>
+                            </Button>
 
-                    <!-- Invoice Template Selector (7 Choices) -->
-                    <Border Background="#16253D" CornerRadius="6" Padding="6,2">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="📄 Invoice:" FontSize="11" FontWeight="Bold" Foreground="#FF9100" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                            <ComboBox ItemsSource="{Binding AvailableInvoiceTemplates}" SelectedItem="{Binding SelectedInvoiceTemplate}" Width="180" Height="26" FontSize="11" />
-                        </StackPanel>
-                    </Border>
-                </StackPanel>
-            </Grid>
-        </Border>
+                            <!-- Nav Item 4: Intake & Barcode Stickers [F4] -->
+                            <Button Click="BtnNavIntake_Click" HorizontalContentAlignment="Left" Padding="12,10" Margin="0,0,0,4"
+                                    BorderThickness="0" Cursor="Hand">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Background" Value="Transparent"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding CurrentSection}" Value="DeviceIntake">
+                                                <Setter Property="Background" Value="#162744"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                                <Grid Width="170">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="🏷️ " FontSize="14" Margin="0,0,8,0"/>
+                                        <TextBlock Text="Intake &amp; Stickers" FontSize="13" FontWeight="Bold" Foreground="#FFFFFF"/>
+                                    </StackPanel>
+                                    <TextBlock Text="[F4]" FontSize="10" FontWeight="Bold" Foreground="#FF9100" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                </Grid>
+                            </Button>
 
-        <!-- 3. MAIN WORKSPACE -->
-        <Grid Grid.Row="2" Margin="16,12">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="7*" /> <!-- Left: Barcode Scanner & Cart -->
-                <ColumnDefinition Width="4*" /> <!-- Right: Billing Summary & Payment -->
-            </Grid.ColumnDefinitions>
+                            <!-- Nav Item 5: Daybook & Accounts [F6] -->
+                            <Button Click="BtnNavDaybook_Click" HorizontalContentAlignment="Left" Padding="12,10" Margin="0,0,0,4"
+                                    BorderThickness="0" Cursor="Hand">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Background" Value="Transparent"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding CurrentSection}" Value="DaybookLedger">
+                                                <Setter Property="Background" Value="#162744"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                                <Grid Width="170">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="📒 " FontSize="14" Margin="0,0,8,0"/>
+                                        <TextBlock Text="Daybook &amp; Ledgers" FontSize="13" FontWeight="Bold" Foreground="#FFFFFF"/>
+                                    </StackPanel>
+                                    <TextBlock Text="[F6]" FontSize="10" FontWeight="Bold" Foreground="#00E5FF" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                </Grid>
+                            </Button>
 
-            <!-- LEFT COLUMN: SCANNER & CART -->
-            <Grid Grid.Column="0" Margin="0,0,12,0">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" /> <!-- Customer & Scanner Box -->
-                    <RowDefinition Height="*" />    <!-- Cart Grid -->
-                </Grid.RowDefinitions>
+                            <!-- Nav Item 6: GST & GSTR-1 Hub [F7] -->
+                            <Button Click="BtnNavGstReports_Click" HorizontalContentAlignment="Left" Padding="12,10" Margin="0,0,0,4"
+                                    BorderThickness="0" Cursor="Hand">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Background" Value="Transparent"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding CurrentSection}" Value="GstReports">
+                                                <Setter Property="Background" Value="#162744"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                                <Grid Width="170">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="📈 " FontSize="14" Margin="0,0,8,0"/>
+                                        <TextBlock Text="GST &amp; GSTR-1 Hub" FontSize="13" FontWeight="Bold" Foreground="#FFFFFF"/>
+                                    </StackPanel>
+                                    <TextBlock Text="[F7]" FontSize="10" FontWeight="Bold" Foreground="#00E5FF" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                </Grid>
+                            </Button>
 
-                <!-- Customer Selection & Barcode Scanner Input -->
-                <Border Grid.Row="0" Background="#132035" BorderBrush="#223656" BorderThickness="1" CornerRadius="8" Padding="12" Margin="0,0,0,10">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
+                            <!-- Nav Item 7: NFC & UHF RFID Wireless Hub [F8] -->
+                            <Button Click="BtnNavWireless_Click" HorizontalContentAlignment="Left" Padding="12,10" Margin="0,0,0,4"
+                                    BorderThickness="0" Cursor="Hand">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Background" Value="Transparent"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding CurrentSection}" Value="WirelessStudio">
+                                                <Setter Property="Background" Value="#162744"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                                <Grid Width="170">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="📡 " FontSize="14" Margin="0,0,8,0"/>
+                                        <TextBlock Text="NFC &amp; UHF RFID" FontSize="13" FontWeight="Bold" Foreground="#FFFFFF"/>
+                                    </StackPanel>
+                                    <TextBlock Text="[F8]" FontSize="10" FontWeight="Bold" Foreground="#38BDF8" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                </Grid>
+                            </Button>
 
-                        <!-- Customer Selector Row -->
-                        <Grid Grid.Row="0" Margin="0,0,0,10">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="Customer:" FontWeight="SemiBold" FontSize="13" Foreground="#9BB3D1" 
-                                       VerticalAlignment="Center" Margin="0,0,10,0"/>
-                            <ComboBox Grid.Column="1" ItemsSource="{Binding Customers}" 
-                                      SelectedItem="{Binding SelectedCustomer}"
-                                      DisplayMemberPath="FullName"
-                                      Height="34" FontSize="13" Background="#0C182B" Foreground="#FFFFFF"/>
-                        </Grid>
-
-                        <!-- USB Barcode Scanner Input Box -->
-                        <Grid Grid.Row="1">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-
-                            <TextBox x:Name="TxtBarcode" Grid.Column="0"
-                                     Text="{Binding BarcodeInput, UpdateSourceTrigger=PropertyChanged}"
-                                     FontSize="16" FontWeight="SemiBold"
-                                     Height="44" Padding="12,8"
-                                     Background="#0A1424" Foreground="#00E5FF"
-                                     BorderBrush="#00E5FF" BorderThickness="1.5"
-                                     KeyDown="TxtBarcode_KeyDown"/>
-
-                            <Button Grid.Column="1" Command="{Binding ProcessBarcodeScanCommand}"
-                                    Content="ADD (SCAN)" Height="44" Margin="8,0,0,0" Padding="16,0"
-                                    Background="#00E5FF" Foreground="#08101E" FontWeight="Bold" FontSize="13"/>
-                        </Grid>
-                    </Grid>
-                </Border>
-
-                <!-- Cart Items Table -->
-                <Border Grid.Row="1" Background="#132035" BorderBrush="#223656" BorderThickness="1" CornerRadius="8" Padding="10">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="*" />
-                        </Grid.RowDefinitions>
-
-                        <TextBlock Grid.Row="0" Text="CART ITEMS &amp; SERIALIZED DEVICES" FontWeight="Bold" FontSize="13" Foreground="#9BB3D1" Margin="4,0,0,8"/>
-
-                        <ListView Grid.Row="1" ItemsSource="{Binding CartItems}" Background="Transparent" BorderThickness="0">
-                            <ListView.ItemTemplate>
-                                <DataTemplate>
-                                    <Border Background="#182740" BorderBrush="#243859" BorderThickness="1" CornerRadius="6" Padding="10" Margin="0,0,0,6">
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*" />
-                                                <ColumnDefinition Width="Auto" />
-                                                <ColumnDefinition Width="Auto" />
-                                                <ColumnDefinition Width="Auto" />
-                                            </Grid.ColumnDefinitions>
-
-                                            <!-- Item Name & Details -->
-                                            <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                                                <StackPanel Orientation="Horizontal">
-                                                    <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="14" Foreground="#FFFFFF" />
-                                                    <!-- Margin Scheme Badge -->
-                                                    <Border Background="#FF9100" CornerRadius="3" Padding="5,1" Margin="8,0,0,0"
-                                                            Visibility="{Binding IsMarginScheme, Converter={StaticResource BoolToVis}}">
-                                                        <TextBlock Text="RULE 32(5) MARGIN" FontSize="9" FontWeight="Bold" Foreground="#08101E"/>
-                                                    </Border>
-                                                </StackPanel>
-                                                <TextBlock Text="{Binding FormattedSpecs}" FontSize="11" Foreground="#8EA4C1" Margin="0,2,0,0"/>
-                                                <TextBlock Text="{Binding HsnCode, StringFormat='HSN: {0}'}" FontSize="10" Foreground="#6C829E" Margin="0,1,0,0"/>
-                                            </StackPanel>
-
-                                            <!-- Qty & Unit Rate -->
-                                            <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="16,0">
-                                                <TextBlock Text="{Binding Quantity, StringFormat='Qty: {0}'}" FontSize="12" Foreground="#C8D4E6" HorizontalAlignment="Right"/>
-                                                <TextBlock Text="{Binding UnitPrice, StringFormat='Rate: ₹{0:N0}'}" FontSize="11" Foreground="#8EA4C1" HorizontalAlignment="Right"/>
-                                            </StackPanel>
-
-                                            <!-- Line Total -->
-                                            <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="16,0">
-                                                <TextBlock Text="{Binding LineTotal, StringFormat='₹{0:N2}'}" FontWeight="Black" FontSize="15" Foreground="#00E5FF" HorizontalAlignment="Right"/>
-                                                <TextBlock Text="{Binding GstPercentage, StringFormat='GST: {0}%'}" FontSize="10" Foreground="#8EA4C1" HorizontalAlignment="Right"/>
-                                            </StackPanel>
-
-                                            <!-- Actions: Print Sticker & Remove -->
-                                            <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0,0,0">
-                                                <Button Command="{Binding DataContext.PrintBarcodeLabelCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
-                                                        CommandParameter="{Binding}"
-                                                        Content="🏷️" ToolTip="Print 50x25mm Barcode Sticker"
-                                                        Height="30" Width="32" Margin="0,0,4,0" Background="#243859" Foreground="#FF9100"/>
-
-                                                <Button Command="{Binding DataContext.RemoveCartItemCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
-                                                        CommandParameter="{Binding}"
-                                                        Content="✕" ToolTip="Remove from cart"
-                                                        Height="30" Width="32" Background="#3D1A24" Foreground="#FF5252"/>
-                                            </StackPanel>
-                                        </Grid>
-                                    </Border>
-                                </DataTemplate>
-                            </ListView.ItemTemplate>
-                        </ListView>
-                    </Grid>
-                </Border>
-            </Grid>
-
-            <!-- RIGHT COLUMN: FINANCIAL SUMMARY & CHECKOUT -->
-            <Grid Grid.Column="1">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" /> <!-- Summary Totals Card -->
-                    <RowDefinition Height="*" />    <!-- Split Payment Tender -->
-                    <RowDefinition Height="Auto" /> <!-- Checkout Button -->
-                </Grid.RowDefinitions>
-
-                <!-- Tax & Financial Summary Card -->
-                <Border Grid.Row="0" Background="#132035" BorderBrush="#223656" BorderThickness="1" CornerRadius="8" Padding="14" Margin="0,0,0,10">
-                    <StackPanel>
-                        <TextBlock Text="TAX &amp; BILL SUMMARY" FontWeight="Bold" FontSize="12" Foreground="#7A93B2" Margin="0,0,0,8"/>
-
-                        <Grid Margin="0,2">
-                            <TextBlock Text="Subtotal (Items):" FontSize="12" Foreground="#8FA3BF"/>
-                            <TextBlock Text="{Binding SubTotal, StringFormat='₹{0:N2}'}" FontSize="12" FontWeight="Bold" Foreground="#FFFFFF" HorizontalAlignment="Right"/>
-                        </Grid>
-
-                        <Grid Margin="0,2">
-                            <TextBlock Text="Standard Taxable Value:" FontSize="12" Foreground="#8FA3BF"/>
-                            <TextBlock Text="{Binding TotalTaxableValue, StringFormat='₹{0:N2}'}" FontSize="12" Foreground="#FFFFFF" HorizontalAlignment="Right"/>
-                        </Grid>
-
-                        <Grid Margin="0,2">
-                            <TextBlock Text="CGST (9%):" FontSize="12" Foreground="#8FA3BF"/>
-                            <TextBlock Text="{Binding TotalCGST, StringFormat='₹{0:N2}'}" FontSize="12" Foreground="#FFFFFF" HorizontalAlignment="Right"/>
-                        </Grid>
-
-                        <Grid Margin="0,2">
-                            <TextBlock Text="SGST (9%):" FontSize="12" Foreground="#8FA3BF"/>
-                            <TextBlock Text="{Binding TotalSGST, StringFormat='₹{0:N2}'}" FontSize="12" Foreground="#FFFFFF" HorizontalAlignment="Right"/>
-                        </Grid>
-
-                        <!-- Margin Scheme GST Note -->
-                        <Border Background="#211812" BorderBrush="#FF9100" BorderThickness="1" CornerRadius="4" Padding="6,3" Margin="0,4"
-                                Visibility="{Binding HasMarginSchemeItems, Converter={StaticResource BoolToVis}}">
-                            <Grid>
-                                <TextBlock Text="Rule 32(5) Margin GST:" FontSize="11" Foreground="#FFB74D"/>
-                                <TextBlock Text="{Binding TotalMarginTax, StringFormat='₹{0:N2}'}" FontSize="11" FontWeight="Bold" Foreground="#FF9100" HorizontalAlignment="Right"/>
-                            </Grid>
-                        </Border>
-
-                        <Separator Background="#223656" Margin="0,6"/>
-
-                        <!-- Grand Total Display -->
-                        <Border Background="#08101E" CornerRadius="6" Padding="10,8">
-                            <Grid>
-                                <TextBlock Text="NET PAYABLE:" FontSize="13" FontWeight="Bold" Foreground="#8FA3BF" VerticalAlignment="Center"/>
-                                <TextBlock Text="{Binding GrandTotal, StringFormat='₹{0:N0}'}" FontSize="24" FontWeight="Black" Foreground="#00E5FF" HorizontalAlignment="Right"/>
-                            </Grid>
-                        </Border>
-                    </StackPanel>
-                </Border>
-
-                <!-- Multi-Tender Split Payment Box -->
-                <Border Grid.Row="1" Background="#132035" BorderBrush="#223656" BorderThickness="1" CornerRadius="8" Padding="14" Margin="0,0,0,10">
-                    <ScrollViewer VerticalScrollBarVisibility="Auto">
-                        <StackPanel>
-                            <TextBlock Text="PAYMENT SPLIT TENDER" FontWeight="Bold" FontSize="12" Foreground="#7A93B2" Margin="0,0,0,8"/>
-
-                            <Grid Margin="0,2">
-                                <TextBlock Text="Cash (₹):" FontSize="12" VerticalAlignment="Center" Foreground="#8FA3BF"/>
-                                <TextBox Text="{Binding CashTendered, UpdateSourceTrigger=PropertyChanged}" Width="140" Height="30" HorizontalAlignment="Right" Background="#0C182B" Foreground="#FFFFFF"/>
-                            </Grid>
-
-                            <Grid Margin="0,2">
-                                <TextBlock Text="UPI / QR (₹):" FontSize="12" VerticalAlignment="Center" Foreground="#8FA3BF"/>
-                                <TextBox Text="{Binding UpiTendered, UpdateSourceTrigger=PropertyChanged}" Width="140" Height="30" HorizontalAlignment="Right" Background="#0C182B" Foreground="#00E5FF"/>
-                            </Grid>
-
-                            <Grid Margin="0,2">
-                                <TextBlock Text="Card (POS Swipe ₹):" FontSize="12" VerticalAlignment="Center" Foreground="#8FA3BF"/>
-                                <TextBox Text="{Binding CardTendered, UpdateSourceTrigger=PropertyChanged}" Width="140" Height="30" HorizontalAlignment="Right" Background="#0C182B" Foreground="#FFFFFF"/>
-                            </Grid>
-
-                            <Grid Margin="0,2">
-                                <TextBlock Text="Exchange Deduction (₹):" FontSize="12" VerticalAlignment="Center" Foreground="#8FA3BF"/>
-                                <TextBox Text="{Binding ExchangeTendered, UpdateSourceTrigger=PropertyChanged}" Width="140" Height="30" HorizontalAlignment="Right" Background="#0C182B" Foreground="#FF9100"/>
-                            </Grid>
-
-                            <Grid Margin="0,2">
-                                <TextBlock Text="Finance / Bajaj EMI (₹):" FontSize="12" VerticalAlignment="Center" Foreground="#8FA3BF"/>
-                                <TextBox Text="{Binding FinanceEmiTendered, UpdateSourceTrigger=PropertyChanged}" Width="140" Height="30" HorizontalAlignment="Right" Background="#0C182B" Foreground="#FFFFFF"/>
-                            </Grid>
-
-                            <Grid Margin="0,4">
-                                <TextBlock Text="Txn Ref / Approval #:" FontSize="11" VerticalAlignment="Center" Foreground="#6C829E"/>
-                                <TextBox Text="{Binding PaymentReference, UpdateSourceTrigger=PropertyChanged}" Width="140" Height="28" HorizontalAlignment="Right" Background="#0C182B" Foreground="#8FA3BF"/>
-                            </Grid>
+                            <!-- Nav Item 8: Store Settings & Profile [F5] -->
+                            <Button Click="BtnNavSettings_Click" HorizontalContentAlignment="Left" Padding="12,10" Margin="0,0,0,4"
+                                    BorderThickness="0" Cursor="Hand">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Background" Value="Transparent"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding CurrentSection}" Value="StoreSettings">
+                                                <Setter Property="Background" Value="#162744"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                                <Grid Width="170">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="⚙️ " FontSize="14" Margin="0,0,8,0"/>
+                                        <TextBlock Text="Store Settings" FontSize="13" FontWeight="Bold" Foreground="#FFFFFF"/>
+                                    </StackPanel>
+                                    <TextBlock Text="[F5]" FontSize="10" FontWeight="Bold" Foreground="#C084FC" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                </Grid>
+                            </Button>
                         </StackPanel>
                     </ScrollViewer>
-                </Border>
 
-                <!-- Big Checkout Button -->
-                <Button Grid.Row="2" Command="{Binding CheckoutAndPrintInvoiceCommand}"
-                        Height="56" Background="#00E5FF" Foreground="#08101E"
-                        FontSize="16" FontWeight="Black" Cursor="Hand">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="⚡ [F9] COMPLETE &amp; PRINT INVOICE" VerticalAlignment="Center"/>
-                    </StackPanel>
-                </Button>
-            </Grid>
+                    <!-- Bottom Quick POS Checkout Helper -->
+                    <Border Grid.Row="1" Background="#132035" BorderBrush="#223656" BorderThickness="1" CornerRadius="8" Padding="10" Margin="0,8,0,0">
+                        <StackPanel>
+                            <TextBlock Text="QUICK BILLING ACTION" FontSize="10" FontWeight="Bold" Foreground="#8FA3BF" Margin="0,0,0,6"/>
+                            <Button Command="{Binding PosVM.NewBillCommand}" Background="#1E3A8A" Foreground="#FFFFFF" 
+                                    Height="32" FontWeight="Bold" FontSize="11" Margin="0,0,0,4" Cursor="Hand">
+                                <TextBlock Text="➕ [F2] Fresh Invoice"/>
+                            </Button>
+                            <Button Command="{Binding PosVM.CheckoutAndPrintInvoiceCommand}" Background="#00E5FF" Foreground="#08101E" 
+                                    Height="36" FontWeight="Black" FontSize="11" Cursor="Hand">
+                                <TextBlock Text="⚡ [F9] Save &amp; Print"/>
+                            </Button>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <!-- DYNAMIC MODULE VIEW WORKSPACE -->
+            <ContentControl Grid.Column="1" Content="{Binding CurrentViewModel}" Background="#0A111E"/>
         </Grid>
 
-        <!-- 4. BOTTOM STATUS BAR -->
-        <Border Grid.Row="3" Background="#070E1A" BorderBrush="#1C2D4A" BorderThickness="0,1,0,0" Padding="16,4">
+        <!-- ============================================================== -->
+        <!-- 3. BOTTOM GLOBAL STATUS BAR                                    -->
+        <!-- ============================================================== -->
+        <Border Grid.Row="2" Background="#070E1A" BorderBrush="#1C2D4A" BorderThickness="0,1,0,0" Padding="16,6">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
-                <TextBlock Grid.Column="0" Text="{Binding StatusMessage}" FontSize="12" Foreground="#8FA3BF" VerticalAlignment="Center"/>
+                <TextBlock Grid.Column="0" Text="{Binding GlobalStatus}" FontSize="12" Foreground="#8EA4C1" VerticalAlignment="Center"/>
 
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="DB: SQLite Offline-Ready" FontSize="11" Foreground="#4CAF50" Margin="0,0,12,0"/>
-                    <TextBlock Text="Server: Sasan Terminal #1" FontSize="11" Foreground="#8FA3BF"/>
+                    <TextBlock Text="{Binding CurrentTimeString}" FontSize="11" FontWeight="Bold" Foreground="#FFFFFF" Margin="0,0,14,0"/>
+                    <TextBlock Text="Standalone Offline Engine Active • Sasan Terminal #1 (Theni)" FontSize="11" Foreground="#4CAF50"/>
                 </StackPanel>
             </Grid>
         </Border>
