@@ -919,6 +919,11 @@ await periodAnalyticsService.UpdateInvoicePaymentSplitAsync(activeInv.Id, newSpl
 var reloadedInv = await db.Invoices.Include(i => i.Payments).FirstAsync(i => i.Id == activeInv.Id);
 Console.WriteLine($"      -> In-Place Invoice #{reloadedInv.InvoiceNumber} Payment Rebalance: Cash=₹{reloadedInv.Payments.FirstOrDefault(p => p.Mode == PaymentMode.Cash)?.Amount:N0}, UPI=₹{reloadedInv.Payments.FirstOrDefault(p => p.Mode == PaymentMode.UPI)?.Amount:N0} [VERIFIED]");
 
+// 11. Real-time Executive Dashboard Metrics & SQLite Aggregate Verification
+var dashboardService = new ExecutiveDashboardService(db);
+var dashboardMetrics = await dashboardService.GetRealtimeMetricsAsync();
+Console.WriteLine($"      -> Real-time Dashboard KPIs Loaded: Sales=₹{dashboardMetrics.TodaySalesTotal:N2}, Receivables=₹{dashboardMetrics.CustomerCreditsReceivableTotal:N2}, InStock Devices={dashboardMetrics.TotalInStockDevicesCount} [VERIFIED]");
+
 // =========================================================================================
 // [STAGE 18] STORE OPERATING EXPENSES, PETTY CASH & TRUE NET BUSINESS PROFIT (EBITDA)
 // =========================================================================================

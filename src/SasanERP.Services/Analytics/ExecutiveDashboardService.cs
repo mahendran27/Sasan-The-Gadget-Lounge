@@ -167,25 +167,28 @@ public class ExecutiveDashboardService
             .ToListAsync();
 
         // 5. Customer Credits Receivable
-        decimal totalReceivables = await _context.Customers.SumAsync(c => c.OutstandingCredit);
+        decimal totalReceivables = (await _context.Customers.Select(c => c.OutstandingCredit).ToListAsync()).Sum();
 
         // 6. Recent 10 Invoices
-        var recentInvoices = await _context.Invoices
+        var topInvoices = await _context.Invoices
             .Include(i => i.Customer)
             .Include(i => i.Payments)
             .OrderByDescending(i => i.InvoiceDate)
             .Take(10)
+            .ToListAsync();
+
+        var recentInvoices = topInvoices
             .Select(i => new RecentInvoiceSummary(
                 i.Id,
                 i.InvoiceNumber,
-                i.Customer.FullName,
+                i.Customer?.FullName ?? "Walk-in Customer",
                 i.InvoiceDate,
                 i.GrandTotal,
                 string.Join(", ", i.Payments.Select(p => p.Mode.ToString()).Distinct()),
                 i.HasMarginSchemeItems,
                 i.IsGstEnabled
             ))
-            .ToListAsync();
+            .ToList();
 
         return new DashboardMetrics(
             TodaySalesTotal: todaySales,

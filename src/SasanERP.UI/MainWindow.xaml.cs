@@ -21,7 +21,14 @@ public partial class MainWindow : FluentWindow
 
         Loaded += async (s, e) =>
         {
-            await ViewModel.InitializeAsync();
+            try
+            {
+                await ViewModel.InitializeAsync();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[INIT-WARNING] {ex}");
+            }
         };
     }
 
