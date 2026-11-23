@@ -5,6 +5,10 @@ import { DashboardView } from './views/DashboardView';
 import { PosBillingView } from './views/PosBillingView';
 import { StockRegistryView } from './views/StockRegistryView';
 import { DeviceIntakeView } from './views/DeviceIntakeView';
+import { DaybookExpensesView } from './views/DaybookExpensesView';
+import { GstReportsView } from './views/GstReportsView';
+import { StoreSettingsView } from './views/StoreSettingsView';
+import { GodModeView } from './views/GodModeView';
 
 export default function App() {
   const [activeModule, setActiveModule] = useState<ModuleKey>('dashboard');
@@ -19,6 +23,14 @@ export default function App() {
         return <StockRegistryView onNavigateToIntake={() => setActiveModule('intake')} />;
       case 'intake':
         return <DeviceIntakeView />;
+      case 'daybook':
+        return <DaybookExpensesView />;
+      case 'gst':
+        return <GstReportsView />;
+      case 'settings':
+        return <StoreSettingsView />;
+      case 'godmode':
+        return <GodModeView />;
       default:
         return (
           <div className="p-8">
