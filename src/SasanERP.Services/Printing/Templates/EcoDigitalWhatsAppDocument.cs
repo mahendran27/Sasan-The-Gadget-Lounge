@@ -60,7 +60,7 @@ public class EcoDigitalWhatsAppDocument : IDocument
                                 lr.AutoItem().Text("SASAN").FontSize(14).Bold().FontColor("#00E5FF");
                                 lr.AutoItem().PaddingLeft(4).Text("GADGET LOUNGE").FontSize(14).Bold().FontColor("#FFFFFF");
                             });
-                            hc.Item().Text("106/7, Karthik Mahall, Theni • 9080803070").FontSize(6.8f).FontColor("#CBD5E1");
+                            hc.Item().Text($"{_company.FormattedSingleLineAddress} • {_company.PhoneNumber}").FontSize(6.8f).FontColor("#CBD5E1");
                         });
 
                         r.AutoItem().Background("#059669").Padding(3).Column(ec =>

@@ -65,7 +65,7 @@ public class Rule32_5_MarginSchemeAuditDocument : IDocument
                         r.RelativeItem().Column(c =>
                         {
                             c.Item().Text(_company.BusinessName.ToUpper()).FontSize(14).Bold().FontColor("#0F172A");
-                            c.Item().Text($"{_company.AddressLine1}, {_company.AddressLine2}, {_company.City} - {_company.Pincode}")
+                            c.Item().Text(_company.FormattedSingleLineAddress)
                                 .FontSize(7.8f).FontColor("#475569");
                             c.Item().Text($"GSTIN: {_company.GSTIN} | State Code: {_company.StateCode} (Tamil Nadu) | Phone: {_company.PhoneNumber}")
                                 .FontSize(7.8f).FontColor("#475569");

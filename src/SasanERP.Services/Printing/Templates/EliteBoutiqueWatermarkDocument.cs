@@ -60,7 +60,7 @@ public class EliteBoutiqueWatermarkDocument : IDocument
                         {
                             c.Item().Text(_company.BusinessName.ToUpper()).FontSize(15).Bold().FontColor(primaryText);
                             c.Item().Text(_company.Tagline).FontSize(8).Italic().FontColor(isBw ? "#475569" : "#B45309");
-                            c.Item().PaddingTop(2).Text($"{_company.AddressLine1}, {_company.AddressLine2}, {_company.City} - {_company.Pincode}")
+                            c.Item().PaddingTop(2).Text(_company.FormattedSingleLineAddress)
                                 .FontSize(7.5f).FontColor("#475569");
                             c.Item().Text($"GSTIN: {_company.GSTIN} | Tel: {_company.PhoneNumber}")
                                 .FontSize(7.5f).Bold();

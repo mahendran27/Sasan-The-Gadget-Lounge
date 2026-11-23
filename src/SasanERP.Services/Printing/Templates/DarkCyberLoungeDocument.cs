@@ -64,7 +64,7 @@ public class DarkCyberLoungeDocument : IDocument
                                 t.Span("THE GADGET LOUNGE").FontSize(17).Bold().FontColor("#FFFFFF");
                             });
                             c.Item().Text(_company.Tagline).FontSize(8).Italic().FontColor(amberAccent);
-                            c.Item().PaddingTop(2).Text($"{_company.AddressLine1}, {_company.AddressLine2}, {_company.City} - {_company.Pincode}")
+                            c.Item().PaddingTop(2).Text(_company.FormattedSingleLineAddress)
                                 .FontSize(7.5f).FontColor("#CBD5E1");
                             c.Item().Text($"Phone: {_company.PhoneNumber} | Email: {_company.Email}")
                                 .FontSize(7.5f).FontColor("#CBD5E1");

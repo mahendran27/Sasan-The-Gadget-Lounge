@@ -147,18 +147,32 @@
                     </Border>
 
                     <!-- Theme Selector -->
-                    <Border Background="{DynamicResource SasanCardBgBrush}" BorderBrush="{DynamicResource SasanBorderBrush}" BorderThickness="1" CornerRadius="6" Padding="4,2" Margin="0,0,6,0">
+                    <Border Background="{DynamicResource SasanCardBgBrush}" BorderBrush="{DynamicResource SasanBorderBrush}" BorderThickness="1" CornerRadius="6" Padding="6,2" Margin="0,0,8,0">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="🎨" FontSize="11" VerticalAlignment="Center" Margin="2,0,4,0"/>
-                            <ComboBox ItemsSource="{Binding AvailableThemeModes}" SelectedItem="{Binding SelectedThemeMode}" Width="135" Height="24" FontSize="10" />
+                            <TextBlock Text="🎨" FontSize="11" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                            <ComboBox ItemsSource="{Binding AvailableThemeModes}" SelectedItem="{Binding SelectedThemeMode}" Width="155" Height="26" FontSize="11" FontWeight="SemiBold"
+                                      Background="Transparent" BorderThickness="0" Foreground="{DynamicResource SasanForegroundBrush}">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Converter={StaticResource FriendlyNameConverter}}" Foreground="{DynamicResource SasanForegroundBrush}" FontSize="11" FontWeight="SemiBold"/>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
                         </StackPanel>
                     </Border>
 
                     <!-- Invoice Template Selector -->
-                    <Border Background="{DynamicResource SasanCardBgBrush}" BorderBrush="{DynamicResource SasanBorderBrush}" BorderThickness="1" CornerRadius="6" Padding="4,2" Margin="0,0,10,0">
+                    <Border Background="{DynamicResource SasanCardBgBrush}" BorderBrush="{DynamicResource SasanBorderBrush}" BorderThickness="1" CornerRadius="6" Padding="6,2" Margin="0,0,10,0">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="📄" FontSize="11" VerticalAlignment="Center" Margin="2,0,4,0"/>
-                            <ComboBox ItemsSource="{Binding PosVM.AvailableInvoiceTemplates}" SelectedItem="{Binding PosVM.SelectedInvoiceTemplate}" Width="145" Height="24" FontSize="10" />
+                            <TextBlock Text="📄" FontSize="11" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                            <ComboBox ItemsSource="{Binding PosVM.AvailableInvoiceTemplates}" SelectedItem="{Binding PosVM.SelectedInvoiceTemplate}" Width="175" Height="26" FontSize="11" FontWeight="SemiBold"
+                                      Background="Transparent" BorderThickness="0" Foreground="{DynamicResource SasanForegroundBrush}">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Converter={StaticResource FriendlyNameConverter}}" Foreground="{DynamicResource SasanForegroundBrush}" FontSize="11" FontWeight="SemiBold"/>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
                         </StackPanel>
                     </Border>
 

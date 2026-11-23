@@ -39,4 +39,29 @@ public class CompanyProfile
         "3. Second-hand / pre-owned gadgets carry shop testing warranty as stated on this invoice.\n" +
         "4. Physical or liquid damage is strictly excluded from all warranties.\n" +
         "5. Disputes are subject to Theni jurisdiction only.";
+
+    /// <summary>
+    /// Intelligently formatted single-line address avoiding duplicate city/pincode entries
+    /// </summary>
+    public string FormattedSingleLineAddress
+    {
+        get
+        {
+            var parts = new System.Collections.Generic.List<string>();
+            if (!string.IsNullOrWhiteSpace(AddressLine1)) parts.Add(AddressLine1.Trim().TrimEnd(','));
+            if (!string.IsNullOrWhiteSpace(AddressLine2)) parts.Add(AddressLine2.Trim().TrimEnd(','));
+            
+            string cityPincode = $"{City} - {Pincode}".Trim().Trim('-', ' ');
+            if (!string.IsNullOrWhiteSpace(cityPincode))
+            {
+                bool alreadyHasPincode = (!string.IsNullOrEmpty(Pincode) && parts.Exists(p => p.Contains(Pincode, System.StringComparison.OrdinalIgnoreCase))) &&
+                                         (!string.IsNullOrEmpty(City) && parts.Exists(p => p.Contains(City, System.StringComparison.OrdinalIgnoreCase)));
+                if (!alreadyHasPincode)
+                {
+                    parts.Add(cityPincode);
+                }
+            }
+            return string.Join(", ", parts);
+        }
+    }
 }

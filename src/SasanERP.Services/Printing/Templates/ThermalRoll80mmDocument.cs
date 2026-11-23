@@ -51,7 +51,7 @@ public class ThermalRoll80mmDocument : IDocument
                 // Shop Header
                 col.Item().AlignCenter().Text(_company.BusinessName.ToUpper()).FontSize(10).Bold();
                 col.Item().AlignCenter().Text("PREMIUM NEW & PRE-OWNED GADGETS").FontSize(6.5f);
-                col.Item().AlignCenter().Text($"{_company.AddressLine1}, {_company.City} - {_company.Pincode}").FontSize(6.5f);
+                col.Item().AlignCenter().Text(_company.FormattedSingleLineAddress).FontSize(6.5f);
                 col.Item().AlignCenter().Text($"Tel: {_company.PhoneNumber}").FontSize(6.8f).Bold();
                 if (!string.IsNullOrWhiteSpace(_company.GSTIN) && _invoice.IsGstEnabled)
                 {

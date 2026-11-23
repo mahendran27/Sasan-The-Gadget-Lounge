@@ -60,7 +60,7 @@ public class DeviceHealthCertificateDocument : IDocument
                                 lr.AutoItem().Text("SASAN THE GADGET LOUNGE").FontSize(14).Bold().FontColor("#0B192C");
                                 lr.AutoItem().PaddingLeft(6).Background("#0369A1").Padding(2).Text("CERTIFIED QUALITY").FontSize(6.5f).Bold().FontColor("#FFFFFF");
                             });
-                            c.Item().Text($"{_company.AddressLine1}, {_company.AddressLine2}, {_company.City} - {_company.Pincode}")
+                            c.Item().Text(_company.FormattedSingleLineAddress)
                                 .FontSize(7.5f).FontColor("#555555");
                             c.Item().Text($"Phone: {_company.PhoneNumber} | GSTIN: {_company.GSTIN} (Tamil Nadu-33)").FontSize(7.5f).FontColor("#555555");
                         });

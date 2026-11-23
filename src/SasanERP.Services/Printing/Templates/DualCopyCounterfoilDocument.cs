@@ -65,7 +65,7 @@ public class DualCopyCounterfoilDocument : IDocument
                                 logo.AutoItem().Text("SASAN THE GADGET LOUNGE").FontSize(13).Bold().FontColor("#0B192C");
                                 logo.AutoItem().PaddingLeft(6).Background("#0B192C").Padding(2).Text("ORIGINAL FOR BUYER").FontSize(6.5f).Bold().FontColor("#FFFFFF");
                             });
-                            c.Item().Text($"{_company.AddressLine1}, {_company.AddressLine2}, {_company.City} | Tel: {_company.PhoneNumber}").FontSize(7.2f).FontColor("#555555");
+                            c.Item().Text($"{_company.FormattedSingleLineAddress} | Tel: {_company.PhoneNumber}").FontSize(7.2f).FontColor("#555555");
                             if (!string.IsNullOrWhiteSpace(_company.GSTIN) && _invoice.IsGstEnabled)
                                 c.Item().Text($"GSTIN: {_company.GSTIN} | State: 33-Tamil Nadu").FontSize(7.2f).FontColor("#555555");
                         });

@@ -77,7 +77,7 @@ public class ClassicCorporateGstDocument : IDocument
                         {
                             c.Item().Text(_company.BusinessName.ToUpper()).FontSize(14).Bold().FontColor(primaryColor);
                             c.Item().Text(_company.Tagline).FontSize(7.5f).Italic().FontColor("#475569");
-                            c.Item().Text($"{_company.AddressLine1}, {_company.AddressLine2}, {_company.City} - {_company.Pincode}")
+                            c.Item().Text(_company.FormattedSingleLineAddress)
                                 .FontSize(7.5f);
                             c.Item().Text($"GSTIN / UIN: {_company.GSTIN} | State: {_company.State} (Code: {_company.StateCode})")
                                 .FontSize(8).Bold();

@@ -60,7 +60,7 @@ public class CompactTechDocketDocument : IDocument
                         {
                             c.Item().Text(_company.BusinessName.ToUpper()).FontSize(14).Bold().FontColor("#0F172A");
                             c.Item().Text(_company.Tagline).FontSize(7.5f).Italic().FontColor("#475569");
-                            c.Item().Text($"{_company.AddressLine1}, {_company.AddressLine2}, {_company.City} - {_company.Pincode}")
+                            c.Item().Text(_company.FormattedSingleLineAddress)
                                 .FontSize(7.2f);
                             c.Item().Text($"GSTIN: {_company.GSTIN} | Ph: {_company.PhoneNumber} | Email: {_company.Email}")
                                 .FontSize(7.2f).Bold();

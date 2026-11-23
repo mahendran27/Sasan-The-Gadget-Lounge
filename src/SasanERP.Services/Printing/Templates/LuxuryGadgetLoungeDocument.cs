@@ -63,7 +63,7 @@ public class LuxuryGadgetLoungeDocument : IDocument
                                 t.Span("THE GADGET LOUNGE").FontSize(18).Bold().FontColor("#FFFFFF");
                             });
                             c.Item().PaddingTop(2).Text(_company.Tagline).FontSize(8.5f).Italic().FontColor(isBw ? "#E2E8F0" : "#D4AF37");
-                            c.Item().PaddingTop(4).Text($"{_company.AddressLine1}, {_company.AddressLine2}, {_company.City} - {_company.Pincode}")
+                            c.Item().PaddingTop(4).Text(_company.FormattedSingleLineAddress)
                                 .FontSize(7.8f).FontColor("#CBD5E1");
                             c.Item().Text($"Phone: {_company.PhoneNumber} | Email: {_company.Email}")
                                 .FontSize(7.8f).FontColor("#CBD5E1");

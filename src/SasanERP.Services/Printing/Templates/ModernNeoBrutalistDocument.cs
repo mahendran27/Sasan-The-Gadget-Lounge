@@ -63,7 +63,7 @@ public class ModernNeoBrutalistDocument : IDocument
                         {
                             c.Item().Text(_company.BusinessName.ToUpper()).FontSize(15).Bold().FontColor(borderColor);
                             c.Item().Text(_company.Tagline).FontSize(8).Italic().FontColor("#475569");
-                            c.Item().PaddingTop(2).Text($"{_company.AddressLine1}, {_company.AddressLine2}, {_company.City} - {_company.Pincode}")
+                            c.Item().PaddingTop(2).Text(_company.FormattedSingleLineAddress)
                                 .FontSize(7.5f).FontColor("#334155");
                             c.Item().Text($"Phone: {_company.PhoneNumber} | Email: {_company.Email}")
                                 .FontSize(7.5f).FontColor("#334155");

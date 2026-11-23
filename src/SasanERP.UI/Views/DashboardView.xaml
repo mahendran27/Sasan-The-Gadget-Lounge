@@ -5,16 +5,16 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:vm="clr-namespace:SasanERP.UI.ViewModels"
              mc:Ignorable="d" 
-             d:DesignHeight="850" d:DesignWidth="1180">
+             d:DesignHeight="880" d:DesignWidth="1180">
 
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
 
         <!-- Pill Tab Button Style -->
         <Style x:Key="TimeframeTabButton" TargetType="Button">
-            <Setter Property="Background" Value="#132035"/>
+            <Setter Property="Background" Value="#101D33"/>
             <Setter Property="Foreground" Value="#8FA3BF"/>
-            <Setter Property="BorderBrush" Value="#223656"/>
+            <Setter Property="BorderBrush" Value="#1F3354"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Padding" Value="12,5"/>
             <Setter Property="FontSize" Value="11"/>
@@ -35,6 +35,39 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <!-- Quick Launch Action Button Style -->
+        <Style x:Key="QuickCockpitButton" TargetType="Button">
+            <Setter Property="Background" Value="#101D33"/>
+            <Setter Property="Foreground" Value="#F8FAFC"/>
+            <Setter Property="BorderBrush" Value="#1F3354"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="12,6"/>
+            <Setter Property="Margin" Value="3,0"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="5"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#1C304E"/>
+                    <Setter Property="BorderBrush" Value="#00E5FF"/>
+                    <Setter Property="Foreground" Value="#00E5FF"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
     </UserControl.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
@@ -50,7 +83,7 @@
             <!-- ========================================================== -->
             <!-- 1. HEADER & INTERACTIVE TIMEFRAME CONTROLS                  -->
             <!-- ========================================================== -->
-            <Border Grid.Row="0" Background="#0E1A2D" BorderBrush="#1C2D4A" BorderThickness="1" CornerRadius="8" Padding="14,10" Margin="0,0,0,14">
+            <Border Grid.Row="0" Background="#0C1728" BorderBrush="#1C2D4A" BorderThickness="1" CornerRadius="8" Padding="14,10" Margin="0,0,0,14">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -61,8 +94,8 @@
                     <StackPanel Grid.Column="0" VerticalAlignment="Center">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <TextBlock Text="EXECUTIVE DASHBOARD &amp; LIVE TELEMETRY" FontSize="17" FontWeight="Black" Foreground="#FFFFFF"/>
-                            <Border Background="#10B981" CornerRadius="4" Padding="6,1" Margin="10,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="ONLINE" FontSize="9" FontWeight="Black" Foreground="#042F2E"/>
+                            <Border Background="#064E3B" CornerRadius="4" Padding="6,1" Margin="10,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="ACID ONLINE" FontSize="9" FontWeight="Black" Foreground="#34D399"/>
                             </Border>
                         </StackPanel>
                         <TextBlock Text="Theni Flagship Lounge • Rule 32(5) Margin Intelligence • Real-time Fiscal Telemetry" 
@@ -72,7 +105,7 @@
                     <!-- Timeframe Switcher & Z-Report Action -->
                     <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                         <!-- Timeframe Filter Buttons -->
-                        <Border Background="#091322" BorderBrush="#1C2D4A" BorderThickness="1" CornerRadius="6" Padding="3" Margin="0,0,10,0">
+                        <Border Background="#070E1A" BorderBrush="#1C2D4A" BorderThickness="1" CornerRadius="6" Padding="3" Margin="0,0,10,0">
                             <StackPanel Orientation="Horizontal">
                                 <Button Content="Today [F1]" Command="{Binding SetTimeframeCommand}" CommandParameter="Today">
                                     <Button.Style>
@@ -131,7 +164,7 @@
 
                         <!-- 1-Click Shift Z-Report Print -->
                         <Button Command="{Binding PrintDailyShiftReportCommand}" Background="#1E3A8A" Foreground="#FFFFFF" 
-                                Padding="12,6" BorderBrush="#3B82F6" BorderThickness="1" Cursor="Hand" FontWeight="Bold" Margin="0,0,8,0"
+                                Padding="12,6" BorderThickness="0" Cursor="Hand" FontWeight="Bold" Margin="0,0,8,0"
                                 ToolTip="Generate and preview Shift Sales Audit Z-Report PDF">
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                 <TextBlock Text="🖨️ " FontSize="12"/>
@@ -140,7 +173,7 @@
                         </Button>
 
                         <!-- Refresh Button -->
-                        <Button Command="{Binding RefreshMetricsCommand}" Background="#132035" Foreground="#00E5FF" 
+                        <Button Command="{Binding RefreshMetricsCommand}" Background="#101D33" Foreground="#00E5FF" 
                                 Padding="12,6" BorderBrush="#00E5FF" BorderThickness="1" Cursor="Hand" FontWeight="Bold"
                                 ToolTip="Reload real-time telemetry from SQLite">
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
@@ -164,7 +197,7 @@
                 </Grid.ColumnDefinitions>
 
                 <!-- Card 1: Period Revenue -->
-                <Border Grid.Column="0" Background="#132035" BorderBrush="#223656" BorderThickness="1" CornerRadius="8" Padding="14" Margin="0,0,6,0">
+                <Border Grid.Column="0" Background="#101D33" BorderBrush="#1F3354" BorderThickness="1" CornerRadius="8" Padding="14" Margin="0,0,6,0">
                     <StackPanel>
                         <Grid>
                             <TextBlock Text="{Binding SelectedTimeframeLabel}" FontSize="11" FontWeight="Bold" Foreground="#8FA3BF"/>
@@ -172,14 +205,14 @@
                         </Grid>
                         <TextBlock Text="{Binding PeriodSales, StringFormat='₹{0:N0}'}" FontSize="24" FontWeight="Black" Foreground="#00E5FF" Margin="0,4,0,0"/>
                         <Grid Margin="0,4,0,0">
-                            <TextBlock Text="{Binding PeriodInvoicesCount, StringFormat='{}{0} Invoices'}" FontSize="11" Foreground="#4CAF50" FontWeight="Bold"/>
+                            <TextBlock Text="{Binding PeriodInvoicesCount, StringFormat='{}{0} Invoices'}" FontSize="11" Foreground="#34D399" FontWeight="Bold"/>
                             <TextBlock Text="{Binding AverageTicketSize, StringFormat='Avg: ₹{0:N0}'}" FontSize="11" Foreground="#8EA4C1" HorizontalAlignment="Right"/>
                         </Grid>
                     </StackPanel>
                 </Border>
 
                 <!-- Card 2: Net Gross Profit & Margin -->
-                <Border Grid.Column="1" Background="#132035" BorderBrush="#223656" BorderThickness="1" CornerRadius="8" Padding="14" Margin="3,0,3,0">
+                <Border Grid.Column="1" Background="#101D33" BorderBrush="#1F3354" BorderThickness="1" CornerRadius="8" Padding="14" Margin="3,0,3,0">
                     <StackPanel>
                         <Grid>
                             <TextBlock Text="NET GROSS PROFIT" FontSize="11" FontWeight="Bold" Foreground="#8FA3BF"/>
@@ -193,7 +226,7 @@
                 </Border>
 
                 <!-- Card 3: Combined Stock Capital Valuation -->
-                <Border Grid.Column="2" Background="#132035" BorderBrush="#223656" BorderThickness="1" CornerRadius="8" Padding="14" Margin="3,0,3,0">
+                <Border Grid.Column="2" Background="#101D33" BorderBrush="#1F3354" BorderThickness="1" CornerRadius="8" Padding="14" Margin="3,0,3,0">
                     <StackPanel>
                         <Grid>
                             <TextBlock Text="TOTAL INVENTORY VALUATION" FontSize="11" FontWeight="Bold" Foreground="#8FA3BF"/>
@@ -201,14 +234,14 @@
                         </Grid>
                         <TextBlock Text="{Binding TotalStockValuationCombined, StringFormat='₹{0:N0}'}" FontSize="24" FontWeight="Black" Foreground="#FFFFFF" Margin="0,4,0,0"/>
                         <Grid Margin="0,4,0,0">
-                            <TextBlock Text="{Binding InStockDevicesCount, StringFormat='{}{0} Pre-Owned'}" FontSize="11" Foreground="#FFB74D" FontWeight="Bold"/>
+                            <TextBlock Text="{Binding InStockDevicesCount, StringFormat='{}{0} Pre-Owned'}" FontSize="11" Foreground="#F59E0B" FontWeight="Bold"/>
                             <TextBlock Text="{Binding InStockBulkItemsCount, StringFormat='{}{0} Bulk Units'}" FontSize="11" Foreground="#8EA4C1" HorizontalAlignment="Right"/>
                         </Grid>
                     </StackPanel>
                 </Border>
 
                 <!-- Card 4: Customer Khata Receivables -->
-                <Border Grid.Column="3" Background="#132035" BorderBrush="#223656" BorderThickness="1" CornerRadius="8" Padding="14" Margin="6,0,0,0">
+                <Border Grid.Column="3" Background="#101D33" BorderBrush="#1F3354" BorderThickness="1" CornerRadius="8" Padding="14" Margin="6,0,0,0">
                     <StackPanel>
                         <Grid>
                             <TextBlock Text="KHATA RECEIVABLES" FontSize="11" FontWeight="Bold" Foreground="#8FA3BF"/>
@@ -232,7 +265,7 @@
                 </Grid.ColumnDefinitions>
 
                 <!-- Cash in Till -->
-                <Border Grid.Column="0" Background="#0C182B" BorderBrush="#1C2D4A" BorderThickness="1" CornerRadius="6" Padding="12" Margin="0,0,6,0">
+                <Border Grid.Column="0" Background="#0C1728" BorderBrush="#1C2D4A" BorderThickness="1" CornerRadius="6" Padding="12" Margin="0,0,6,0">
                     <Grid>
                         <StackPanel>
                             <TextBlock Text="CASH IN DRAWER (TILL)" FontSize="10" FontWeight="Bold" Foreground="#8FA3BF"/>
@@ -243,7 +276,7 @@
                 </Border>
 
                 <!-- UPI / Bank Collections -->
-                <Border Grid.Column="1" Background="#0C182B" BorderBrush="#1C2D4A" BorderThickness="1" CornerRadius="6" Padding="12" Margin="3,0,3,0">
+                <Border Grid.Column="1" Background="#0C1728" BorderBrush="#1C2D4A" BorderThickness="1" CornerRadius="6" Padding="12" Margin="3,0,3,0">
                     <Grid>
                         <StackPanel>
                             <TextBlock Text="UPI &amp; BANK QR INFLOW" FontSize="10" FontWeight="Bold" Foreground="#8FA3BF"/>
@@ -257,26 +290,26 @@
                 <Border Grid.Column="2" BorderThickness="1" CornerRadius="6" Padding="12" Margin="3,0,3,0">
                     <Border.Style>
                         <Style TargetType="Border">
-                            <Setter Property="Background" Value="#0C182B"/>
-                            <Setter Property="BorderBrush" Value="#10B981"/>
+                            <Setter Property="Background" Value="#091E1E"/>
+                            <Setter Property="BorderBrush" Value="#059669"/>
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding HasAgingDevices}" Value="True">
-                                    <Setter Property="Background" Value="#261A14"/>
-                                    <Setter Property="BorderBrush" Value="#FF9100"/>
+                                    <Setter Property="Background" Value="#2A1810"/>
+                                    <Setter Property="BorderBrush" Value="#F59E0B"/>
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
                     </Border.Style>
                     <Grid>
                         <StackPanel>
-                            <TextBlock Text="STOCK AGING (>60 DAYS)" FontSize="10" FontWeight="Bold" Foreground="#FFB74D"/>
+                            <TextBlock Text="STOCK AGING (>60 DAYS)" FontSize="10" FontWeight="Bold" Foreground="#F59E0B"/>
                             <TextBlock Text="{Binding StockAgingAlertsCount, StringFormat='{}{0} Devices Aged'}" FontSize="16" FontWeight="Black" Margin="0,2,0,0">
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock">
-                                        <Setter Property="Foreground" Value="#10B981"/>
+                                        <Setter Property="Foreground" Value="#34D399"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding HasAgingDevices}" Value="True">
-                                                <Setter Property="Foreground" Value="#FF9100"/>
+                                                <Setter Property="Foreground" Value="#F59E0B"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
@@ -291,11 +324,11 @@
                 <Border Grid.Column="3" BorderThickness="1" CornerRadius="6" Padding="12" Margin="6,0,0,0">
                     <Border.Style>
                         <Style TargetType="Border">
-                            <Setter Property="Background" Value="#0C182B"/>
-                            <Setter Property="BorderBrush" Value="#10B981"/>
+                            <Setter Property="Background" Value="#091E1E"/>
+                            <Setter Property="BorderBrush" Value="#059669"/>
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding HasLowStockItems}" Value="True">
-                                    <Setter Property="Background" Value="#2A1418"/>
+                                    <Setter Property="Background" Value="#2A1015"/>
                                     <Setter Property="BorderBrush" Value="#EF4444"/>
                                 </DataTrigger>
                             </Style.Triggers>
@@ -307,7 +340,7 @@
                             <TextBlock Text="{Binding LowStockAlertsCount, StringFormat='{}{0} Items Low'}" FontSize="16" FontWeight="Black" Margin="0,2,0,0">
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock">
-                                        <Setter Property="Foreground" Value="#10B981"/>
+                                        <Setter Property="Foreground" Value="#34D399"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding HasLowStockItems}" Value="True">
                                                 <Setter Property="Foreground" Value="#EF4444"/>
@@ -323,9 +356,9 @@
             </Grid>
 
             <!-- ========================================================== -->
-            <!-- 4. QUICK ACTION COMMAND RIBBON                             -->
+            <!-- 4. QUICK ACTION COMMAND RIBBON (COCKPIT CONTROLS)          -->
             <!-- ========================================================== -->
-            <Border Grid.Row="3" Background="#111C2E" BorderBrush="#1C2D4A" BorderThickness="1" CornerRadius="8" Padding="12,8" Margin="0,0,0,14">
+            <Border Grid.Row="3" Background="#0C1728" BorderBrush="#1C2D4A" BorderThickness="1" CornerRadius="8" Padding="12,8" Margin="0,0,0,14">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
@@ -333,23 +366,23 @@
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Text="QUICK LAUNCH:" FontSize="10" FontWeight="Black" Foreground="#8EA4C1" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                        <TextBlock Text="QUICK LAUNCH COCKPIT:" FontSize="10" FontWeight="Black" Foreground="#8EA4C1" VerticalAlignment="Center" Margin="0,0,12,0"/>
                     </StackPanel>
 
                     <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                        <Button Command="{Binding NavigateToPosCommand}" Background="#1E3A8A" Foreground="#FFFFFF" Padding="10,4" Margin="3,0" BorderThickness="0" Cursor="Hand" FontWeight="Bold" FontSize="11">
+                        <Button Command="{Binding NavigateToPosCommand}" Background="#1E3A8A" Foreground="#FFFFFF" Padding="12,5" Margin="3,0" BorderThickness="0" Cursor="Hand" FontWeight="Bold" FontSize="11">
                             <TextBlock Text="⚡ [F2] Fresh POS Bill"/>
                         </Button>
-                        <Button Command="{Binding NavigateToStockCommand}" Background="#132035" Foreground="#38BDF8" Padding="10,4" Margin="3,0" BorderBrush="#38BDF8" BorderThickness="1" Cursor="Hand" FontWeight="Bold" FontSize="11">
+                        <Button Command="{Binding NavigateToStockCommand}" Style="{StaticResource QuickCockpitButton}">
                             <TextBlock Text="📦 [F3] Stock Registry"/>
                         </Button>
-                        <Button Command="{Binding NavigateToIntakeCommand}" Background="#132035" Foreground="#F59E0B" Padding="10,4" Margin="3,0" BorderBrush="#F59E0B" BorderThickness="1" Cursor="Hand" FontWeight="Bold" FontSize="11">
+                        <Button Command="{Binding NavigateToIntakeCommand}" Style="{StaticResource QuickCockpitButton}">
                             <TextBlock Text="🏷️ [F5] Intake &amp; Barcode"/>
                         </Button>
-                        <Button Command="{Binding NavigateToDaybookCommand}" Background="#132035" Foreground="#10B981" Padding="10,4" Margin="3,0" BorderBrush="#10B981" BorderThickness="1" Cursor="Hand" FontWeight="Bold" FontSize="11">
+                        <Button Command="{Binding NavigateToDaybookCommand}" Style="{StaticResource QuickCockpitButton}">
                             <TextBlock Text="📒 [F6] Daybook Cash"/>
                         </Button>
-                        <Button Command="{Binding NavigateToGodModeCommand}" Background="#132035" Foreground="#D946EF" Padding="10,4" Margin="3,0" BorderBrush="#D946EF" BorderThickness="1" Cursor="Hand" FontWeight="Bold" FontSize="11">
+                        <Button Command="{Binding NavigateToGodModeCommand}" Style="{StaticResource QuickCockpitButton}">
                             <TextBlock Text="👑 [F12] God Mode &amp; BI"/>
                         </Button>
                     </StackPanel>
@@ -366,7 +399,7 @@
                 </Grid.ColumnDefinitions>
 
                 <!-- LEFT COLUMN: Recent Sales Feed & Audit Log -->
-                <Border Grid.Column="0" Background="#132035" BorderBrush="#223656" BorderThickness="1" CornerRadius="8" Padding="14" Margin="0,0,7,0">
+                <Border Grid.Column="0" Background="#101D33" BorderBrush="#1F3354" BorderThickness="1" CornerRadius="8" Padding="14" Margin="0,0,7,0">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -381,11 +414,11 @@
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
                                 <TextBlock Text="RECENT SALES INVOICES &amp; AUDIT FEED" FontSize="12" FontWeight="Bold" Foreground="#8EA4C1"/>
-                                <Border Background="#1E2D48" CornerRadius="4" Padding="6,1" Margin="8,0,0,0">
+                                <Border Background="#16253D" CornerRadius="4" Padding="6,1" Margin="8,0,0,0">
                                     <TextBlock Text="{Binding RecentInvoices.Count, StringFormat='{}{0} Records'}" FontSize="10" Foreground="#00E5FF" FontWeight="Bold"/>
                                 </Border>
                             </StackPanel>
-                            <Button Grid.Column="1" Command="{Binding NavigateToPosCommand}" Background="#0284C7" Foreground="#FFFFFF" Padding="10,3" BorderThickness="0" Cursor="Hand" FontWeight="Bold" FontSize="10">
+                            <Button Grid.Column="1" Command="{Binding NavigateToPosCommand}" Background="#0284C7" Foreground="#FFFFFF" Padding="10,4" BorderThickness="0" Cursor="Hand" FontWeight="Bold" FontSize="10">
                                 <TextBlock Text="➕ New Invoice [F2]"/>
                             </Button>
                         </Grid>
@@ -394,9 +427,9 @@
                         <DataGrid Grid.Row="1" ItemsSource="{Binding RecentInvoices}" AutoGenerateColumns="False" 
                                   CanUserAddRows="False" IsReadOnly="True" Background="Transparent" 
                                   BorderThickness="0" HeadersVisibility="Column" GridLinesVisibility="Horizontal"
-                                  HorizontalGridLinesBrush="#1C2D4A" Foreground="#FFFFFF" RowHeight="32">
+                                  HorizontalGridLinesBrush="#17263C" RowHeight="34">
                             <DataGrid.Style>
-                                <Style TargetType="DataGrid">
+                                <Style TargetType="DataGrid" BasedOn="{StaticResource {x:Type DataGrid}}">
                                     <Setter Property="Visibility" Value="Visible"/>
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding HasRecentInvoices}" Value="False">
@@ -406,16 +439,30 @@
                                 </Style>
                             </DataGrid.Style>
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="INV NO" Binding="{Binding InvoiceNumber}" FontWeight="Bold" Width="110"/>
-                                <DataGridTextColumn Header="CUSTOMER" Binding="{Binding CustomerName}" Width="*"/>
-                                <DataGridTextColumn Header="TIME" Binding="{Binding InvoiceDate, StringFormat='hh:mm tt'}" Width="80"/>
-                                <DataGridTextColumn Header="PAYMENT" Binding="{Binding PaymentModes}" Width="95"/>
-                                <DataGridTextColumn Header="TOTAL" Binding="{Binding GrandTotal, StringFormat='₹{0:N2}'}" FontWeight="Black" Width="95"/>
+                                <DataGridTemplateColumn Header="INV NO" Width="115">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding InvoiceNumber}" FontWeight="Bold" Foreground="#00E5FF" FontSize="11" VerticalAlignment="Center"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTextColumn Header="CUSTOMER" Binding="{Binding CustomerName}" Width="*" FontWeight="SemiBold"/>
+                                <DataGridTextColumn Header="TIME" Binding="{Binding InvoiceDate, StringFormat='hh:mm tt'}" Width="80" Foreground="#8EA4C1"/>
+                                <DataGridTemplateColumn Header="PAYMENT" Width="100">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Border Background="#16253D" CornerRadius="3" Padding="6,1" HorizontalAlignment="Left">
+                                                <TextBlock Text="{Binding PaymentModes}" FontSize="10" Foreground="#38BDF8" FontWeight="SemiBold"/>
+                                            </Border>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTextColumn Header="TOTAL" Binding="{Binding GrandTotal, StringFormat='₹{0:N2}'}" FontWeight="Black" Width="100" Foreground="#10B981"/>
                             </DataGrid.Columns>
                         </DataGrid>
 
                         <!-- Content 2: If No Recent Invoices -> Sleek Professional Empty State -->
-                        <Border Grid.Row="1" Background="#0C1524" BorderBrush="#1C2D4A" BorderThickness="1" CornerRadius="8" Padding="24" VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <Border Grid.Row="1" Background="#0C1524" BorderBrush="#1C2D4A" BorderThickness="1" CornerRadius="8" Padding="28,24" VerticalAlignment="Center" HorizontalAlignment="Center">
                             <Border.Style>
                                 <Style TargetType="Border">
                                     <Setter Property="Visibility" Value="Collapsed"/>
@@ -427,8 +474,8 @@
                                 </Style>
                             </Border.Style>
                             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="360">
-                                <Border Background="#132035" CornerRadius="30" Width="60" Height="60" HorizontalAlignment="Center" Margin="0,0,0,12">
-                                    <TextBlock Text="🛍️" FontSize="28" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <Border Background="#132035" CornerRadius="30" Width="56" Height="56" HorizontalAlignment="Center" Margin="0,0,0,12">
+                                    <TextBlock Text="🛍️" FontSize="26" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
                                 <TextBlock Text="No Sales Billed in this Period" FontSize="14" FontWeight="Bold" Foreground="#FFFFFF" HorizontalAlignment="Center"/>
                                 <TextBlock Text="Ready for retail checkout. Scan an IMEI barcode or press F2 to launch POS and generate your first sale." 
@@ -443,7 +490,7 @@
                 </Border>
 
                 <!-- RIGHT COLUMN: Dual-Mode Inventory Radar (Aging vs Low Stock) -->
-                <Border Grid.Column="1" Background="#132035" BorderBrush="#223656" BorderThickness="1" CornerRadius="8" Padding="14" Margin="7,0,0,0">
+                <Border Grid.Column="1" Background="#101D33" BorderBrush="#1F3354" BorderThickness="1" CornerRadius="8" Padding="14" Margin="7,0,0,0">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -458,12 +505,21 @@
                             </Grid.ColumnDefinitions>
 
                             <!-- Aging Tab Button -->
-                            <Button Grid.Column="0" Command="{Binding SelectRadarTabCommand}" CommandParameter="Aging" Margin="0,0,3,0" Cursor="Hand" BorderThickness="1" Padding="8,4">
+                            <Button Grid.Column="0" Command="{Binding SelectRadarTabCommand}" CommandParameter="Aging" Margin="0,0,3,0" Cursor="Hand" BorderThickness="1" Padding="8,5">
                                 <Button.Style>
                                     <Style TargetType="Button">
-                                        <Setter Property="Background" Value="#101D30"/>
+                                        <Setter Property="Background" Value="#091424"/>
                                         <Setter Property="BorderBrush" Value="#1C2D4A"/>
                                         <Setter Property="Foreground" Value="#8FA3BF"/>
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4" Padding="{TemplateBinding Padding}">
+                                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding SelectedRadarTab}" Value="Aging">
                                                 <Setter Property="Background" Value="#1E3A8A"/>
@@ -483,15 +539,24 @@
                             </Button>
 
                             <!-- Low Stock Tab Button -->
-                            <Button Grid.Column="1" Command="{Binding SelectRadarTabCommand}" CommandParameter="LowStock" Margin="3,0,0,0" Cursor="Hand" BorderThickness="1" Padding="8,4">
+                            <Button Grid.Column="1" Command="{Binding SelectRadarTabCommand}" CommandParameter="LowStock" Margin="3,0,0,0" Cursor="Hand" BorderThickness="1" Padding="8,5">
                                 <Button.Style>
                                     <Style TargetType="Button">
-                                        <Setter Property="Background" Value="#101D30"/>
+                                        <Setter Property="Background" Value="#091424"/>
                                         <Setter Property="BorderBrush" Value="#1C2D4A"/>
                                         <Setter Property="Foreground" Value="#8FA3BF"/>
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4" Padding="{TemplateBinding Padding}">
+                                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding SelectedRadarTab}" Value="LowStock">
-                                                <Setter Property="Background" Value="#7F1D1D"/>
+                                                <Setter Property="Background" Value="#5C1D24"/>
                                                 <Setter Property="BorderBrush" Value="#EF4444"/>
                                                 <Setter Property="Foreground" Value="#FFFFFF"/>
                                                 <Setter Property="FontWeight" Value="Bold"/>
@@ -525,9 +590,9 @@
                             <DataGrid ItemsSource="{Binding AgingDevices}" AutoGenerateColumns="False" 
                                       CanUserAddRows="False" IsReadOnly="True" Background="Transparent" 
                                       BorderThickness="0" HeadersVisibility="Column" GridLinesVisibility="Horizontal"
-                                      HorizontalGridLinesBrush="#1C2D4A" Foreground="#FFFFFF" RowHeight="32">
+                                      HorizontalGridLinesBrush="#17263C" RowHeight="34">
                                 <DataGrid.Style>
-                                    <Style TargetType="DataGrid">
+                                    <Style TargetType="DataGrid" BasedOn="{StaticResource {x:Type DataGrid}}">
                                         <Setter Property="Visibility" Value="Visible"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding HasAgingDevices}" Value="False">
@@ -537,15 +602,32 @@
                                     </Style>
                                 </DataGrid.Style>
                                 <DataGrid.Columns>
-                                    <DataGridTextColumn Header="DEVICE" Binding="{Binding DeviceName}" Width="*"/>
-                                    <DataGridTextColumn Header="IMEI" Binding="{Binding IMEI1}" Width="100"/>
-                                    <DataGridTextColumn Header="AGING" Binding="{Binding AgingDays, StringFormat='{}{0}d'}" FontWeight="Bold" Width="50"/>
-                                    <DataGridTextColumn Header="PRICE" Binding="{Binding TaggedPrice, StringFormat='₹{0:N0}'}" FontWeight="Bold" Width="70"/>
+                                    <DataGridTemplateColumn Header="DEVICE" Width="*">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                    <TextBlock Text="📱 " FontSize="11" Margin="0,0,4,0"/>
+                                                    <TextBlock Text="{Binding DeviceName}" FontWeight="Bold" Foreground="#F8FAFC" FontSize="11"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTextColumn Header="IMEI" Binding="{Binding IMEI1}" Width="105" Foreground="#38BDF8"/>
+                                    <DataGridTemplateColumn Header="AGING" Width="60">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Border Background="#451A03" CornerRadius="3" Padding="5,1" HorizontalAlignment="Left">
+                                                    <TextBlock Text="{Binding AgingDays, StringFormat='{}{0}d'}" FontSize="10" Foreground="#F59E0B" FontWeight="Bold"/>
+                                                </Border>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTextColumn Header="PRICE" Binding="{Binding TaggedPrice, StringFormat='₹{0:N0}'}" FontWeight="Black" Width="75" Foreground="#10B981"/>
                                 </DataGrid.Columns>
                             </DataGrid>
 
                             <!-- If No Aging Devices -> Celebratory Turnover Health Card -->
-                            <Border Background="#091E1E" BorderBrush="#059669" BorderThickness="1" CornerRadius="8" Padding="18" VerticalAlignment="Center">
+                            <Border Background="#091E1E" BorderBrush="#059669" BorderThickness="1" CornerRadius="8" Padding="20" VerticalAlignment="Center">
                                 <Border.Style>
                                     <Style TargetType="Border">
                                         <Setter Property="Visibility" Value="Collapsed"/>
@@ -560,11 +642,11 @@
                                     <Border Background="#064E3B" CornerRadius="25" Width="50" Height="50" HorizontalAlignment="Center" Margin="0,0,0,10">
                                         <TextBlock Text="💎" FontSize="22" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
-                                    <TextBlock Text="100% Fresh Inventory Turnover" FontSize="13" FontWeight="Bold" Foreground="#34D399" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="100% Fresh Inventory Turnover" FontSize="14" FontWeight="Bold" Foreground="#34D399" HorizontalAlignment="Center"/>
                                     <TextBlock Text="Zero pre-owned devices have exceeded the 60-day turnover ceiling. Capital rotation is in peak health." 
-                                               FontSize="11" Foreground="#A7F3D0" TextWrapping="Wrap" TextAlignment="Center" Margin="0,4,0,8"/>
+                                               FontSize="11" Foreground="#A7F3D0" TextWrapping="Wrap" TextAlignment="Center" Margin="0,4,0,10"/>
                                     <Border Background="#065F46" CornerRadius="4" Padding="8,4" HorizontalAlignment="Center">
-                                        <TextBlock Text="Active Watch: 0 Aging Units" FontSize="10" FontWeight="Bold" Foreground="#FFFFFF"/>
+                                        <TextBlock Text="Active Inventory Rotation: Zero Capital Locked" FontSize="10" FontWeight="Bold" Foreground="#FFFFFF"/>
                                     </Border>
                                 </StackPanel>
                             </Border>
@@ -583,13 +665,18 @@
                                 </Style>
                             </Grid.Style>
 
-                            <!-- If Has Low Stock Items -> DataGrid -->
-                            <DataGrid ItemsSource="{Binding LowStockItems}" AutoGenerateColumns="False" 
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <!-- If Has Low Stock Items -> Beautiful Dark DataGrid -->
+                            <DataGrid Grid.Row="0" ItemsSource="{Binding LowStockItems}" AutoGenerateColumns="False" 
                                       CanUserAddRows="False" IsReadOnly="True" Background="Transparent" 
                                       BorderThickness="0" HeadersVisibility="Column" GridLinesVisibility="Horizontal"
-                                      HorizontalGridLinesBrush="#1C2D4A" Foreground="#FFFFFF" RowHeight="32">
+                                      HorizontalGridLinesBrush="#17263C" RowHeight="34">
                                 <DataGrid.Style>
-                                    <Style TargetType="DataGrid">
+                                    <Style TargetType="DataGrid" BasedOn="{StaticResource {x:Type DataGrid}}">
                                         <Setter Property="Visibility" Value="Visible"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding HasLowStockItems}" Value="False">
@@ -599,16 +686,61 @@
                                     </Style>
                                 </DataGrid.Style>
                                 <DataGrid.Columns>
-                                    <DataGridTextColumn Header="ITEM / ACCESSORY" Binding="{Binding Name}" Width="*"/>
-                                    <DataGridTextColumn Header="SKU" Binding="{Binding SKU}" Width="80"/>
-                                    <DataGridTextColumn Header="STOCK" Binding="{Binding CurrentStock}" FontWeight="Black" Width="55"/>
-                                    <DataGridTextColumn Header="REORDER" Binding="{Binding ReorderLevel}" Width="60"/>
-                                    <DataGridTextColumn Header="PRICE" Binding="{Binding SellingPrice, StringFormat='₹{0:N0}'}" Width="65"/>
+                                    <DataGridTemplateColumn Header="ITEM / ACCESSORY" Width="*">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                    <TextBlock Text="🏷️ " FontSize="11" Margin="0,0,4,0"/>
+                                                    <TextBlock Text="{Binding Name}" FontWeight="Bold" Foreground="#F8FAFC" FontSize="11"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTemplateColumn Header="SKU" Width="85">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Border Background="#16253D" CornerRadius="3" Padding="5,1" HorizontalAlignment="Left">
+                                                    <TextBlock Text="{Binding SKU}" FontSize="10" Foreground="#38BDF8" FontWeight="SemiBold"/>
+                                                </Border>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTemplateColumn Header="STOCK" Width="70">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Border Background="#450A0A" CornerRadius="3" Padding="6,1" HorizontalAlignment="Left">
+                                                    <TextBlock Text="{Binding CurrentStock, StringFormat='{}{0} Left'}" FontSize="10" Foreground="#F87171" FontWeight="Black"/>
+                                                </Border>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTextColumn Header="REORDER" Binding="{Binding ReorderLevel, StringFormat='Min: {0}'}" Width="65" Foreground="#8EA4C1"/>
+                                    <DataGridTextColumn Header="PRICE" Binding="{Binding SellingPrice, StringFormat='₹{0:N0}'}" FontWeight="Black" Width="70" Foreground="#10B981"/>
                                 </DataGrid.Columns>
                             </DataGrid>
 
+                            <!-- Restock Action Footer Bar -->
+                            <Border Grid.Row="1" Background="#0C1728" BorderBrush="#1C2D4A" BorderThickness="1" CornerRadius="6" Padding="10,6" Margin="0,8,0,0">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding HasLowStockItems}" Value="False">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <Grid>
+                                    <TextBlock Text="🚨 Deficit detected in accessory stock" FontSize="10.5" Foreground="#FCA5A5" VerticalAlignment="Center"/>
+                                    <Button Command="{Binding NavigateToIntakeCommand}" Background="#0284C7" Foreground="#FFFFFF" Padding="10,3" BorderThickness="0" HorizontalAlignment="Right" Cursor="Hand" FontWeight="Bold" FontSize="10">
+                                        <TextBlock Text="➕ Restock via Intake [F5]"/>
+                                    </Button>
+                                </Grid>
+                            </Border>
+
                             <!-- If No Low Stock Items -> All Stocked Card -->
-                            <Border Background="#091E1E" BorderBrush="#059669" BorderThickness="1" CornerRadius="8" Padding="18" VerticalAlignment="Center">
+                            <Border Grid.Row="0" Background="#091E1E" BorderBrush="#059669" BorderThickness="1" CornerRadius="8" Padding="20" VerticalAlignment="Center">
                                 <Border.Style>
                                     <Style TargetType="Border">
                                         <Setter Property="Visibility" Value="Collapsed"/>
@@ -623,7 +755,7 @@
                                     <Border Background="#064E3B" CornerRadius="25" Width="50" Height="50" HorizontalAlignment="Center" Margin="0,0,0,10">
                                         <TextBlock Text="📦" FontSize="22" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
-                                    <TextBlock Text="All Items Above Reorder Threshold" FontSize="13" FontWeight="Bold" Foreground="#34D399" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="All Items Above Reorder Threshold" FontSize="14" FontWeight="Bold" Foreground="#34D399" HorizontalAlignment="Center"/>
                                     <TextBlock Text="No stock deficits detected across retail accessories or serialized devices." 
                                                FontSize="11" Foreground="#A7F3D0" TextWrapping="Wrap" TextAlignment="Center" Margin="0,4,0,8"/>
                                 </StackPanel>

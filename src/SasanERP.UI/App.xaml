@@ -2,6 +2,7 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xmlns:conv="clr-namespace:SasanERP.UI.Converters"
              Startup="Application_Startup">
     <Application.Resources>
         <ResourceDictionary>
@@ -10,17 +11,138 @@
                 <ResourceDictionary Source="pack://application:,,,/Wpf.Ui;component/Resources/Wpf.Ui.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
+            <conv:FriendlyNameConverter x:Key="FriendlyNameConverter" />
+
             <!-- Custom Sasan The Gadget Lounge Brand Colors -->
-            <SolidColorBrush x:Key="SasanPrimaryBrush" Color="#0B192C" />
+            <SolidColorBrush x:Key="SasanPrimaryBrush" Color="#08101E" />
             <SolidColorBrush x:Key="SasanCyanAccentBrush" Color="#00E5FF" />
             <SolidColorBrush x:Key="SasanAmberAccentBrush" Color="#FF9100" />
-            <SolidColorBrush x:Key="SasanCardBgBrush" Color="#162238" />
-            <SolidColorBrush x:Key="SasanBorderBrush" Color="#283958" />
+            <SolidColorBrush x:Key="SasanCardBgBrush" Color="#101D33" />
+            <SolidColorBrush x:Key="SasanBorderBrush" Color="#1F3354" />
             <SolidColorBrush x:Key="SasanForegroundBrush" Color="#F8FAFC" />
-            <SolidColorBrush x:Key="SasanSubTextBrush" Color="#94A3B8" />
+            <SolidColorBrush x:Key="SasanSubTextBrush" Color="#8EA4C1" />
             <SolidColorBrush x:Key="SasanNavBgBrush" Color="#070E1A" />
             <SolidColorBrush x:Key="SasanInputBgBrush" Color="#0A1424" />
             <SolidColorBrush x:Key="SasanHeaderBgBrush" Color="#070E1A" />
+
+            <!-- ============================================================== -->
+            <!-- GLOBAL ENTERPRISE LUXURY DATAGRID STYLING                      -->
+            <!-- Prevents default Windows white row / cell flash everywhere      -->
+            <!-- ============================================================== -->
+
+            <!-- 1. Column Header -->
+            <Style TargetType="{x:Type DataGridColumnHeader}">
+                <Setter Property="Background" Value="{DynamicResource SasanNavBgBrush}" />
+                <Setter Property="Foreground" Value="{DynamicResource SasanSubTextBrush}" />
+                <Setter Property="FontWeight" Value="Bold" />
+                <Setter Property="FontSize" Value="10.5" />
+                <Setter Property="Padding" Value="10,8" />
+                <Setter Property="BorderThickness" Value="0,0,0,1" />
+                <Setter Property="BorderBrush" Value="{DynamicResource SasanBorderBrush}" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type DataGridColumnHeader}">
+                            <Border Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    Padding="{TemplateBinding Padding}">
+                                <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center" />
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- 2. Cell -->
+            <Style TargetType="{x:Type DataGridCell}">
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="Foreground" Value="{DynamicResource SasanForegroundBrush}" />
+                <Setter Property="BorderThickness" Value="0" />
+                <Setter Property="Padding" Value="8,6" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type DataGridCell}">
+                            <Border Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="0"
+                                    Padding="{TemplateBinding Padding}">
+                                <ContentPresenter VerticalAlignment="Center" />
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+                <Style.Triggers>
+                    <Trigger Property="IsSelected" Value="True">
+                        <Setter Property="Background" Value="Transparent" />
+                        <Setter Property="Foreground" Value="{DynamicResource SasanCyanAccentBrush}" />
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+
+            <!-- 3. Row -->
+            <Style TargetType="{x:Type DataGridRow}">
+                <Setter Property="Background" Value="{DynamicResource SasanCardBgBrush}" />
+                <Setter Property="Foreground" Value="{DynamicResource SasanForegroundBrush}" />
+                <Setter Property="BorderThickness" Value="0" />
+                <Setter Property="Margin" Value="0,1" />
+                <Setter Property="MinHeight" Value="32" />
+                <Style.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="Background" Value="#1C304E" />
+                    </Trigger>
+                    <Trigger Property="IsSelected" Value="True">
+                        <Setter Property="Background" Value="#1E3A8A" />
+                        <Setter Property="Foreground" Value="#FFFFFF" />
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+
+            <!-- 4. DataGrid Master Control -->
+            <Style TargetType="{x:Type DataGrid}">
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="Foreground" Value="{DynamicResource SasanForegroundBrush}" />
+                <Setter Property="BorderThickness" Value="0" />
+                <Setter Property="RowBackground" Value="{DynamicResource SasanCardBgBrush}" />
+                <Setter Property="AlternatingRowBackground" Value="{DynamicResource SasanPrimaryBrush}" />
+                <Setter Property="GridLinesVisibility" Value="Horizontal" />
+                <Setter Property="HorizontalGridLinesBrush" Value="{DynamicResource SasanBorderBrush}" />
+                <Setter Property="VerticalGridLinesBrush" Value="Transparent" />
+                <Setter Property="HeadersVisibility" Value="Column" />
+                <Setter Property="CanUserAddRows" Value="False" />
+                <Setter Property="CanUserDeleteRows" Value="False" />
+                <Setter Property="IsReadOnly" Value="True" />
+                <Setter Property="AutoGenerateColumns" Value="False" />
+            </Style>
+
+            <!-- ============================================================== -->
+            <!-- GLOBAL COMBOBOX DARK STYLING                                   -->
+            <!-- ============================================================== -->
+            <Style TargetType="{x:Type ComboBoxItem}">
+                <Setter Property="Background" Value="#0A1424" />
+                <Setter Property="Foreground" Value="#F8FAFC" />
+                <Setter Property="FontSize" Value="11" />
+                <Setter Property="Padding" Value="10,6" />
+                <Setter Property="BorderThickness" Value="0" />
+                <Style.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="Background" Value="#1E3252" />
+                        <Setter Property="Foreground" Value="#00E5FF" />
+                    </Trigger>
+                    <Trigger Property="IsSelected" Value="True">
+                        <Setter Property="Background" Value="#1E3A8A" />
+                        <Setter Property="Foreground" Value="#FFFFFF" />
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+
+            <Style TargetType="{x:Type ComboBox}">
+                <Setter Property="Background" Value="#0A1424" />
+                <Setter Property="Foreground" Value="#F8FAFC" />
+                <Setter Property="BorderBrush" Value="#1F3354" />
+                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="Padding" Value="8,4" />
+                <Setter Property="FontSize" Value="11" />
+            </Style>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

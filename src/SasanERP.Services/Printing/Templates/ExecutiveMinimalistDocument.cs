@@ -54,7 +54,7 @@ public class ExecutiveMinimalistDocument : IDocument
                         r.RelativeItem().Column(c =>
                         {
                             c.Item().Text(_company.BusinessName.ToUpper()).FontSize(15).Bold().FontColor("#000000");
-                            c.Item().Text($"{_company.AddressLine1}, {_company.AddressLine2}, {_company.City} - {_company.Pincode}")
+                            c.Item().Text(_company.FormattedSingleLineAddress)
                                 .FontSize(7.8f).FontColor("#555555");
                             c.Item().Text($"GSTIN: {_company.GSTIN} | State Code: {_company.StateCode} | Tel: {_company.PhoneNumber}")
                                 .FontSize(7.8f).FontColor("#555555");
