@@ -27,15 +27,24 @@ if (-not (Test-Path $projectPath)) {
 }
 
 # 1. Clean & Prepare Target Directories
-Write-Host "[1/5] Preparing output directories..." -ForegroundColor Gray
+Write-Host "[1/6] Preparing output directories..." -ForegroundColor Gray
 if (Test-Path $OutputDir) {
     Remove-Item -Recurse -Force $OutputDir
 }
 New-Item -ItemType Directory -Force -Path $OutputDir | Out-Null
 New-Item -ItemType Directory -Force -Path $InstallerOutputDir | Out-Null
 
-# 2. Compile & Publish Self-Contained Single-File Executable
-Write-Host "[2/5] Publishing self-contained $Runtime executable..." -ForegroundColor Yellow
+# 2. Build React 18 + Vite + Tailwind Luxury WebUI
+Write-Host "[2/6] Compiling luxury React 18 + Tailwind SPA..." -ForegroundColor Cyan
+npm --prefix src\SasanERP.WebUI run build
+if (-not (Test-Path "src\SasanERP.WebUI\dist\index.html")) {
+    Write-Error "React UI build failed: dist\index.html not found."
+}
+New-Item -ItemType Directory -Force -Path "src\SasanERP.Server\wwwroot" | Out-Null
+Copy-Item -Path "src\SasanERP.WebUI\dist\*" -Destination "src\SasanERP.Server\wwwroot" -Recurse -Force
+
+# 3. Compile & Publish Self-Contained Single-File Executable
+Write-Host "[3/6] Publishing self-contained $Runtime executable..." -ForegroundColor Yellow
 dotnet publish $projectPath `
     -c $Configuration `
     -r $Runtime `
@@ -45,7 +54,10 @@ dotnet publish $projectPath `
     -p:EnableCompressionInSingleFile=true `
     -o $OutputDir
 
-# 3. Verify Output Executable
+# Copy wwwroot to publish output directory for offline WebView2 access
+Copy-Item -Path "src\SasanERP.Server\wwwroot" -Destination "$OutputDir\wwwroot" -Recurse -Force
+
+# 4. Verify Output Executable
 $exePath = Join-Path $OutputDir "SasanERP.UI.exe"
 if (-not (Test-Path $exePath)) {
     Write-Error "Publish failed: $exePath was not generated."
@@ -55,11 +67,11 @@ $fileInfo = Get-Item $exePath
 $fileSizeMB = [math]::Round($fileInfo.Length / 1MB, 2)
 $sha256 = (Get-FileHash -Path $exePath -Algorithm SHA256).Hash
 
-Write-Host "[3/5] Standalone binary generated: $exePath ($fileSizeMB MB)" -ForegroundColor Green
+Write-Host "[4/6] Standalone binary generated: $exePath ($fileSizeMB MB)" -ForegroundColor Green
 Write-Host "      SHA-256 Checksum: $sha256" -ForegroundColor DarkGray
 
-# 4. Generate Manifest & Release Package Metadata
-Write-Host "[4/5] Writing release manifest..." -ForegroundColor Gray
+# 5. Generate Manifest & Release Package Metadata
+Write-Host "[5/6] Writing release manifest..." -ForegroundColor Gray
 $manifestPath = Join-Path $OutputDir "release-manifest.json"
 $manifest = [ordered]@{
     Application = "Sasan The Gadget Lounge ERP"
@@ -75,8 +87,8 @@ $manifest = [ordered]@{
 }
 $manifest | ConvertTo-Json -Depth 4 | Set-Content -Path $manifestPath -Encoding UTF8
 
-# 5. Compile Inno Setup Windows Installer (.exe)
-Write-Host "[5/5] Compiling Windows Setup Installer (.exe)..." -ForegroundColor Yellow
+# 6. Compile Inno Setup Windows Installer (.exe)
+Write-Host "[6/6] Compiling Windows Setup Installer (.exe)..." -ForegroundColor Yellow
 
 $isccPath = $null
 $candidatePaths = @(
