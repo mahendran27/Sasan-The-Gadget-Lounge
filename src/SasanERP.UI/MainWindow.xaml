@@ -93,6 +93,7 @@
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
                 <!-- Store Brand & Logo -->
@@ -125,8 +126,17 @@
                     </Border>
                 </StackPanel>
 
-                <!-- Top Right Controls: Scale, Cashier, Theme, Template, Window Controls -->
+                <!-- Top Right Controls: Cockpit Toggle, Scale, Cashier -->
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                    <!-- Toggle React / WPF Cockpit Button -->
+                    <Button Command="{Binding ToggleCockpitModeCommand}" Margin="0,0,8,0" Padding="8,4" Cursor="Hand" BorderThickness="1"
+                            Background="#09253B" BorderBrush="{DynamicResource SasanCyanAccentBrush}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="🌟 " FontSize="11"/>
+                            <TextBlock Text="React 18 Luxury Cockpit" FontSize="11" FontWeight="Black" Foreground="{DynamicResource SasanCyanAccentBrush}"/>
+                        </StackPanel>
+                    </Button>
+
                     <!-- Screen Zoom / Scale Controls -->
                     <Border Background="{DynamicResource SasanCardBgBrush}" BorderBrush="{DynamicResource SasanBorderBrush}" BorderThickness="1" CornerRadius="6" Padding="4,2" Margin="0,0,8,0">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
@@ -134,69 +144,39 @@
                             <Button Command="{Binding ZoomOutCommand}" Content="-" Width="22" Height="22" Padding="0" Margin="1,0" Background="Transparent" Foreground="{DynamicResource SasanForegroundBrush}" BorderThickness="0" ToolTip="Zoom Out"/>
                             <TextBlock Text="{Binding UiScale, StringFormat='{}{0:P0}'}" FontSize="10" FontWeight="Bold" Width="36" TextAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource SasanCyanAccentBrush}"/>
                             <Button Command="{Binding ZoomInCommand}" Content="+" Width="22" Height="22" Padding="0" Margin="1,0" Background="Transparent" Foreground="{DynamicResource SasanForegroundBrush}" BorderThickness="0" ToolTip="Zoom In"/>
-                            <Button Command="{Binding ResetZoomCommand}" Content="↺ Reset" Height="22" Padding="5,0" Margin="2,0,0,0" Background="{DynamicResource SasanBorderBrush}" Foreground="{DynamicResource SasanForegroundBrush}" FontSize="9" FontWeight="Bold" BorderThickness="0" ToolTip="Reset Scale to 100%"/>
+                            <Button Command="{Binding ResetZoomCommand}" Content="↺" Height="22" Padding="5,0" Margin="2,0,0,0" Background="{DynamicResource SasanBorderBrush}" Foreground="{DynamicResource SasanForegroundBrush}" FontSize="9" FontWeight="Bold" BorderThickness="0" ToolTip="Reset Scale to 100%"/>
                         </StackPanel>
                     </Border>
 
                     <!-- Cashier Badge -->
-                    <Border Background="{DynamicResource SasanCardBgBrush}" BorderBrush="{DynamicResource SasanBorderBrush}" BorderThickness="1" CornerRadius="6" Padding="8,4" Margin="0,0,8,0">
+                    <Border Background="{DynamicResource SasanCardBgBrush}" BorderBrush="{DynamicResource SasanBorderBrush}" BorderThickness="1" CornerRadius="6" Padding="8,4" Margin="0,0,4,0">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <TextBlock Text="👤 " FontSize="11"/>
                             <TextBlock Text="{Binding ActiveCashier}" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SasanForegroundBrush}"/>
                         </StackPanel>
                     </Border>
+                </StackPanel>
 
-                    <!-- Theme Selector -->
-                    <Border Background="{DynamicResource SasanCardBgBrush}" BorderBrush="{DynamicResource SasanBorderBrush}" BorderThickness="1" CornerRadius="6" Padding="6,2" Margin="0,0,8,0">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="🎨" FontSize="11" VerticalAlignment="Center" Margin="0,0,4,0"/>
-                            <ComboBox ItemsSource="{Binding AvailableThemeModes}" SelectedItem="{Binding SelectedThemeMode}" Width="155" Height="26" FontSize="11" FontWeight="SemiBold"
-                                      Background="Transparent" BorderThickness="0" Foreground="{DynamicResource SasanForegroundBrush}">
-                                <ComboBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding Converter={StaticResource FriendlyNameConverter}}" Foreground="{DynamicResource SasanForegroundBrush}" FontSize="11" FontWeight="SemiBold"/>
-                                    </DataTemplate>
-                                </ComboBox.ItemTemplate>
-                            </ComboBox>
-                        </StackPanel>
+                <!-- PERMANENT PINNED WINDOW CAPTION CONTROLS (NEVER CLIPPED ON ANY MONITOR) -->
+                <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center" Margin="6,0,0,0">
+                    <!-- Minimize Button -->
+                    <Border Background="{DynamicResource SasanCardBgBrush}" BorderBrush="{DynamicResource SasanBorderBrush}" BorderThickness="1" CornerRadius="4" Margin="0,0,3,0">
+                        <Button Click="BtnMinimize_Click" Width="32" Height="26" Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip="Minimize">
+                            <TextBlock Text="🗕" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource SasanForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Button>
                     </Border>
-
-                    <!-- Invoice Template Selector -->
-                    <Border Background="{DynamicResource SasanCardBgBrush}" BorderBrush="{DynamicResource SasanBorderBrush}" BorderThickness="1" CornerRadius="6" Padding="6,2" Margin="0,0,10,0">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="📄" FontSize="11" VerticalAlignment="Center" Margin="0,0,4,0"/>
-                            <ComboBox ItemsSource="{Binding PosVM.AvailableInvoiceTemplates}" SelectedItem="{Binding PosVM.SelectedInvoiceTemplate}" Width="175" Height="26" FontSize="11" FontWeight="SemiBold"
-                                      Background="Transparent" BorderThickness="0" Foreground="{DynamicResource SasanForegroundBrush}">
-                                <ComboBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding Converter={StaticResource FriendlyNameConverter}}" Foreground="{DynamicResource SasanForegroundBrush}" FontSize="11" FontWeight="SemiBold"/>
-                                    </DataTemplate>
-                                </ComboBox.ItemTemplate>
-                            </ComboBox>
-                        </StackPanel>
+                    <!-- Maximize / Restore Button -->
+                    <Border Background="{DynamicResource SasanCardBgBrush}" BorderBrush="{DynamicResource SasanBorderBrush}" BorderThickness="1" CornerRadius="4" Margin="0,0,3,0">
+                        <Button Click="BtnMaximize_Click" Width="32" Height="26" Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip="Maximize / Restore">
+                            <TextBlock x:Name="TxtMaximizeIcon" Text="🗖" FontSize="11" Foreground="{DynamicResource SasanForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Button>
                     </Border>
-
-                    <!-- WINDOW CAPTION CONTROLS (Minimize, Maximize/Restore, Close) -->
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <!-- Minimize Button -->
-                        <Border Background="{DynamicResource SasanCardBgBrush}" BorderBrush="{DynamicResource SasanBorderBrush}" BorderThickness="1" CornerRadius="4" Margin="0,0,3,0">
-                            <Button Click="BtnMinimize_Click" Width="30" Height="24" Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip="Minimize">
-                                <TextBlock Text="🗕" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource SasanForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Button>
-                        </Border>
-                        <!-- Maximize / Restore Button -->
-                        <Border Background="{DynamicResource SasanCardBgBrush}" BorderBrush="{DynamicResource SasanBorderBrush}" BorderThickness="1" CornerRadius="4" Margin="0,0,3,0">
-                            <Button Click="BtnMaximize_Click" Width="30" Height="24" Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip="Maximize / Restore">
-                                <TextBlock x:Name="TxtMaximizeIcon" Text="🗖" FontSize="11" Foreground="{DynamicResource SasanForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Button>
-                        </Border>
-                        <!-- Close Button -->
-                        <Border Background="#4A1818" BorderBrush="#DC2626" BorderThickness="1" CornerRadius="4">
-                            <Button Click="BtnClose_Click" Width="32" Height="24" Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip="Close Application">
-                                <TextBlock Text="✕" FontSize="11" FontWeight="Black" Foreground="#FF8080" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Button>
-                        </Border>
-                    </StackPanel>
+                    <!-- Close Button -->
+                    <Border Background="#4A1818" BorderBrush="#DC2626" BorderThickness="1" CornerRadius="4">
+                        <Button Click="BtnClose_Click" Width="34" Height="26" Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip="Close Application">
+                            <TextBlock Text="✕" FontSize="11" FontWeight="Black" Foreground="#FF8080" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Button>
+                    </Border>
                 </StackPanel>
             </Grid>
         </Border>
@@ -205,10 +185,15 @@
         <!-- 2. MAIN SHELL (NAVIGATION RAIL + DYNAMIC WORKSPACE)            -->
         <!-- ============================================================== -->
         <Grid Grid.Row="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="220" /> <!-- Left Navigation Sidebar -->
-                <ColumnDefinition Width="*" />   <!-- Dynamic Module View Workspace -->
-            </Grid.ColumnDefinitions>
+            <!-- LUXURY REACT 18 + TAILWIND DESKTOP VIEW (Active by default) -->
+            <views:WebView2HostView Visibility="{Binding IsReactLuxuryMode, Converter={StaticResource BoolToVis}}" />
+
+            <!-- WPF CLASSIC SHELL (Available on toggle) -->
+            <Grid Visibility="{Binding IsWpfLegacyMode, Converter={StaticResource BoolToVis}}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="220" /> <!-- Left Navigation Sidebar -->
+                    <ColumnDefinition Width="*" />   <!-- Dynamic Module View Workspace -->
+                </Grid.ColumnDefinitions>
 
             <!-- LEFT NAVIGATION RAIL -->
             <Border Grid.Column="0" Background="{DynamicResource SasanNavBgBrush}" BorderBrush="{DynamicResource SasanBorderBrush}" BorderThickness="0,0,1,0" Padding="8,10">
