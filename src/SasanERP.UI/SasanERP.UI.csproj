@@ -4,6 +4,7 @@
     <ProjectReference Include="..\SasanERP.Core\SasanERP.Core.csproj" />
     <ProjectReference Include="..\SasanERP.Data\SasanERP.Data.csproj" />
     <ProjectReference Include="..\SasanERP.Services\SasanERP.Services.csproj" />
+    <ProjectReference Include="..\SasanERP.Server\SasanERP.Server.csproj" />
   </ItemGroup>
 
   <ItemGroup>
