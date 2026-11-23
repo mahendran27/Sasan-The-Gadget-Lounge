@@ -120,6 +120,7 @@ public partial class MainViewModel : ObservableObject
         GodModeVM = godModeVM;
 
         _currentViewModel = dashboardVM;
+        DashboardVM.NavigationRequested += section => NavigateToSection(section);
 
         if (wirelessManager != null)
         {

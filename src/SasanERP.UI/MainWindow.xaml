@@ -47,6 +47,30 @@
         <DataTemplate DataType="{x:Type vm:GodModeViewModel}">
             <views:GodModeView />
         </DataTemplate>
+
+        <!-- Dynamic Navigation Rail Button Style with Left Accent Indicator -->
+        <Style x:Key="NavRailButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="3,0,0,0"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="Padding" Value="10,9"/>
+            <Setter Property="Margin" Value="0,0,0,3"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="0,6,6,0"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </ui:FluentWindow.Resources>
 
     <Grid>
@@ -110,7 +134,7 @@
                             <Button Command="{Binding ZoomOutCommand}" Content="-" Width="22" Height="22" Padding="0" Margin="1,0" Background="Transparent" Foreground="{DynamicResource SasanForegroundBrush}" BorderThickness="0" ToolTip="Zoom Out"/>
                             <TextBlock Text="{Binding UiScale, StringFormat='{}{0:P0}'}" FontSize="10" FontWeight="Bold" Width="36" TextAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource SasanCyanAccentBrush}"/>
                             <Button Command="{Binding ZoomInCommand}" Content="+" Width="22" Height="22" Padding="0" Margin="1,0" Background="Transparent" Foreground="{DynamicResource SasanForegroundBrush}" BorderThickness="0" ToolTip="Zoom In"/>
-                            <Button Command="{Binding ResetZoomCommand}" Content="100%" Height="22" Padding="4,0" Margin="2,0,0,0" Background="{DynamicResource SasanBorderBrush}" Foreground="{DynamicResource SasanForegroundBrush}" FontSize="9" BorderThickness="0" ToolTip="Reset Scale (100%)"/>
+                            <Button Command="{Binding ResetZoomCommand}" Content="↺ Reset" Height="22" Padding="5,0" Margin="2,0,0,0" Background="{DynamicResource SasanBorderBrush}" Foreground="{DynamicResource SasanForegroundBrush}" FontSize="9" FontWeight="Bold" BorderThickness="0" ToolTip="Reset Scale to 100%"/>
                         </StackPanel>
                     </Border>
 
@@ -141,17 +165,23 @@
                     <!-- WINDOW CAPTION CONTROLS (Minimize, Maximize/Restore, Close) -->
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <!-- Minimize Button -->
-                        <Button Click="BtnMinimize_Click" Width="30" Height="26" Margin="0,0,2,0" Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip="Minimize">
-                            <TextBlock Text="—" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource SasanForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Button>
+                        <Border Background="{DynamicResource SasanCardBgBrush}" BorderBrush="{DynamicResource SasanBorderBrush}" BorderThickness="1" CornerRadius="4" Margin="0,0,3,0">
+                            <Button Click="BtnMinimize_Click" Width="30" Height="24" Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip="Minimize">
+                                <TextBlock Text="🗕" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource SasanForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Button>
+                        </Border>
                         <!-- Maximize / Restore Button -->
-                        <Button Click="BtnMaximize_Click" Width="30" Height="26" Margin="0,0,2,0" Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip="Maximize / Restore">
-                            <TextBlock Text="🗖" FontSize="12" Foreground="{DynamicResource SasanForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Button>
+                        <Border Background="{DynamicResource SasanCardBgBrush}" BorderBrush="{DynamicResource SasanBorderBrush}" BorderThickness="1" CornerRadius="4" Margin="0,0,3,0">
+                            <Button Click="BtnMaximize_Click" Width="30" Height="24" Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip="Maximize / Restore">
+                                <TextBlock x:Name="TxtMaximizeIcon" Text="🗖" FontSize="11" Foreground="{DynamicResource SasanForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Button>
+                        </Border>
                         <!-- Close Button -->
-                        <Button Click="BtnClose_Click" Width="30" Height="26" Background="#4A1818" BorderThickness="0" Cursor="Hand" ToolTip="Close Application">
-                            <TextBlock Text="✕" FontSize="12" FontWeight="Bold" Foreground="#FF6B6B" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Button>
+                        <Border Background="#4A1818" BorderBrush="#DC2626" BorderThickness="1" CornerRadius="4">
+                            <Button Click="BtnClose_Click" Width="32" Height="24" Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip="Close Application">
+                                <TextBlock Text="✕" FontSize="11" FontWeight="Black" Foreground="#FF8080" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Button>
+                        </Border>
                     </StackPanel>
                 </StackPanel>
             </Grid>
@@ -180,20 +210,19 @@
                             <TextBlock Text="ERP MODULES" FontSize="10" FontWeight="Black" Foreground="{DynamicResource SasanSubTextBrush}" Margin="10,4,0,8"/>
 
                             <!-- Nav Item 1: Dashboard [F1] -->
-                            <Button Click="BtnNavDashboard_Click" HorizontalContentAlignment="Left" Padding="12,10" Margin="0,0,0,4"
-                                    BorderThickness="0" Cursor="Hand">
+                            <Button Click="BtnNavDashboard_Click">
                                 <Button.Style>
-                                    <Style TargetType="Button">
-                                        <Setter Property="Background" Value="Transparent"/>
+                                    <Style TargetType="Button" BasedOn="{StaticResource NavRailButtonStyle}">
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding CurrentSection}" Value="Dashboard">
                                                 <Setter Property="Background" Value="{DynamicResource SasanCardBgBrush}"/>
+                                                <Setter Property="BorderBrush" Value="{DynamicResource SasanCyanAccentBrush}"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
                                 </Button.Style>
                                 <Grid Width="170">
-                                    <StackPanel Orientation="Horizontal">
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                         <TextBlock Text="📊 " FontSize="14" Margin="0,0,8,0"/>
                                         <TextBlock Text="Dashboard" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource SasanForegroundBrush}"/>
                                     </StackPanel>
@@ -202,20 +231,19 @@
                             </Button>
 
                             <!-- Nav Item 2: POS Billing [F2] -->
-                            <Button Click="BtnNavPos_Click" HorizontalContentAlignment="Left" Padding="12,10" Margin="0,0,0,4"
-                                    BorderThickness="0" Cursor="Hand">
+                            <Button Click="BtnNavPos_Click">
                                 <Button.Style>
-                                    <Style TargetType="Button">
-                                        <Setter Property="Background" Value="Transparent"/>
+                                    <Style TargetType="Button" BasedOn="{StaticResource NavRailButtonStyle}">
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding CurrentSection}" Value="PosBilling">
                                                 <Setter Property="Background" Value="{DynamicResource SasanCardBgBrush}"/>
+                                                <Setter Property="BorderBrush" Value="{DynamicResource SasanCyanAccentBrush}"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
                                 </Button.Style>
                                 <Grid Width="170">
-                                    <StackPanel Orientation="Horizontal">
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                         <TextBlock Text="⚡ " FontSize="14" Margin="0,0,8,0"/>
                                         <TextBlock Text="POS Billing" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource SasanForegroundBrush}"/>
                                     </StackPanel>
@@ -224,20 +252,19 @@
                             </Button>
 
                             <!-- Nav Item 3: Inventory & IMEI Registry [F3] -->
-                            <Button Click="BtnNavInventory_Click" HorizontalContentAlignment="Left" Padding="12,10" Margin="0,0,0,4"
-                                    BorderThickness="0" Cursor="Hand">
+                            <Button Click="BtnNavInventory_Click">
                                 <Button.Style>
-                                    <Style TargetType="Button">
-                                        <Setter Property="Background" Value="Transparent"/>
+                                    <Style TargetType="Button" BasedOn="{StaticResource NavRailButtonStyle}">
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding CurrentSection}" Value="InventoryRegistry">
                                                 <Setter Property="Background" Value="{DynamicResource SasanCardBgBrush}"/>
+                                                <Setter Property="BorderBrush" Value="{DynamicResource SasanCyanAccentBrush}"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
                                 </Button.Style>
                                 <Grid Width="170">
-                                    <StackPanel Orientation="Horizontal">
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                         <TextBlock Text="📦 " FontSize="14" Margin="0,0,8,0"/>
                                         <TextBlock Text="Stock Registry" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource SasanForegroundBrush}"/>
                                     </StackPanel>
@@ -246,20 +273,19 @@
                             </Button>
 
                             <!-- Nav Item 4: Sales Invoices & Reprint [F4] -->
-                            <Button Click="BtnNavInvoices_Click" HorizontalContentAlignment="Left" Padding="12,10" Margin="0,0,0,4"
-                                    BorderThickness="0" Cursor="Hand">
+                            <Button Click="BtnNavInvoices_Click">
                                 <Button.Style>
-                                    <Style TargetType="Button">
-                                        <Setter Property="Background" Value="Transparent"/>
+                                    <Style TargetType="Button" BasedOn="{StaticResource NavRailButtonStyle}">
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding CurrentSection}" Value="InvoiceHistory">
                                                 <Setter Property="Background" Value="{DynamicResource SasanCardBgBrush}"/>
+                                                <Setter Property="BorderBrush" Value="{DynamicResource SasanCyanAccentBrush}"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
                                 </Button.Style>
                                 <Grid Width="170">
-                                    <StackPanel Orientation="Horizontal">
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                         <TextBlock Text="📑 " FontSize="14" Margin="0,0,8,0"/>
                                         <TextBlock Text="Invoices &amp; Bills" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource SasanForegroundBrush}"/>
                                     </StackPanel>
@@ -268,20 +294,19 @@
                             </Button>
 
                             <!-- Nav Item 5: Intake & Barcode Stickers [F5] -->
-                            <Button Click="BtnNavIntake_Click" HorizontalContentAlignment="Left" Padding="12,10" Margin="0,0,0,4"
-                                    BorderThickness="0" Cursor="Hand">
+                            <Button Click="BtnNavIntake_Click">
                                 <Button.Style>
-                                    <Style TargetType="Button">
-                                        <Setter Property="Background" Value="Transparent"/>
+                                    <Style TargetType="Button" BasedOn="{StaticResource NavRailButtonStyle}">
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding CurrentSection}" Value="DeviceIntake">
                                                 <Setter Property="Background" Value="{DynamicResource SasanCardBgBrush}"/>
+                                                <Setter Property="BorderBrush" Value="{DynamicResource SasanAmberAccentBrush}"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
                                 </Button.Style>
                                 <Grid Width="170">
-                                    <StackPanel Orientation="Horizontal">
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                         <TextBlock Text="🏷️ " FontSize="14" Margin="0,0,8,0"/>
                                         <TextBlock Text="Intake &amp; Stickers" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource SasanForegroundBrush}"/>
                                     </StackPanel>
@@ -290,20 +315,19 @@
                             </Button>
 
                             <!-- Nav Item 6: Daybook & Accounts [F6] -->
-                            <Button Click="BtnNavDaybook_Click" HorizontalContentAlignment="Left" Padding="12,10" Margin="0,0,0,4"
-                                    BorderThickness="0" Cursor="Hand">
+                            <Button Click="BtnNavDaybook_Click">
                                 <Button.Style>
-                                    <Style TargetType="Button">
-                                        <Setter Property="Background" Value="Transparent"/>
+                                    <Style TargetType="Button" BasedOn="{StaticResource NavRailButtonStyle}">
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding CurrentSection}" Value="DaybookLedger">
                                                 <Setter Property="Background" Value="{DynamicResource SasanCardBgBrush}"/>
+                                                <Setter Property="BorderBrush" Value="{DynamicResource SasanCyanAccentBrush}"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
                                 </Button.Style>
                                 <Grid Width="170">
-                                    <StackPanel Orientation="Horizontal">
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                         <TextBlock Text="📒 " FontSize="14" Margin="0,0,8,0"/>
                                         <TextBlock Text="Daybook &amp; Ledgers" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource SasanForegroundBrush}"/>
                                     </StackPanel>
@@ -312,20 +336,19 @@
                             </Button>
 
                             <!-- Nav Item 7: GST & GSTR-1 Hub [F7] -->
-                            <Button Click="BtnNavGstReports_Click" HorizontalContentAlignment="Left" Padding="12,10" Margin="0,0,0,4"
-                                    BorderThickness="0" Cursor="Hand">
+                            <Button Click="BtnNavGstReports_Click">
                                 <Button.Style>
-                                    <Style TargetType="Button">
-                                        <Setter Property="Background" Value="Transparent"/>
+                                    <Style TargetType="Button" BasedOn="{StaticResource NavRailButtonStyle}">
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding CurrentSection}" Value="GstReports">
                                                 <Setter Property="Background" Value="{DynamicResource SasanCardBgBrush}"/>
+                                                <Setter Property="BorderBrush" Value="{DynamicResource SasanCyanAccentBrush}"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
                                 </Button.Style>
                                 <Grid Width="170">
-                                    <StackPanel Orientation="Horizontal">
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                         <TextBlock Text="📈 " FontSize="14" Margin="0,0,8,0"/>
                                         <TextBlock Text="GST &amp; GSTR-1 Hub" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource SasanForegroundBrush}"/>
                                     </StackPanel>
@@ -334,20 +357,19 @@
                             </Button>
 
                             <!-- Nav Item 8: NFC & UHF RFID Wireless Hub [F8] -->
-                            <Button Click="BtnNavWireless_Click" HorizontalContentAlignment="Left" Padding="12,10" Margin="0,0,0,4"
-                                    BorderThickness="0" Cursor="Hand">
+                            <Button Click="BtnNavWireless_Click">
                                 <Button.Style>
-                                    <Style TargetType="Button">
-                                        <Setter Property="Background" Value="Transparent"/>
+                                    <Style TargetType="Button" BasedOn="{StaticResource NavRailButtonStyle}">
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding CurrentSection}" Value="WirelessStudio">
                                                 <Setter Property="Background" Value="{DynamicResource SasanCardBgBrush}"/>
+                                                <Setter Property="BorderBrush" Value="{DynamicResource SasanCyanAccentBrush}"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
                                 </Button.Style>
                                 <Grid Width="170">
-                                    <StackPanel Orientation="Horizontal">
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                         <TextBlock Text="📡 " FontSize="14" Margin="0,0,8,0"/>
                                         <TextBlock Text="NFC &amp; UHF RFID" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource SasanForegroundBrush}"/>
                                     </StackPanel>
@@ -356,20 +378,19 @@
                             </Button>
 
                             <!-- Nav Item 9: Store Settings & Profile [F10] -->
-                            <Button Click="BtnNavSettings_Click" HorizontalContentAlignment="Left" Padding="12,10" Margin="0,0,0,4"
-                                    BorderThickness="0" Cursor="Hand">
+                            <Button Click="BtnNavSettings_Click">
                                 <Button.Style>
-                                    <Style TargetType="Button">
-                                        <Setter Property="Background" Value="Transparent"/>
+                                    <Style TargetType="Button" BasedOn="{StaticResource NavRailButtonStyle}">
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding CurrentSection}" Value="StoreSettings">
                                                 <Setter Property="Background" Value="{DynamicResource SasanCardBgBrush}"/>
+                                                <Setter Property="BorderBrush" Value="{DynamicResource SasanAmberAccentBrush}"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
                                 </Button.Style>
                                 <Grid Width="170">
-                                    <StackPanel Orientation="Horizontal">
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                         <TextBlock Text="⚙️ " FontSize="14" Margin="0,0,8,0"/>
                                         <TextBlock Text="Store Settings" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource SasanForegroundBrush}"/>
                                     </StackPanel>
@@ -378,20 +399,19 @@
                             </Button>
 
                             <!-- Nav Item 10: God Mode & Reports [F12] -->
-                            <Button Click="BtnNavGodMode_Click" HorizontalContentAlignment="Left" Padding="12,10" Margin="0,0,0,4"
-                                    BorderThickness="0" Cursor="Hand">
+                            <Button Click="BtnNavGodMode_Click">
                                 <Button.Style>
-                                    <Style TargetType="Button">
-                                        <Setter Property="Background" Value="Transparent"/>
+                                    <Style TargetType="Button" BasedOn="{StaticResource NavRailButtonStyle}">
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding CurrentSection}" Value="GodMode">
                                                 <Setter Property="Background" Value="{DynamicResource SasanCardBgBrush}"/>
+                                                <Setter Property="BorderBrush" Value="{DynamicResource SasanAmberAccentBrush}"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
                                 </Button.Style>
                                 <Grid Width="170">
-                                    <StackPanel Orientation="Horizontal">
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                         <TextBlock Text="👑 " FontSize="14" Margin="0,0,8,0"/>
                                         <TextBlock Text="God Mode &amp; BI" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource SasanAmberAccentBrush}"/>
                                     </StackPanel>
@@ -432,7 +452,12 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
-                <TextBlock Grid.Column="0" Text="{Binding GlobalStatus}" FontSize="12" Foreground="{DynamicResource SasanSubTextBrush}" VerticalAlignment="Center"/>
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Background="#064E3B" CornerRadius="4" Padding="6,1" Margin="0,0,10,0" VerticalAlignment="Center">
+                        <TextBlock Text="SQLITE: ACID ONLINE" FontSize="9" FontWeight="Black" Foreground="#34D399"/>
+                    </Border>
+                    <TextBlock Text="{Binding GlobalStatus}" FontSize="11" Foreground="{DynamicResource SasanSubTextBrush}" VerticalAlignment="Center"/>
+                </StackPanel>
 
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                     <TextBlock Text="{Binding CurrentTimeString}" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource SasanForegroundBrush}" Margin="0,0,14,0"/>

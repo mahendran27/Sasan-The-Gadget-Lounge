@@ -174,6 +174,11 @@ public partial class MainWindow : FluentWindow
         WindowState = WindowState == WindowState.Maximized 
             ? WindowState.Normal 
             : WindowState.Maximized;
+
+        if (TxtMaximizeIcon != null)
+        {
+            TxtMaximizeIcon.Text = WindowState == WindowState.Maximized ? "🗗" : "🗖";
+        }
     }
 
     private void BtnClose_Click(object sender, RoutedEventArgs e)
