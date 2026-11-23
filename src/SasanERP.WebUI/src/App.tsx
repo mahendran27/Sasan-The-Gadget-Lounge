@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Shell } from './components/layout/Shell';
 import { ModuleKey } from './components/layout/SidebarRail';
 import { DashboardView } from './views/DashboardView';
+import { PosBillingView } from './views/PosBillingView';
 
 export default function App() {
   const [activeModule, setActiveModule] = useState<ModuleKey>('dashboard');
@@ -10,6 +11,8 @@ export default function App() {
     switch (activeModule) {
       case 'dashboard':
         return <DashboardView onNavigate={(m) => setActiveModule(m as ModuleKey)} />;
+      case 'pos':
+        return <PosBillingView onNavigate={(m) => setActiveModule(m as ModuleKey)} />;
       default:
         return (
           <div className="p-8">
