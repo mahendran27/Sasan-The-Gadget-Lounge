@@ -588,9 +588,10 @@
 
                             <!-- If Has Aging Devices -> DataGrid -->
                             <DataGrid ItemsSource="{Binding AgingDevices}" AutoGenerateColumns="False" 
-                                      CanUserAddRows="False" IsReadOnly="True" Background="Transparent" 
-                                      BorderThickness="0" HeadersVisibility="Column" GridLinesVisibility="Horizontal"
-                                      HorizontalGridLinesBrush="#17263C" RowHeight="34">
+                                      CanUserAddRows="False" IsReadOnly="True" Background="#0A111E" 
+                                      RowBackground="#0E1726" AlternatingRowBackground="#121D30"
+                                      Foreground="#F8FAFC" BorderThickness="0" HeadersVisibility="Column" 
+                                      GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#1E293B" RowHeight="34">
                                 <DataGrid.Style>
                                     <Style TargetType="DataGrid" BasedOn="{StaticResource {x:Type DataGrid}}">
                                         <Setter Property="Visibility" Value="Visible"/>
@@ -672,9 +673,10 @@
 
                             <!-- If Has Low Stock Items -> Beautiful Dark DataGrid -->
                             <DataGrid Grid.Row="0" ItemsSource="{Binding LowStockItems}" AutoGenerateColumns="False" 
-                                      CanUserAddRows="False" IsReadOnly="True" Background="Transparent" 
-                                      BorderThickness="0" HeadersVisibility="Column" GridLinesVisibility="Horizontal"
-                                      HorizontalGridLinesBrush="#17263C" RowHeight="34">
+                                      CanUserAddRows="False" IsReadOnly="True" Background="#0A111E" 
+                                      RowBackground="#0E1726" AlternatingRowBackground="#121D30"
+                                      Foreground="#F8FAFC" BorderThickness="0" HeadersVisibility="Column" 
+                                      GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#1E293B" RowHeight="34">
                                 <DataGrid.Style>
                                     <Style TargetType="DataGrid" BasedOn="{StaticResource {x:Type DataGrid}}">
                                         <Setter Property="Visibility" Value="Visible"/>
