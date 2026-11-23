@@ -59,6 +59,21 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private string _globalStatus = "🟢 ACID Engine: ONLINE (SQLite) | 📡 RFID/NFC: READY | 🖨️ Vector Print: READY";
 
+    [ObservableProperty]
+    private bool _isReactLuxuryMode = true;
+
+    public bool IsWpfLegacyMode => !IsReactLuxuryMode;
+
+    [RelayCommand]
+    public void ToggleCockpitMode()
+    {
+        IsReactLuxuryMode = !IsReactLuxuryMode;
+        OnPropertyChanged(nameof(IsWpfLegacyMode));
+        GlobalStatus = IsReactLuxuryMode
+            ? "🌟 Cockpit Engine: Luxury React 18 + Tailwind Desktop Active"
+            : "🖥️ Cockpit Engine: WPF Classic Desktop Active";
+    }
+
     public ObservableCollection<AppThemeMode> AvailableThemeModes { get; } =
         new(Enum.GetValues<AppThemeMode>());
 
