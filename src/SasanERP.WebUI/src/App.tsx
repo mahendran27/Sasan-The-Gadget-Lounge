@@ -3,6 +3,8 @@ import { Shell } from './components/layout/Shell';
 import { ModuleKey } from './components/layout/SidebarRail';
 import { DashboardView } from './views/DashboardView';
 import { PosBillingView } from './views/PosBillingView';
+import { StockRegistryView } from './views/StockRegistryView';
+import { DeviceIntakeView } from './views/DeviceIntakeView';
 
 export default function App() {
   const [activeModule, setActiveModule] = useState<ModuleKey>('dashboard');
@@ -13,6 +15,10 @@ export default function App() {
         return <DashboardView onNavigate={(m) => setActiveModule(m as ModuleKey)} />;
       case 'pos':
         return <PosBillingView onNavigate={(m) => setActiveModule(m as ModuleKey)} />;
+      case 'stock':
+        return <StockRegistryView onNavigateToIntake={() => setActiveModule('intake')} />;
+      case 'intake':
+        return <DeviceIntakeView />;
       default:
         return (
           <div className="p-8">
