@@ -135,6 +135,10 @@ export interface DashboardTelemetry {
   status: string;
 }
 
+export type AgingDevice = DashboardTelemetry['agingDevices'][number];
+export type RecentInvoice = DashboardTelemetry['recentInvoices'][number];
+export type LowStockItem = DashboardTelemetry['lowStockItems'][number];
+
 export interface CompanyProfile {
   businessName: string;
   tagline: string;
