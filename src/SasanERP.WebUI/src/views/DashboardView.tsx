@@ -30,17 +30,15 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
   const [loading, setLoading] = useState(false);
   const [activeRadarTab, setActiveRadarTab] = useState<'aging' | 'lowstock'>('lowstock');
   const [telemetry, setTelemetry] = useState<DashboardTelemetry>({
+    timeframe: 'Today',
     todayRevenue: 0,
-    todayProfit: 0,
+    netGrossProfit: 0,
     totalStockValuation: 406239,
-    preOwnedValuation: 224997,
-    bulkStockValuation: 181242,
-    todayCashCollected: 0,
-    todayUpiCollected: 0,
-    customerCreditsReceivable: 0,
+    khataReceivables: 0,
+    cashInDrawer: 0,
+    upiBankInflow: 0,
     agingDevicesCount: 0,
-    lowStockCount: 2,
-    invoicesCount: 0,
+    lowStockAlertsCount: 2,
     agingDevices: [],
     lowStockItems: [
       {
@@ -62,7 +60,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
         sellingPrice: 499
       }
     ],
-    recentInvoices: []
+    recentInvoices: [],
+    status: 'Ready'
   });
 
   const fetchTelemetry = async () => {
@@ -72,12 +71,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
       if (res.ok) {
         const data = await res.json();
         setTelemetry(data);
-        if (data.agingDevicesCount > 0 && data.lowStockCount === 0) {
+        if (data.agingDevicesCount > 0 && data.lowStockAlertsCount === 0) {
           setActiveRadarTab('aging');
         }
       }
     } catch {
-      // Graceful fallback to initial state in offline dev mode
+      // Graceful offline fallback
     } finally {
       setLoading(false);
     }
@@ -149,19 +148,17 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
         <KpiMetricCard
           title="Today's Revenue"
           value={`₹${telemetry.todayRevenue.toLocaleString('en-IN')}`}
-          subtitle={`${telemetry.invoicesCount} Invoices Billed`}
+          subtitle={`${telemetry.recentInvoices.length} Invoices Billed Today`}
           icon={IndianRupee}
-          colorVariant="cyan"
-          badgeText="Realtime"
+          variant="cyan"
         />
 
         <KpiMetricCard
           title="Net Gross Profit"
-          value={`₹${telemetry.todayProfit.toLocaleString('en-IN')}`}
+          value={`₹${telemetry.netGrossProfit.toLocaleString('en-IN')}`}
           subtitle="Gross Margin on Items Sold"
           icon={TrendingUp}
-          colorVariant="emerald"
-          badgeText={telemetry.todayRevenue > 0 ? `${((telemetry.todayProfit / telemetry.todayRevenue) * 100).toFixed(1)}%` : '0.0%'}
+          variant="emerald"
         />
 
         <KpiMetricCard
@@ -169,17 +166,15 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
           value={`₹${telemetry.totalStockValuation.toLocaleString('en-IN')}`}
           subtitle="4 Pre-Owned, 23 Bulk Units"
           icon={PackageCheck}
-          colorVariant="amber"
-          badgeText="Asset"
+          variant="gold"
         />
 
         <KpiMetricCard
           title="Khata Receivables"
-          value={`₹${telemetry.customerCreditsReceivable.toLocaleString('en-IN')}`}
-          subtitle="Outstanding Customer Balance"
+          value={`₹${telemetry.khataReceivables.toLocaleString('en-IN')}`}
+          subtitle="Outstanding Credit Receivable"
           icon={CreditCard}
-          colorVariant="rose"
-          badgeText="Receivable"
+          variant="rose"
         />
       </div>
 
@@ -191,7 +186,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
               Cash in Drawer (Till)
             </div>
             <div className="text-base font-black font-mono text-sasan-text mt-0.5">
-              ₹{telemetry.todayCashCollected.toLocaleString('en-IN')}
+              ₹{telemetry.cashInDrawer.toLocaleString('en-IN')}
             </div>
           </div>
           <div className="w-8 h-8 rounded-lg bg-emerald-950/40 border border-emerald-800/40 flex items-center justify-center text-emerald-400">
@@ -205,7 +200,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
               UPI & Bank QR Inflow
             </div>
             <div className="text-base font-black font-mono text-sasan-text mt-0.5">
-              ₹{telemetry.todayUpiCollected.toLocaleString('en-IN')}
+              ₹{telemetry.upiBankInflow.toLocaleString('en-IN')}
             </div>
           </div>
           <div className="w-8 h-8 rounded-lg bg-cyan-950/40 border border-cyan-800/40 flex items-center justify-center text-cyan-400">
@@ -244,15 +239,15 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
             </div>
             <div
               className={`text-base font-black font-mono mt-0.5 ${
-                telemetry.lowStockCount > 0 ? 'text-rose-400' : 'text-emerald-400'
+                telemetry.lowStockAlertsCount > 0 ? 'text-rose-400' : 'text-emerald-400'
               }`}
             >
-              {telemetry.lowStockCount} Items Low
+              {telemetry.lowStockAlertsCount} Items Low
             </div>
           </div>
           <div
             className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-              telemetry.lowStockCount > 0
+              telemetry.lowStockAlertsCount > 0
                 ? 'bg-rose-950/40 border border-rose-800/40 text-rose-400'
                 : 'bg-emerald-950/40 border border-emerald-800/40 text-emerald-400'
             }`}
@@ -364,7 +359,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
                 <AlertTriangle className="w-3.5 h-3.5" />
                 <span>Low Stock</span>
                 <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-rose-950 border border-rose-800 text-rose-400">
-                  {telemetry.lowStockCount}
+                  {telemetry.lowStockAlertsCount}
                 </span>
               </button>
             </div>
