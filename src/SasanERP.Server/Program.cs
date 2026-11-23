@@ -75,6 +75,8 @@ builder.Services.AddSingleton<UnifiedWirelessManager>();
 var app = builder.Build();
 
 app.UseCors("AllowLocalDesktop");
+app.UseDefaultFiles();
+app.UseStaticFiles();
 
 // Ensure Database is Created and Seeded
 using (var scope = app.Services.CreateScope())
@@ -242,7 +244,7 @@ app.MapPost("/api/inventory/intake-unit", async (
         ProductId = product.Id,
         IMEI1 = request.IMEI1,
         IMEI2 = request.IMEI2,
-        SerialNumber = request.SerialNumber,
+        SerialNumber = request.SerialNumber ?? string.Empty,
         Color = request.Color ?? "Space Gray",
         StorageCapacity = request.StorageCapacity ?? "128GB",
         ConditionGrade = request.ConditionGrade,
@@ -616,6 +618,8 @@ app.MapPost("/api/godmode/settle-khata", async (
 
     return Results.Ok(new { success = true, message = $"Settled ₹{req.Amount:N2} for Customer #{req.CustomerId}." });
 });
+
+app.MapFallbackToFile("index.html");
 
 app.Run();
 
