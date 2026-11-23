@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.EntityFrameworkCore;
@@ -66,6 +67,12 @@ public partial class InventoryViewModel : ObservableObject
 
     [ObservableProperty]
     private bool _isLoading;
+
+    public ObservableCollection<BarcodeLabelStyle> AvailableBarcodeStyles { get; } =
+        new(Enum.GetValues<BarcodeLabelStyle>());
+
+    [ObservableProperty]
+    private BarcodeLabelStyle _selectedBarcodeStyle = BarcodeLabelStyle.Flagship_50x30mm;
 
     public InventoryViewModel(AppDbContext context, BarcodeLabelEngine labelEngine)
     {
@@ -184,7 +191,54 @@ public partial class InventoryViewModel : ObservableObject
             Category: device.Category
         );
 
-        byte[] tspl = _labelEngine.GenerateTsplStream(BarcodeLabelStyle.Flagship_50x30mm, sticker);
-        StatusMessage = $"Dispatched 50x30mm TSPL Barcode Label for {device.Name} (IMEI: {device.IMEI1}). Size: {tspl.Length} bytes.";
+        byte[] tspl = _labelEngine.GenerateTsplStream(SelectedBarcodeStyle, sticker);
+        StatusMessage = $"Dispatched {SelectedBarcodeStyle} TSPL Barcode Label for {device.Name} (IMEI: {device.IMEI1}). Size: {tspl.Length} bytes.";
+    }
+
+    [RelayCommand]
+    public async Task PreviewStickerPdf(InventoryDeviceItem? device)
+    {
+        device ??= SelectedDevice;
+        if (device == null)
+        {
+            StatusMessage = "Please select a device to preview sticker.";
+            return;
+        }
+
+        try
+        {
+            var sticker = new BarcodeStickerData(
+                ShopName: "SASAN THE GADGET LOUNGE",
+                ModelName: device.Name,
+                Specs: device.Specs,
+                Identifier: device.IMEI1,
+                Price: device.TaggedPrice,
+                MRP: device.SellingPrice,
+                ConditionGrade: device.ConditionGrade.ToString(),
+                BatteryHealth: device.BatteryHealthPercentage,
+                Warranty: device.WarrantyStatus.ToString(),
+                Category: device.Category
+            );
+
+            byte[] pdfBytes = _labelEngine.GeneratePdfBytes(SelectedBarcodeStyle, sticker);
+            string tempDir = Path.Combine(Path.GetTempPath(), "SasanERP_StickerPreviews");
+            Directory.CreateDirectory(tempDir);
+            string pdfPath = Path.Combine(tempDir, $"Stock_Sticker_{SelectedBarcodeStyle}_{device.IMEI1}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf");
+            await File.WriteAllBytesAsync(pdfPath, pdfBytes);
+
+            bool launched = SasanERP.Services.Printing.PdfViewerLauncher.Launch(pdfPath);
+            if (launched)
+            {
+                StatusMessage = $"[PREVIEW] Opened real vector sticker PDF ({SelectedBarcodeStyle}).";
+            }
+            else
+            {
+                StatusMessage = $"[PREVIEW] Generated vector sticker PDF: {pdfPath}";
+            }
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"[ERROR] Failed to preview sticker: {ex.Message}";
+        }
     }
 }

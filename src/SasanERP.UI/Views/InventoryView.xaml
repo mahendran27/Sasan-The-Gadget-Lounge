@@ -1,10 +1,10 @@
 <UserControl x:Class="SasanERP.UI.Views.InventoryView"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             mc:Ignorable="d" 
-             d:DesignHeight="700" d:DesignWidth="1100">
+              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+              mc:Ignorable="d" 
+              d:DesignHeight="700" d:DesignWidth="1100">
 
     <Grid Margin="20,16">
         <Grid.RowDefinitions>
@@ -21,13 +21,13 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <StackPanel Grid.Column="0">
-                <TextBlock Text="INVENTORY &amp; SERIALIZED IMEI REGISTRY" FontSize="18" FontWeight="Black" Foreground="#FFFFFF"/>
+                <TextBlock Text="INVENTORY &amp; SERIALIZED IMEI REGISTRY" FontSize="18" FontWeight="Black" Foreground="{DynamicResource SasanForegroundBrush}"/>
                 <TextBlock Text="Complete tracking of every smartphone, laptop, drone, battery health %, condition grade, and stock aging" 
-                           FontSize="12" Foreground="#8EA4C1" Margin="0,2,0,0"/>
+                           FontSize="12" Foreground="{DynamicResource SasanSubTextBrush}" Margin="0,2,0,0"/>
             </StackPanel>
             <StackPanel Grid.Column="1" Orientation="Horizontal">
-                <Button Command="{Binding LoadInventoryCommand}" Background="#1C2D4A" Foreground="#00E5FF" 
-                        Padding="12,6" BorderBrush="#00E5FF" BorderThickness="1" Cursor="Hand" FontWeight="Bold" Margin="0,0,8,0">
+                <Button Command="{Binding LoadInventoryCommand}" Background="{DynamicResource SasanBorderBrush}" Foreground="{DynamicResource SasanCyanAccentBrush}" 
+                        Padding="12,6" BorderThickness="0" Cursor="Hand" FontWeight="Bold" Margin="0,0,8,0">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="🔄 "/>
                         <TextBlock Text="Reload Stock"/>
@@ -37,7 +37,7 @@
         </Grid>
 
         <!-- 2. Search & Filter Bar -->
-        <Border Grid.Row="1" Background="#132035" BorderBrush="#223656" BorderThickness="1" CornerRadius="8" Padding="12" Margin="0,0,0,12">
+        <Border Grid.Row="1" Background="{DynamicResource SasanCardBgBrush}" BorderBrush="{DynamicResource SasanBorderBrush}" BorderThickness="1" CornerRadius="8" Padding="12" Margin="0,0,0,12">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -48,12 +48,12 @@
                 <!-- Search Input -->
                 <TextBox Grid.Column="0" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" 
                          ToolTip="Type IMEI, Serial, Model, Brand, or SKU to search stock instantly"
-                         FontSize="14" Height="36" Padding="10,6" Background="#0A1424" Foreground="#00E5FF"
-                         BorderBrush="#00E5FF" BorderThickness="1"/>
+                         FontSize="14" Height="36" Padding="10,6" Background="{DynamicResource SasanInputBgBrush}" Foreground="{DynamicResource SasanCyanAccentBrush}"
+                         BorderBrush="{DynamicResource SasanCyanAccentBrush}" BorderThickness="1"/>
 
                 <!-- Status Filter -->
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="12,0,0,0" VerticalAlignment="Center">
-                    <TextBlock Text="Status:" FontSize="12" Foreground="#8FA3BF" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                    <TextBlock Text="Status:" FontSize="12" Foreground="{DynamicResource SasanSubTextBrush}" VerticalAlignment="Center" Margin="0,0,6,0"/>
                     <ComboBox SelectedValue="{Binding SelectedStatusFilter}" SelectedValuePath="Tag" Width="110" Height="32">
                         <ComboBoxItem Content="All" Tag="All" IsSelected="True"/>
                         <ComboBoxItem Content="In Stock" Tag="InStock"/>
@@ -63,32 +63,32 @@
 
                 <!-- Aging Filter Checkbox -->
                 <CheckBox Grid.Column="2" IsChecked="{Binding ShowAgingOnly}" Content="Aging Only (>60 Days)" 
-                          Foreground="#FF9100" FontWeight="Bold" Margin="16,0,0,0" VerticalAlignment="Center"/>
+                          Foreground="{DynamicResource SasanAmberAccentBrush}" FontWeight="Bold" Margin="16,0,0,0" VerticalAlignment="Center"/>
             </Grid>
         </Border>
 
         <!-- 3. Devices DataGrid -->
-        <Border Grid.Row="2" Background="#132035" BorderBrush="#223656" BorderThickness="1" CornerRadius="8" Padding="8">
+        <Border Grid.Row="2" Background="{DynamicResource SasanCardBgBrush}" BorderBrush="{DynamicResource SasanBorderBrush}" BorderThickness="1" CornerRadius="8" Padding="8">
             <DataGrid ItemsSource="{Binding FilteredDevices}" SelectedItem="{Binding SelectedDevice}"
                       AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True"
                       Background="Transparent" BorderThickness="0" HeadersVisibility="Column"
-                      GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#1C2D4A"
-                      Foreground="#FFFFFF" RowHeight="36"
+                      GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="{DynamicResource SasanBorderBrush}"
+                      Foreground="{DynamicResource SasanForegroundBrush}" RowHeight="36"
                       EnableRowVirtualization="True" EnableColumnVirtualization="True"
                       VirtualizingStackPanel.IsVirtualizing="True"
                       VirtualizingStackPanel.VirtualizationMode="Recycling"
-                      AlternatingRowBackground="#0E192D">
+                      AlternatingRowBackground="{DynamicResource SasanPrimaryBrush}">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="DEVICE NAME" Binding="{Binding Name}" FontWeight="Bold" Width="180"/>
                     <DataGridTextColumn Header="CATEGORY" Binding="{Binding Category}" Width="90"/>
-                    <DataGridTextColumn Header="IMEI 1" Binding="{Binding IMEI1}" FontWeight="SemiBold" Foreground="#00E5FF" Width="130"/>
+                    <DataGridTextColumn Header="IMEI 1" Binding="{Binding IMEI1}" FontWeight="SemiBold" Foreground="{DynamicResource SasanCyanAccentBrush}" Width="130"/>
                     <DataGridTextColumn Header="SERIAL #" Binding="{Binding SerialNumber}" Width="110"/>
                     <DataGridTextColumn Header="SPECS" Binding="{Binding Specs}" Width="140"/>
                     <DataGridTextColumn Header="BATTERY" Binding="{Binding BatteryHealthPercentage, StringFormat='{}{0}%'}" Width="65"/>
                     <DataGridTextColumn Header="GRADE" Binding="{Binding ConditionGrade}" Width="100"/>
                     <DataGridTextColumn Header="WARRANTY" Binding="{Binding WarrantyStatus}" Width="120"/>
                     <DataGridTextColumn Header="COST" Binding="{Binding PurchaseCost, StringFormat='₹{0:N0}'}" Width="80"/>
-                    <DataGridTextColumn Header="PRICE" Binding="{Binding TaggedPrice, StringFormat='₹{0:N0}'}" FontWeight="Black" Foreground="#FF9100" Width="85"/>
+                    <DataGridTextColumn Header="PRICE" Binding="{Binding TaggedPrice, StringFormat='₹{0:N0}'}" FontWeight="Black" Foreground="{DynamicResource SasanAmberAccentBrush}" Width="85"/>
                     <DataGridTextColumn Header="AGING" Binding="{Binding AgingDays, StringFormat='{}{0}d'}" FontWeight="Bold" Width="60"/>
                     <DataGridTextColumn Header="STATUS" Binding="{Binding Status}" FontWeight="Bold" Width="80"/>
                 </DataGrid.Columns>
@@ -96,20 +96,31 @@
         </Border>
 
         <!-- 4. Footer & Actions -->
-        <Border Grid.Row="3" Background="#0C182B" BorderBrush="#1C2D4A" BorderThickness="1" CornerRadius="6" Padding="12,8" Margin="0,10,0,0">
+        <Border Grid.Row="3" Background="{DynamicResource SasanHeaderBgBrush}" BorderBrush="{DynamicResource SasanBorderBrush}" BorderThickness="1" CornerRadius="6" Padding="12,8" Margin="0,10,0,0">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="{Binding StatusMessage}" FontSize="12" Foreground="#8EA4C1" VerticalAlignment="Center"/>
-                <Button Grid.Column="1" Command="{Binding PrintBarcodeForDeviceCommand}" Background="#FF9100" Foreground="#08101E" 
-                        FontWeight="Bold" Padding="14,6" BorderThickness="0" Cursor="Hand">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="🏷️ "/>
-                        <TextBlock Text="Print 50x30mm TSPL Barcode Sticker"/>
-                    </StackPanel>
-                </Button>
+                <TextBlock Grid.Column="0" Text="{Binding StatusMessage}" FontSize="12" Foreground="{DynamicResource SasanSubTextBrush}" VerticalAlignment="Center"/>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="Sticker Style: " FontSize="11" FontWeight="Bold" Foreground="{DynamicResource SasanSubTextBrush}" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                    <ComboBox ItemsSource="{Binding AvailableBarcodeStyles}" SelectedItem="{Binding SelectedBarcodeStyle}" Width="170" Height="28" FontSize="11" Margin="0,0,8,0"/>
+                    <Button Command="{Binding PreviewStickerPdfCommand}" Background="#1E3A8A" Foreground="#FFFFFF" 
+                            FontWeight="Bold" Padding="12,6" BorderThickness="0" Cursor="Hand" Margin="0,0,6,0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="👁️ "/>
+                            <TextBlock Text="Preview Sticker PDF"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding PrintBarcodeForDeviceCommand}" Background="{DynamicResource SasanAmberAccentBrush}" Foreground="#08101E" 
+                            FontWeight="Bold" Padding="14,6" BorderThickness="0" Cursor="Hand">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="🏷️ "/>
+                            <TextBlock Text="Print TSPL Sticker"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
             </Grid>
         </Border>
     </Grid>

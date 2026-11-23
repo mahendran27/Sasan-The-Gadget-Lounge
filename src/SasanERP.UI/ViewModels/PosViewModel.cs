@@ -31,6 +31,7 @@ public partial class PosViewModel : ObservableObject
     private readonly UnifiedWirelessManager? _wirelessManager;
     private readonly PosAudioFeedbackService? _audioService;
     private readonly SerialPortBarcodeListener? _barcodeListener;
+    private readonly BarcodeLabelEngine? _labelEngine;
 
     public ObservableCollection<PosCartItemViewModel> CartItems { get; } = new();
     public ObservableCollection<Customer> Customers { get; } = new();
@@ -40,6 +41,12 @@ public partial class PosViewModel : ObservableObject
 
     [ObservableProperty]
     private InvoiceTemplateStyle _selectedInvoiceTemplate = InvoiceTemplateStyle.LuxuryGadgetLounge;
+
+    public ObservableCollection<BarcodeLabelStyle> AvailableBarcodeStyles { get; } = 
+        new(Enum.GetValues<BarcodeLabelStyle>());
+
+    [ObservableProperty]
+    private BarcodeLabelStyle _selectedBarcodeStyle = BarcodeLabelStyle.Flagship_50x30mm;
 
     public ObservableCollection<AppThemeMode> AvailableThemeModes { get; } = 
         new(Enum.GetValues<AppThemeMode>());
@@ -52,6 +59,28 @@ public partial class PosViewModel : ObservableObject
         ThemeService.Instance.ApplyTheme(value);
         StatusMessage = $"UI Theme changed to: {value}";
     }
+
+    // Manual Custom Item Entry fields
+    [ObservableProperty]
+    private bool _isManualEntryVisible;
+
+    [ObservableProperty]
+    private string _manualItemName = string.Empty;
+
+    [ObservableProperty]
+    private decimal _manualPrice;
+
+    [ObservableProperty]
+    private decimal _manualQuantity = 1;
+
+    [ObservableProperty]
+    private decimal _manualGstPercent = 18m;
+
+    [ObservableProperty]
+    private string _manualHsn = "8517";
+
+    [ObservableProperty]
+    private string? _manualImei;
 
     [ObservableProperty]
     private Customer? _selectedCustomer;
@@ -151,7 +180,8 @@ public partial class PosViewModel : ObservableObject
         InvoicePrintEngine invoicePrintEngine,
         UnifiedWirelessManager? wirelessManager = null,
         PosAudioFeedbackService? audioService = null,
-        SerialPortBarcodeListener? barcodeListener = null)
+        SerialPortBarcodeListener? barcodeListener = null,
+        BarcodeLabelEngine? labelEngine = null)
     {
         _context = context;
         _billingService = billingService;
@@ -160,6 +190,7 @@ public partial class PosViewModel : ObservableObject
         _wirelessManager = wirelessManager;
         _audioService = audioService;
         _barcodeListener = barcodeListener;
+        _labelEngine = labelEngine;
 
         if (_barcodeListener != null)
         {
@@ -312,6 +343,13 @@ public partial class PosViewModel : ObservableObject
             var product = await _context.Products
                 .FirstOrDefaultAsync(p => p.Barcode == rawCode || p.SKU == rawCode);
 
+            if (product == null)
+            {
+                // Partial name search fallback for fast manual POS searching
+                product = await _context.Products
+                    .FirstOrDefaultAsync(p => EF.Functions.Like(p.Name, $"%{rawCode}%"));
+            }
+
             if (product != null)
             {
                 var existingItem = CartItems.FirstOrDefault(ci => ci.ProductId == product.Id && !ci.IsSerialized);
@@ -387,8 +425,93 @@ public partial class PosViewModel : ObservableObject
         StatusMessage = $"Cleared. Fresh Bill {InvoiceNumber} started.";
     }
 
+    [RelayCommand]
+    public void ToggleManualEntry()
+    {
+        IsManualEntryVisible = !IsManualEntryVisible;
+    }
+
+    [RelayCommand]
+    public async Task AddManualItemAsync()
+    {
+        if (string.IsNullOrWhiteSpace(ManualItemName))
+        {
+            _audioService?.PlayScanError();
+            StatusMessage = "[ERROR] Item Name is required for manual entry.";
+            return;
+        }
+
+        if (ManualPrice <= 0)
+        {
+            _audioService?.PlayScanError();
+            StatusMessage = "[ERROR] Unit Price must be greater than 0.";
+            return;
+        }
+
+        IsBusy = true;
+        try
+        {
+            // Find existing product or dynamically register custom on-the-fly item in DB
+            string trimmedName = ManualItemName.Trim();
+            var product = await _context.Products.FirstOrDefaultAsync(p => p.Name == trimmedName);
+            if (product == null)
+            {
+                product = new Product
+                {
+                    Name = trimmedName,
+                    SKU = "MANUAL-" + DateTime.UtcNow.ToString("yyyyMMddHHmmss"),
+                    Barcode = "MAN" + Random.Shared.Next(100000, 999999),
+                    Category = DeviceType.Charger,
+                    HSNCode = string.IsNullOrWhiteSpace(ManualHsn) ? "8517" : ManualHsn.Trim(),
+                    SellingPrice = ManualPrice,
+                    DefaultCostPrice = Math.Round(ManualPrice * 0.70m, 2),
+                    GSTPercentage = ManualGstPercent,
+                    CurrentStock = 100
+                };
+                _context.Products.Add(product);
+                await _context.SaveChangesAsync();
+            }
+
+            var cartItem = new PosCartItemViewModel
+            {
+                ProductId = product.Id,
+                SerializedUnitId = null,
+                Name = product.Name,
+                HsnCode = product.HSNCode,
+                Imei1 = string.IsNullOrWhiteSpace(ManualImei) ? null : ManualImei.Trim(),
+                Quantity = ManualQuantity > 0 ? ManualQuantity : 1,
+                UnitPrice = ManualPrice,
+                UnitCostPrice = product.DefaultCostPrice,
+                GstPercentage = ManualGstPercent,
+                IsMarginScheme = false
+            };
+
+            cartItem.RecalculateTaxes(isGstEnabled: IsGstEnabled);
+            CartItems.Add(cartItem);
+            RecalculateInvoiceTotals();
+
+            _audioService?.PlayScanSuccess();
+            StatusMessage = $"Added manual item: {cartItem.Name} (₹{cartItem.UnitPrice:N0} x {cartItem.Quantity})";
+
+            // Reset manual entry inputs
+            ManualItemName = string.Empty;
+            ManualPrice = 0;
+            ManualQuantity = 1;
+            ManualImei = string.Empty;
+        }
+        catch (Exception ex)
+        {
+            _audioService?.PlayScanError();
+            StatusMessage = $"[ERROR] Failed to add manual item: {ex.Message}";
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
     /// <summary>
-    /// Hotkey F4: Direct print 50x25mm barcode label for selected/last scanned item
+    /// Hotkey F4: Direct print barcode label for selected/last scanned item
     /// </summary>
     [RelayCommand]
     public void PrintBarcodeLabel(PosCartItemViewModel? item)
@@ -401,14 +524,129 @@ public partial class PosViewModel : ObservableObject
         }
 
         string identifier = item.Imei1 ?? item.SerialNumber ?? item.HsnCode;
-        string tsplCmd = _barcodeService.GenerateTsplLabelCommand(
-            item.Name,
-            identifier,
-            item.UnitPrice,
-            item.ConditionGrade?.ToString() ?? "New");
+        if (_labelEngine != null)
+        {
+            var sticker = new BarcodeStickerData(
+                ShopName: "SASAN THE GADGET LOUNGE",
+                ModelName: item.Name,
+                Specs: item.FormattedSpecs,
+                Identifier: identifier,
+                Price: item.UnitPrice,
+                MRP: null,
+                ConditionGrade: item.ConditionGrade?.ToString() ?? "New",
+                BatteryHealth: item.BatteryHealthPercentage,
+                Warranty: item.WarrantyStatus?.ToString(),
+                Category: "Accessory"
+            );
+            byte[] tspl = _labelEngine.GenerateTsplStream(SelectedBarcodeStyle, sticker);
+            StatusMessage = $"TSPL Barcode Label ({SelectedBarcodeStyle}) dispatched for {item.Name} (ID: {identifier}) [{tspl.Length} bytes].";
+        }
+        else
+        {
+            string tsplCmd = _barcodeService.GenerateTsplLabelCommand(
+                item.Name,
+                identifier,
+                item.UnitPrice,
+                item.ConditionGrade?.ToString() ?? "New");
+            StatusMessage = $"TSPL Barcode Label dispatched for {item.Name} (IMEI: {identifier}).";
+        }
+    }
 
-        // Dispatches command string to thermal printer driver or raw spooler
-        StatusMessage = $"TSPL Barcode Label dispatched for {item.Name} (IMEI: {identifier}).";
+    /// <summary>
+    /// Hotkey F10: Previews the invoice vector PDF before completing checkout
+    /// </summary>
+    [RelayCommand]
+    public async Task PreviewInvoiceAsync()
+    {
+        if (!CartItems.Any())
+        {
+            _audioService?.PlayScanError();
+            StatusMessage = "[WARNING] Cart is empty! Add items to preview invoice.";
+            return;
+        }
+
+        IsBusy = true;
+        try
+        {
+            var company = await _context.CompanyProfiles.FirstOrDefaultAsync() ?? new CompanyProfile();
+
+            var previewInvoice = new Invoice
+            {
+                InvoiceNumber = string.IsNullOrWhiteSpace(InvoiceNumber) ? "PREVIEW-001" : $"{InvoiceNumber}-PREVIEW",
+                InvoiceDate = DateTime.Now,
+                CustomerId = SelectedCustomer?.Id ?? 1,
+                Customer = SelectedCustomer ?? new Customer { FullName = "Walk-in Guest / Preview Customer", PhoneNumber = "9080803070", City = "Theni" },
+                IsGstEnabled = IsGstEnabled,
+                InvoiceType = !IsGstEnabled 
+                    ? InvoiceType.BillOfSupply 
+                    : (HasMarginSchemeItems ? InvoiceType.MarginSchemeInvoice : InvoiceType.TaxInvoice),
+                HasMarginSchemeItems = IsGstEnabled && HasMarginSchemeItems,
+                GrossTotal = SubTotal,
+                InvoiceDiscount = InvoiceDiscount,
+                StandardTaxableValue = IsGstEnabled ? TotalTaxableValue : SubTotal,
+                TotalCGST = IsGstEnabled ? TotalCGST : 0,
+                TotalSGST = IsGstEnabled ? TotalSGST : 0,
+                TotalMarginAmount = IsGstEnabled ? CartItems.Where(i => i.IsMarginScheme).Sum(i => i.MarginAmount) : 0,
+                TotalMarginTax = IsGstEnabled ? TotalMarginTax : 0,
+                GrandTotal = GrandTotal,
+                RoundOff = RoundOff
+            };
+
+            foreach (var ci in CartItems)
+            {
+                previewInvoice.Items.Add(new InvoiceItem
+                {
+                    ProductId = ci.ProductId,
+                    SerializedUnitId = ci.SerializedUnitId,
+                    ItemDescription = ci.Name,
+                    HSNCode = ci.HsnCode,
+                    IMEI1 = ci.Imei1,
+                    IMEI2 = ci.Imei2,
+                    SerialNumber = ci.SerialNumber,
+                    BatteryHealthPercentage = ci.BatteryHealthPercentage,
+                    ConditionGrade = ci.ConditionGrade,
+                    WarrantyStatus = ci.WarrantyStatus,
+                    Quantity = ci.Quantity,
+                    UnitPrice = ci.UnitPrice,
+                    ItemDiscount = ci.Discount,
+                    UnitCostPrice = ci.UnitCostPrice,
+                    IsMarginScheme = ci.IsMarginScheme,
+                    MarginAmount = ci.MarginAmount,
+                    GSTPercentage = ci.GstPercentage,
+                    TaxableValue = ci.TaxableValue,
+                    CGSTPercentage = ci.GstPercentage / 2m,
+                    CGSTAmount = ci.CgstAmount,
+                    SGSTPercentage = ci.GstPercentage / 2m,
+                    SGSTAmount = ci.SgstAmount,
+                    LineTotal = ci.LineTotal
+                });
+            }
+
+            string tempFolder = Path.Combine(Path.GetTempPath(), "SasanERP_Previews");
+            Directory.CreateDirectory(tempFolder);
+            string pdfPath = Path.Combine(tempFolder, $"Invoice_Preview_{DateTime.Now:yyyyMMdd_HHmmss}.pdf");
+
+            await Task.Run(() => _invoicePrintEngine.SavePdf(SelectedInvoiceTemplate, previewInvoice, company, pdfPath));
+
+            bool opened = PdfViewerLauncher.Launch(pdfPath);
+            if (opened)
+            {
+                StatusMessage = $"[PREVIEW] Opened Bill Preview ({SelectedInvoiceTemplate}).";
+            }
+            else
+            {
+                StatusMessage = $"[PREVIEW] Generated preview PDF at {pdfPath}";
+            }
+        }
+        catch (Exception ex)
+        {
+            _audioService?.PlayScanError();
+            StatusMessage = $"[ERROR] Preview generation failed: {ex.Message}";
+        }
+        finally
+        {
+            IsBusy = false;
+        }
     }
 
     /// <summary>

@@ -18,6 +18,9 @@
             <SolidColorBrush x:Key="SasanBorderBrush" Color="#283958" />
             <SolidColorBrush x:Key="SasanForegroundBrush" Color="#F8FAFC" />
             <SolidColorBrush x:Key="SasanSubTextBrush" Color="#94A3B8" />
+            <SolidColorBrush x:Key="SasanNavBgBrush" Color="#070E1A" />
+            <SolidColorBrush x:Key="SasanInputBgBrush" Color="#0A1424" />
+            <SolidColorBrush x:Key="SasanHeaderBgBrush" Color="#070E1A" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

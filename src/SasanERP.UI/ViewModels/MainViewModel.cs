@@ -1,8 +1,11 @@
+using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.EntityFrameworkCore;
+using SasanERP.Core.Enums;
 using SasanERP.Data.Context;
 using SasanERP.Services.Wireless;
+using SasanERP.UI.Services;
 
 namespace SasanERP.UI.ViewModels;
 
@@ -56,6 +59,40 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private string _globalStatus = "🟢 ACID Engine: ONLINE (SQLite) | 📡 RFID/NFC: READY | 🖨️ Vector Print: READY";
 
+    public ObservableCollection<AppThemeMode> AvailableThemeModes { get; } =
+        new(Enum.GetValues<AppThemeMode>());
+
+    [ObservableProperty]
+    private AppThemeMode _selectedThemeMode = AppThemeMode.ElectricCyberCyan;
+
+    partial void OnSelectedThemeModeChanged(AppThemeMode value)
+    {
+        ThemeService.Instance.ApplyTheme(value);
+        GlobalStatus = $"🎨 UI Theme switched to: {value}";
+    }
+
+    [ObservableProperty]
+    private double _uiScale = 1.0;
+
+    [RelayCommand]
+    public void SetZoom(string scaleStr)
+    {
+        if (double.TryParse(scaleStr, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double s))
+        {
+            UiScale = Math.Clamp(s, 0.70, 1.40);
+            GlobalStatus = $"🔍 Screen Scale adjusted to {UiScale * 100:0}%";
+        }
+    }
+
+    [RelayCommand]
+    public void ZoomIn() => UiScale = Math.Min(1.40, Math.Round(UiScale + 0.10, 2));
+
+    [RelayCommand]
+    public void ZoomOut() => UiScale = Math.Max(0.70, Math.Round(UiScale - 0.10, 2));
+
+    [RelayCommand]
+    public void ResetZoom() => UiScale = 1.0;
+
     public MainViewModel(
         AppDbContext context,
         DashboardViewModel dashboardVM,
@@ -101,6 +138,12 @@ public partial class MainViewModel : ObservableObject
         {
             StoreName = company.BusinessName;
             StoreAddress = $"{company.AddressLine1}, {company.City}, {company.State} - {company.Pincode}";
+            SelectedThemeMode = company.DefaultThemeMode;
+            ThemeService.Instance.ApplyTheme(company.DefaultThemeMode);
+        }
+        else
+        {
+            ThemeService.Instance.ApplyTheme(SelectedThemeMode);
         }
 
         // Initialize default view

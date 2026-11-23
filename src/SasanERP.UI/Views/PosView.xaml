@@ -23,10 +23,12 @@
                 <RowDefinition Height="*" />    <!-- Cart Grid -->
             </Grid.RowDefinitions>
 
-            <!-- Customer Selection & Barcode Scanner Input -->
-            <Border Grid.Row="0" Background="#132035" BorderBrush="#223656" BorderThickness="1" CornerRadius="8" Padding="12" Margin="0,0,0,10">
+            <!-- Customer Selection, Barcode Scanner Input & Manual Item Entry -->
+            <Border Grid.Row="0" Background="{DynamicResource SasanCardBgBrush}" BorderBrush="{DynamicResource SasanBorderBrush}" BorderThickness="1" CornerRadius="8" Padding="12" Margin="0,0,0,10">
                 <Grid>
                     <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
@@ -38,45 +40,112 @@
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="Customer:" FontWeight="SemiBold" FontSize="13" Foreground="#9BB3D1" 
+                        <TextBlock Grid.Column="0" Text="Customer:" FontWeight="SemiBold" FontSize="13" Foreground="{DynamicResource SasanSubTextBrush}" 
                                    VerticalAlignment="Center" Margin="0,0,10,0"/>
                         <ComboBox Grid.Column="1" ItemsSource="{Binding Customers}" 
                                   SelectedItem="{Binding SelectedCustomer}"
                                   DisplayMemberPath="FullName"
-                                  Height="34" FontSize="13" Background="#0C182B" Foreground="#FFFFFF"/>
+                                  Height="34" FontSize="13" Background="{DynamicResource SasanInputBgBrush}" Foreground="{DynamicResource SasanForegroundBrush}"/>
                         <!-- Bill Number Badge -->
-                        <Border Grid.Column="2" Background="#16253D" CornerRadius="6" Padding="10,4" Margin="10,0,0,0">
+                        <Border Grid.Column="2" Background="{DynamicResource SasanHeaderBgBrush}" CornerRadius="6" Padding="10,4" Margin="10,0,0,0">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="BILL: " FontSize="11" FontWeight="Bold" Foreground="#8FA3BF"/>
-                                <TextBlock Text="{Binding InvoiceNumber}" FontSize="12" FontWeight="Black" Foreground="#00E5FF"/>
+                                <TextBlock Text="BILL: " FontSize="11" FontWeight="Bold" Foreground="{DynamicResource SasanSubTextBrush}"/>
+                                <TextBlock Text="{Binding InvoiceNumber}" FontSize="12" FontWeight="Black" Foreground="{DynamicResource SasanCyanAccentBrush}"/>
                             </StackPanel>
                         </Border>
                     </Grid>
 
-                    <!-- USB Barcode Scanner Input Box -->
+                    <!-- USB Barcode / Name Search Scanner Input Box -->
                     <Grid Grid.Row="1">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
 
                         <TextBox x:Name="TxtBarcode" Grid.Column="0"
                                  Text="{Binding BarcodeInput, UpdateSourceTrigger=PropertyChanged}"
-                                 FontSize="15" FontWeight="SemiBold"
-                                 Height="42" Padding="12,8"
-                                 Background="#0A1424" Foreground="#00E5FF"
-                                 BorderBrush="#00E5FF" BorderThickness="1.5"
+                                 FontSize="14" FontWeight="SemiBold"
+                                 Height="40" Padding="10,8"
+                                 Background="{DynamicResource SasanInputBgBrush}" Foreground="{DynamicResource SasanCyanAccentBrush}"
+                                 BorderBrush="{DynamicResource SasanCyanAccentBrush}" BorderThickness="1.5"
                                  KeyDown="TxtBarcode_KeyDown"/>
 
                         <Button Grid.Column="1" Command="{Binding ProcessBarcodeScanCommand}"
-                                Content="ADD (SCAN)" Height="42" Margin="8,0,0,0" Padding="16,0"
-                                Background="#00E5FF" Foreground="#08101E" FontWeight="Bold" FontSize="13" Cursor="Hand"/>
+                                Content="ADD / SCAN" Height="40" Margin="8,0,0,0" Padding="14,0"
+                                Background="{DynamicResource SasanCyanAccentBrush}" Foreground="#08101E" FontWeight="Bold" FontSize="12" Cursor="Hand"/>
+
+                        <!-- Manual Item Drawer Toggle Button -->
+                        <Button Grid.Column="2" Command="{Binding ToggleManualEntryCommand}"
+                                Content="✍️ MANUAL ENTRY" Height="40" Margin="6,0,0,0" Padding="12,0"
+                                Background="{DynamicResource SasanBorderBrush}" Foreground="{DynamicResource SasanForegroundBrush}" FontWeight="SemiBold" FontSize="11" Cursor="Hand"
+                                ToolTip="Enter custom accessories, repairs, or unlisted items manually"/>
                     </Grid>
+
+                    <!-- Manual Custom Item Entry Panel (Collapsible) -->
+                    <Border Grid.Row="2" Background="{DynamicResource SasanHeaderBgBrush}" BorderBrush="{DynamicResource SasanAmberAccentBrush}" BorderThickness="1" CornerRadius="6" Padding="10,8" Margin="0,10,0,0"
+                            Visibility="{Binding IsManualEntryVisible, Converter={StaticResource BoolToVis}}">
+                        <StackPanel>
+                            <TextBlock Text="✍️ MANUAL ITEM ENTRY (கையால் உள்ளிட்டல்)" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource SasanAmberAccentBrush}" Margin="0,0,0,6"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="3*" /> <!-- Name -->
+                                    <ColumnDefinition Width="1.2*" /> <!-- Price -->
+                                    <ColumnDefinition Width="0.8*" /> <!-- Qty -->
+                                    <ColumnDefinition Width="1*" /> <!-- GST% -->
+                                    <ColumnDefinition Width="1*" /> <!-- HSN -->
+                                    <ColumnDefinition Width="2*" /> <!-- IMEI -->
+                                    <ColumnDefinition Width="Auto" /> <!-- Add Button -->
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Name -->
+                                <StackPanel Grid.Column="0" Margin="0,0,6,0">
+                                    <TextBlock Text="Item / Service Name:" FontSize="10" Foreground="{DynamicResource SasanSubTextBrush}"/>
+                                    <TextBox Text="{Binding ManualItemName, UpdateSourceTrigger=PropertyChanged}" Height="28" FontSize="11" Background="{DynamicResource SasanInputBgBrush}" Foreground="{DynamicResource SasanForegroundBrush}"/>
+                                </StackPanel>
+
+                                <!-- Price -->
+                                <StackPanel Grid.Column="1" Margin="0,0,6,0">
+                                    <TextBlock Text="Price (₹):" FontSize="10" Foreground="{DynamicResource SasanSubTextBrush}"/>
+                                    <TextBox Text="{Binding ManualPrice, UpdateSourceTrigger=PropertyChanged}" Height="28" FontSize="11" Background="{DynamicResource SasanInputBgBrush}" Foreground="{DynamicResource SasanForegroundBrush}"/>
+                                </StackPanel>
+
+                                <!-- Qty -->
+                                <StackPanel Grid.Column="2" Margin="0,0,6,0">
+                                    <TextBlock Text="Qty:" FontSize="10" Foreground="{DynamicResource SasanSubTextBrush}"/>
+                                    <TextBox Text="{Binding ManualQuantity, UpdateSourceTrigger=PropertyChanged}" Height="28" FontSize="11" Background="{DynamicResource SasanInputBgBrush}" Foreground="{DynamicResource SasanForegroundBrush}"/>
+                                </StackPanel>
+
+                                <!-- GST% -->
+                                <StackPanel Grid.Column="3" Margin="0,0,6,0">
+                                    <TextBlock Text="GST %:" FontSize="10" Foreground="{DynamicResource SasanSubTextBrush}"/>
+                                    <TextBox Text="{Binding ManualGstPercent, UpdateSourceTrigger=PropertyChanged}" Height="28" FontSize="11" Background="{DynamicResource SasanInputBgBrush}" Foreground="{DynamicResource SasanForegroundBrush}"/>
+                                </StackPanel>
+
+                                <!-- HSN -->
+                                <StackPanel Grid.Column="4" Margin="0,0,6,0">
+                                    <TextBlock Text="HSN:" FontSize="10" Foreground="{DynamicResource SasanSubTextBrush}"/>
+                                    <TextBox Text="{Binding ManualHsn, UpdateSourceTrigger=PropertyChanged}" Height="28" FontSize="11" Background="{DynamicResource SasanInputBgBrush}" Foreground="{DynamicResource SasanForegroundBrush}"/>
+                                </StackPanel>
+
+                                <!-- Optional IMEI -->
+                                <StackPanel Grid.Column="5" Margin="0,0,6,0">
+                                    <TextBlock Text="IMEI / S/N (Opt):" FontSize="10" Foreground="{DynamicResource SasanSubTextBrush}"/>
+                                    <TextBox Text="{Binding ManualImei, UpdateSourceTrigger=PropertyChanged}" Height="28" FontSize="11" Background="{DynamicResource SasanInputBgBrush}" Foreground="{DynamicResource SasanForegroundBrush}"/>
+                                </StackPanel>
+
+                                <!-- Add Button -->
+                                <Button Grid.Column="6" Command="{Binding AddManualItemCommand}"
+                                        Content="➕ ADD TO CART" Height="28" Margin="0,15,0,0" Padding="12,0"
+                                        Background="{DynamicResource SasanAmberAccentBrush}" Foreground="#08101E" FontWeight="Bold" FontSize="11" Cursor="Hand"/>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
                 </Grid>
             </Border>
 
             <!-- Cart Items Table -->
-            <Border Grid.Row="1" Background="#132035" BorderBrush="#223656" BorderThickness="1" CornerRadius="8" Padding="10">
+            <Border Grid.Row="1" Background="{DynamicResource SasanCardBgBrush}" BorderBrush="{DynamicResource SasanBorderBrush}" BorderThickness="1" CornerRadius="8" Padding="10">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
@@ -84,14 +153,14 @@
                     </Grid.RowDefinitions>
 
                     <Grid Grid.Row="0" Margin="4,0,0,8">
-                        <TextBlock Text="CART ITEMS &amp; SERIALIZED DEVICES" FontWeight="Bold" FontSize="12" Foreground="#9BB3D1"/>
-                        <TextBlock Text="{Binding CartItems.Count, StringFormat='{}{0} Items'}" FontSize="11" Foreground="#00E5FF" HorizontalAlignment="Right" FontWeight="Bold"/>
+                        <TextBlock Text="CART ITEMS &amp; SERIALIZED DEVICES" FontWeight="Bold" FontSize="12" Foreground="{DynamicResource SasanSubTextBrush}"/>
+                        <TextBlock Text="{Binding CartItems.Count, StringFormat='{}{0} Items'}" FontSize="11" Foreground="{DynamicResource SasanCyanAccentBrush}" HorizontalAlignment="Right" FontWeight="Bold"/>
                     </Grid>
 
                     <ListView Grid.Row="1" ItemsSource="{Binding CartItems}" Background="Transparent" BorderThickness="0">
                         <ListView.ItemTemplate>
                             <DataTemplate>
-                                <Border Background="#182740" BorderBrush="#243859" BorderThickness="1" CornerRadius="6" Padding="10" Margin="0,0,0,6">
+                                <Border Background="{DynamicResource SasanPrimaryBrush}" BorderBrush="{DynamicResource SasanBorderBrush}" BorderThickness="1" CornerRadius="6" Padding="10" Margin="0,0,0,6">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*" />
@@ -103,35 +172,35 @@
                                         <!-- Item Name & Details -->
                                         <StackPanel Grid.Column="0" VerticalAlignment="Center">
                                             <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="14" Foreground="#FFFFFF" />
+                                                <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource SasanForegroundBrush}" />
                                                 <!-- Margin Scheme Badge -->
-                                                <Border Background="#FF9100" CornerRadius="3" Padding="5,1" Margin="8,0,0,0"
+                                                <Border Background="{DynamicResource SasanAmberAccentBrush}" CornerRadius="3" Padding="5,1" Margin="8,0,0,0"
                                                         Visibility="{Binding IsMarginScheme, Converter={StaticResource BoolToVis}}">
                                                     <TextBlock Text="RULE 32(5) MARGIN" FontSize="9" FontWeight="Bold" Foreground="#08101E"/>
                                                 </Border>
                                             </StackPanel>
-                                            <TextBlock Text="{Binding FormattedSpecs}" FontSize="11" Foreground="#8EA4C1" Margin="0,2,0,0"/>
-                                            <TextBlock Text="{Binding HsnCode, StringFormat='HSN: {0}'}" FontSize="10" Foreground="#6C829E" Margin="0,1,0,0"/>
+                                            <TextBlock Text="{Binding FormattedSpecs}" FontSize="11" Foreground="{DynamicResource SasanSubTextBrush}" Margin="0,2,0,0"/>
+                                            <TextBlock Text="{Binding HsnCode, StringFormat='HSN: {0}'}" FontSize="10" Foreground="{DynamicResource SasanSubTextBrush}" Margin="0,1,0,0"/>
                                         </StackPanel>
 
                                         <!-- Qty & Unit Rate -->
                                         <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="16,0">
-                                            <TextBlock Text="{Binding Quantity, StringFormat='Qty: {0}'}" FontSize="12" Foreground="#C8D4E6" HorizontalAlignment="Right"/>
-                                            <TextBlock Text="{Binding UnitPrice, StringFormat='Rate: ₹{0:N0}'}" FontSize="11" Foreground="#8EA4C1" HorizontalAlignment="Right"/>
+                                            <TextBlock Text="{Binding Quantity, StringFormat='Qty: {0}'}" FontSize="12" Foreground="{DynamicResource SasanForegroundBrush}" HorizontalAlignment="Right"/>
+                                            <TextBlock Text="{Binding UnitPrice, StringFormat='Rate: ₹{0:N0}'}" FontSize="11" Foreground="{DynamicResource SasanSubTextBrush}" HorizontalAlignment="Right"/>
                                         </StackPanel>
 
                                         <!-- Line Total -->
                                         <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="16,0">
-                                            <TextBlock Text="{Binding LineTotal, StringFormat='₹{0:N2}'}" FontWeight="Black" FontSize="15" Foreground="#00E5FF" HorizontalAlignment="Right"/>
-                                            <TextBlock Text="{Binding GstPercentage, StringFormat='GST: {0}%'}" FontSize="10" Foreground="#8EA4C1" HorizontalAlignment="Right"/>
+                                            <TextBlock Text="{Binding LineTotal, StringFormat='₹{0:N2}'}" FontWeight="Black" FontSize="15" Foreground="{DynamicResource SasanCyanAccentBrush}" HorizontalAlignment="Right"/>
+                                            <TextBlock Text="{Binding GstPercentage, StringFormat='GST: {0}%'}" FontSize="10" Foreground="{DynamicResource SasanSubTextBrush}" HorizontalAlignment="Right"/>
                                         </StackPanel>
 
                                         <!-- Actions: Print Sticker & Remove -->
                                         <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0,0,0">
                                             <Button Command="{Binding DataContext.PrintBarcodeLabelCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
                                                     CommandParameter="{Binding}"
-                                                    Content="🏷️" ToolTip="Print 50x25mm Barcode Sticker"
-                                                    Height="30" Width="32" Margin="0,0,4,0" Background="#243859" Foreground="#FF9100" Cursor="Hand"/>
+                                                    Content="🏷️" ToolTip="Print Barcode Sticker"
+                                                    Height="30" Width="32" Margin="0,0,4,0" Background="{DynamicResource SasanBorderBrush}" Foreground="{DynamicResource SasanAmberAccentBrush}" Cursor="Hand"/>
 
                                             <Button Command="{Binding DataContext.RemoveCartItemCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
                                                     CommandParameter="{Binding}"
@@ -152,102 +221,112 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" /> <!-- Summary Totals Card -->
                 <RowDefinition Height="*" />    <!-- Split Payment Tender -->
-                <RowDefinition Height="Auto" /> <!-- Checkout Button -->
+                <RowDefinition Height="Auto" /> <!-- Checkout & Preview Buttons -->
             </Grid.RowDefinitions>
 
             <!-- Tax & Financial Summary Card -->
-            <Border Grid.Row="0" Background="#132035" BorderBrush="#223656" BorderThickness="1" CornerRadius="8" Padding="14" Margin="0,0,0,10">
+            <Border Grid.Row="0" Background="{DynamicResource SasanCardBgBrush}" BorderBrush="{DynamicResource SasanBorderBrush}" BorderThickness="1" CornerRadius="8" Padding="14" Margin="0,0,0,10">
                 <StackPanel>
-                    <TextBlock Text="TAX &amp; BILL SUMMARY" FontWeight="Bold" FontSize="12" Foreground="#7A93B2" Margin="0,0,0,8"/>
+                    <TextBlock Text="TAX &amp; BILL SUMMARY" FontWeight="Bold" FontSize="12" Foreground="{DynamicResource SasanSubTextBrush}" Margin="0,0,0,8"/>
 
                     <Grid Margin="0,2">
-                        <TextBlock Text="Subtotal (Items):" FontSize="12" Foreground="#8FA3BF"/>
-                        <TextBlock Text="{Binding SubTotal, StringFormat='₹{0:N2}'}" FontSize="12" FontWeight="Bold" Foreground="#FFFFFF" HorizontalAlignment="Right"/>
+                        <TextBlock Text="Subtotal (Items):" FontSize="12" Foreground="{DynamicResource SasanSubTextBrush}"/>
+                        <TextBlock Text="{Binding SubTotal, StringFormat='₹{0:N2}'}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource SasanForegroundBrush}" HorizontalAlignment="Right"/>
                     </Grid>
 
                     <Grid Margin="0,2">
-                        <TextBlock Text="Standard Taxable Value:" FontSize="12" Foreground="#8FA3BF"/>
-                        <TextBlock Text="{Binding TotalTaxableValue, StringFormat='₹{0:N2}'}" FontSize="12" Foreground="#FFFFFF" HorizontalAlignment="Right"/>
+                        <TextBlock Text="Standard Taxable Value:" FontSize="12" Foreground="{DynamicResource SasanSubTextBrush}"/>
+                        <TextBlock Text="{Binding TotalTaxableValue, StringFormat='₹{0:N2}'}" FontSize="12" Foreground="{DynamicResource SasanForegroundBrush}" HorizontalAlignment="Right"/>
                     </Grid>
 
                     <Grid Margin="0,2">
-                        <TextBlock Text="CGST (9%):" FontSize="12" Foreground="#8FA3BF"/>
-                        <TextBlock Text="{Binding TotalCGST, StringFormat='₹{0:N2}'}" FontSize="12" Foreground="#FFFFFF" HorizontalAlignment="Right"/>
+                        <TextBlock Text="CGST (9%):" FontSize="12" Foreground="{DynamicResource SasanSubTextBrush}"/>
+                        <TextBlock Text="{Binding TotalCGST, StringFormat='₹{0:N2}'}" FontSize="12" Foreground="{DynamicResource SasanForegroundBrush}" HorizontalAlignment="Right"/>
                     </Grid>
 
                     <Grid Margin="0,2">
-                        <TextBlock Text="SGST (9%):" FontSize="12" Foreground="#8FA3BF"/>
-                        <TextBlock Text="{Binding TotalSGST, StringFormat='₹{0:N2}'}" FontSize="12" Foreground="#FFFFFF" HorizontalAlignment="Right"/>
+                        <TextBlock Text="SGST (9%):" FontSize="12" Foreground="{DynamicResource SasanSubTextBrush}"/>
+                        <TextBlock Text="{Binding TotalSGST, StringFormat='₹{0:N2}'}" FontSize="12" Foreground="{DynamicResource SasanForegroundBrush}" HorizontalAlignment="Right"/>
                     </Grid>
 
                     <!-- Margin Scheme GST Note -->
-                    <Border Background="#211812" BorderBrush="#FF9100" BorderThickness="1" CornerRadius="4" Padding="6,3" Margin="0,4"
+                    <Border Background="{DynamicResource SasanHeaderBgBrush}" BorderBrush="{DynamicResource SasanAmberAccentBrush}" BorderThickness="1" CornerRadius="4" Padding="6,3" Margin="0,4"
                             Visibility="{Binding HasMarginSchemeItems, Converter={StaticResource BoolToVis}}">
                         <Grid>
-                            <TextBlock Text="Rule 32(5) Margin GST:" FontSize="11" Foreground="#FFB74D"/>
-                            <TextBlock Text="{Binding TotalMarginTax, StringFormat='₹{0:N2}'}" FontSize="11" FontWeight="Bold" Foreground="#FF9100" HorizontalAlignment="Right"/>
+                            <TextBlock Text="Rule 32(5) Margin GST:" FontSize="11" Foreground="{DynamicResource SasanAmberAccentBrush}"/>
+                            <TextBlock Text="{Binding TotalMarginTax, StringFormat='₹{0:N2}'}" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource SasanAmberAccentBrush}" HorizontalAlignment="Right"/>
                         </Grid>
                     </Border>
 
-                    <Separator Background="#223656" Margin="0,6"/>
+                    <Separator Background="{DynamicResource SasanBorderBrush}" Margin="0,6"/>
 
                     <!-- Grand Total Display -->
-                    <Border Background="#08101E" CornerRadius="6" Padding="10,8">
+                    <Border Background="{DynamicResource SasanHeaderBgBrush}" CornerRadius="6" Padding="10,8">
                         <Grid>
-                            <TextBlock Text="NET PAYABLE:" FontSize="13" FontWeight="Bold" Foreground="#8FA3BF" VerticalAlignment="Center"/>
-                            <TextBlock Text="{Binding GrandTotal, StringFormat='₹{0:N0}'}" FontSize="24" FontWeight="Black" Foreground="#00E5FF" HorizontalAlignment="Right"/>
+                            <TextBlock Text="NET PAYABLE:" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource SasanSubTextBrush}" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding GrandTotal, StringFormat='₹{0:N0}'}" FontSize="24" FontWeight="Black" Foreground="{DynamicResource SasanCyanAccentBrush}" HorizontalAlignment="Right"/>
                         </Grid>
                     </Border>
                 </StackPanel>
             </Border>
 
             <!-- Multi-Tender Split Payment Box -->
-            <Border Grid.Row="1" Background="#132035" BorderBrush="#223656" BorderThickness="1" CornerRadius="8" Padding="14" Margin="0,0,0,10">
+            <Border Grid.Row="1" Background="{DynamicResource SasanCardBgBrush}" BorderBrush="{DynamicResource SasanBorderBrush}" BorderThickness="1" CornerRadius="8" Padding="14" Margin="0,0,0,10">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel>
-                        <TextBlock Text="PAYMENT SPLIT TENDER" FontWeight="Bold" FontSize="12" Foreground="#7A93B2" Margin="0,0,0,8"/>
+                        <TextBlock Text="PAYMENT SPLIT TENDER" FontWeight="Bold" FontSize="12" Foreground="{DynamicResource SasanSubTextBrush}" Margin="0,0,0,8"/>
 
                         <Grid Margin="0,2">
-                            <TextBlock Text="Cash (₹):" FontSize="12" VerticalAlignment="Center" Foreground="#8FA3BF"/>
-                            <TextBox Text="{Binding CashTendered, UpdateSourceTrigger=PropertyChanged}" Width="140" Height="28" HorizontalAlignment="Right" Background="#0C182B" Foreground="#FFFFFF"/>
+                            <TextBlock Text="Cash (₹):" FontSize="12" VerticalAlignment="Center" Foreground="{DynamicResource SasanSubTextBrush}"/>
+                            <TextBox Text="{Binding CashTendered, UpdateSourceTrigger=PropertyChanged}" Width="140" Height="28" HorizontalAlignment="Right" Background="{DynamicResource SasanInputBgBrush}" Foreground="{DynamicResource SasanForegroundBrush}"/>
                         </Grid>
 
                         <Grid Margin="0,2">
-                            <TextBlock Text="UPI / QR (₹):" FontSize="12" VerticalAlignment="Center" Foreground="#8FA3BF"/>
-                            <TextBox Text="{Binding UpiTendered, UpdateSourceTrigger=PropertyChanged}" Width="140" Height="28" HorizontalAlignment="Right" Background="#0C182B" Foreground="#00E5FF"/>
+                            <TextBlock Text="UPI / QR (₹):" FontSize="12" VerticalAlignment="Center" Foreground="{DynamicResource SasanSubTextBrush}"/>
+                            <TextBox Text="{Binding UpiTendered, UpdateSourceTrigger=PropertyChanged}" Width="140" Height="28" HorizontalAlignment="Right" Background="{DynamicResource SasanInputBgBrush}" Foreground="{DynamicResource SasanCyanAccentBrush}"/>
                         </Grid>
 
                         <Grid Margin="0,2">
-                            <TextBlock Text="Card (POS Swipe ₹):" FontSize="12" VerticalAlignment="Center" Foreground="#8FA3BF"/>
-                            <TextBox Text="{Binding CardTendered, UpdateSourceTrigger=PropertyChanged}" Width="140" Height="28" HorizontalAlignment="Right" Background="#0C182B" Foreground="#FFFFFF"/>
+                            <TextBlock Text="Card (POS Swipe ₹):" FontSize="12" VerticalAlignment="Center" Foreground="{DynamicResource SasanSubTextBrush}"/>
+                            <TextBox Text="{Binding CardTendered, UpdateSourceTrigger=PropertyChanged}" Width="140" Height="28" HorizontalAlignment="Right" Background="{DynamicResource SasanInputBgBrush}" Foreground="{DynamicResource SasanForegroundBrush}"/>
                         </Grid>
 
                         <Grid Margin="0,2">
-                            <TextBlock Text="Exchange Deduction (₹):" FontSize="12" VerticalAlignment="Center" Foreground="#8FA3BF"/>
-                            <TextBox Text="{Binding ExchangeTendered, UpdateSourceTrigger=PropertyChanged}" Width="140" Height="28" HorizontalAlignment="Right" Background="#0C182B" Foreground="#FF9100"/>
+                            <TextBlock Text="Exchange Deduction (₹):" FontSize="12" VerticalAlignment="Center" Foreground="{DynamicResource SasanSubTextBrush}"/>
+                            <TextBox Text="{Binding ExchangeTendered, UpdateSourceTrigger=PropertyChanged}" Width="140" Height="28" HorizontalAlignment="Right" Background="{DynamicResource SasanInputBgBrush}" Foreground="{DynamicResource SasanAmberAccentBrush}"/>
                         </Grid>
 
                         <Grid Margin="0,2">
-                            <TextBlock Text="Finance / Bajaj EMI (₹):" FontSize="12" VerticalAlignment="Center" Foreground="#8FA3BF"/>
-                            <TextBox Text="{Binding FinanceEmiTendered, UpdateSourceTrigger=PropertyChanged}" Width="140" Height="28" HorizontalAlignment="Right" Background="#0C182B" Foreground="#FFFFFF"/>
+                            <TextBlock Text="Finance / Bajaj EMI (₹):" FontSize="12" VerticalAlignment="Center" Foreground="{DynamicResource SasanSubTextBrush}"/>
+                            <TextBox Text="{Binding FinanceEmiTendered, UpdateSourceTrigger=PropertyChanged}" Width="140" Height="28" HorizontalAlignment="Right" Background="{DynamicResource SasanInputBgBrush}" Foreground="{DynamicResource SasanForegroundBrush}"/>
                         </Grid>
 
                         <Grid Margin="0,4">
-                            <TextBlock Text="Txn Ref / Approval #:" FontSize="11" VerticalAlignment="Center" Foreground="#6C829E"/>
-                            <TextBox Text="{Binding PaymentReference, UpdateSourceTrigger=PropertyChanged}" Width="140" Height="26" HorizontalAlignment="Right" Background="#0C182B" Foreground="#8FA3BF"/>
+                            <TextBlock Text="Txn Ref / Approval #:" FontSize="11" VerticalAlignment="Center" Foreground="{DynamicResource SasanSubTextBrush}"/>
+                            <TextBox Text="{Binding PaymentReference, UpdateSourceTrigger=PropertyChanged}" Width="140" Height="26" HorizontalAlignment="Right" Background="{DynamicResource SasanInputBgBrush}" Foreground="{DynamicResource SasanSubTextBrush}"/>
                         </Grid>
                     </StackPanel>
                 </ScrollViewer>
             </Border>
 
-            <!-- Big Checkout Button -->
-            <Button Grid.Row="2" Command="{Binding CheckoutAndPrintInvoiceCommand}"
-                    Height="54" Background="#00E5FF" Foreground="#08101E"
-                    FontSize="16" FontWeight="Black" Cursor="Hand">
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="⚡ [F9] COMPLETE &amp; PRINT INVOICE" VerticalAlignment="Center"/>
-                </StackPanel>
-            </Button>
+            <!-- Action Buttons: Print Bill and Preview Bill -->
+            <StackPanel Grid.Row="2">
+                <Button Command="{Binding CheckoutAndPrintInvoiceCommand}"
+                        Height="48" Background="{DynamicResource SasanCyanAccentBrush}" Foreground="#08101E"
+                        FontSize="14" FontWeight="Black" Cursor="Hand" Margin="0,0,0,6">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="⚡ [F9] COMPLETE &amp; PRINT INVOICE" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+
+                <Button Command="{Binding PreviewInvoiceCommand}"
+                        Height="36" Background="#1E3A8A" Foreground="#FFFFFF"
+                        FontSize="12" FontWeight="Bold" Cursor="Hand" ToolTip="Preview vector PDF before completing payment">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="👁️ [F10] PREVIEW BILL PDF (முன்னோட்டம்)" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
         </Grid>
     </Grid>
 </UserControl>

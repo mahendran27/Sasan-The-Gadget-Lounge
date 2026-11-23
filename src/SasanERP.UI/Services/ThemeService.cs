@@ -56,6 +56,9 @@ public class ThemeService
                 SetBrush(app, "SasanBorderBrush", "#1F3354");
                 SetBrush(app, "SasanForegroundBrush", "#F8FAFC");
                 SetBrush(app, "SasanSubTextBrush", "#94A3B8");
+                SetBrush(app, "SasanNavBgBrush", "#070E1A");
+                SetBrush(app, "SasanInputBgBrush", "#0A1424");
+                SetBrush(app, "SasanHeaderBgBrush", "#070E1A");
                 break;
 
             case AppThemeMode.WarmTitaniumQuartz: // Choice 2: Architectural Light
@@ -67,6 +70,9 @@ public class ThemeService
                 SetBrush(app, "SasanBorderBrush", "#CBD5E1");
                 SetBrush(app, "SasanForegroundBrush", "#0F172A");
                 SetBrush(app, "SasanSubTextBrush", "#64748B");
+                SetBrush(app, "SasanNavBgBrush", "#E2E8F0");
+                SetBrush(app, "SasanInputBgBrush", "#FFFFFF");
+                SetBrush(app, "SasanHeaderBgBrush", "#F1F5F9");
                 break;
 
             case AppThemeMode.NordicFrost: // Choice 3: Acrylic Frost / Sky Blue Glow
@@ -78,6 +84,9 @@ public class ThemeService
                 SetBrush(app, "SasanBorderBrush", "#38BDF8");
                 SetBrush(app, "SasanForegroundBrush", "#F0FDF4");
                 SetBrush(app, "SasanSubTextBrush", "#94A3B8");
+                SetBrush(app, "SasanNavBgBrush", "#0B132B");
+                SetBrush(app, "SasanInputBgBrush", "#1E293B");
+                SetBrush(app, "SasanHeaderBgBrush", "#0F172A");
                 break;
 
             case AppThemeMode.KioskTouchMode: // Choice 4: High Contrast Touch POS (Large buttons, emerald accents)
@@ -89,6 +98,9 @@ public class ThemeService
                 SetBrush(app, "SasanBorderBrush", "#3F3F46");
                 SetBrush(app, "SasanForegroundBrush", "#FFFFFF");
                 SetBrush(app, "SasanSubTextBrush", "#A1A1AA");
+                SetBrush(app, "SasanNavBgBrush", "#09090B");
+                SetBrush(app, "SasanInputBgBrush", "#18181B");
+                SetBrush(app, "SasanHeaderBgBrush", "#000000");
                 break;
 
             case AppThemeMode.TerminalSpeedHud: // Choice 5: Bloomberg CRT Terminal HUD (Neon green on black)
@@ -100,6 +112,9 @@ public class ThemeService
                 SetBrush(app, "SasanBorderBrush", "#1F2937");
                 SetBrush(app, "SasanForegroundBrush", "#00FF66");
                 SetBrush(app, "SasanSubTextBrush", "#4ADE80");
+                SetBrush(app, "SasanNavBgBrush", "#000000");
+                SetBrush(app, "SasanInputBgBrush", "#0D0D0D");
+                SetBrush(app, "SasanHeaderBgBrush", "#050505");
                 break;
         }
     }

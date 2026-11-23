@@ -8,6 +8,7 @@ using SasanERP.Core.Enums;
 using SasanERP.Core.Models;
 using SasanERP.Services.Communication;
 using SasanERP.Services.Invoicing;
+using SasanERP.Services.Printing;
 
 namespace SasanERP.UI.ViewModels;
 
@@ -178,7 +179,7 @@ public partial class InvoiceHistoryViewModel : ObservableObject
             await _historyService.ExportPdfAsync(SelectedInvoiceDetails, SelectedTemplate, pdfPath);
 
             // Open in default PDF printer / viewer for physical dispatch
-            Process.Start(new ProcessStartInfo(pdfPath) { UseShellExecute = true });
+            PdfViewerLauncher.Launch(pdfPath);
             StatusMessage = $"[RE-PRINT DISPATCHED] Invoice #{SelectedInvoiceDetails.InvoiceNumber} opened for printing ({SelectedTemplate}).";
         }
         catch (Exception ex)
@@ -251,7 +252,7 @@ public partial class InvoiceHistoryViewModel : ObservableObject
             string pdfPath = Path.Combine(tempDir, $"{SelectedInvoiceDetails.InvoiceNumber.Replace('/', '_')}_Preview.pdf");
 
             await _historyService.ExportPdfAsync(SelectedInvoiceDetails, SelectedTemplate, pdfPath);
-            Process.Start(new ProcessStartInfo(pdfPath) { UseShellExecute = true });
+            PdfViewerLauncher.Launch(pdfPath);
             StatusMessage = $"[PREVIEW OPENED] Showing #{SelectedInvoiceDetails.InvoiceNumber} in vector viewer.";
         }
         catch (Exception ex)

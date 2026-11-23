@@ -36,8 +36,90 @@ public partial class InventoryIntakeViewModel : ObservableObject
 
     partial void OnSelectedBarcodeStyleChanged(BarcodeLabelStyle value)
     {
+        UpdateStickerStylePresentation(value);
         UpdatePreviewBarcode();
         StatusMessage = $"Label format switched to: {value}";
+    }
+
+    [ObservableProperty]
+    private string _stickerBadgeText = "50x30mm Flagship Dual-Barcode";
+
+    [ObservableProperty]
+    private double _stickerWidth = 260;
+
+    [ObservableProperty]
+    private double _stickerHeight = 220;
+
+    [ObservableProperty]
+    private int _stickerCornerRadius = 4;
+
+    [ObservableProperty]
+    private string _stickerBackground = "#FFFFFF";
+
+    [ObservableProperty]
+    private bool _isQrStyle;
+
+    private void UpdateStickerStylePresentation(BarcodeLabelStyle style)
+    {
+        switch (style)
+        {
+            case BarcodeLabelStyle.Flagship_50x30mm:
+                StickerBadgeText = "50x30mm Flagship Dual-Barcode";
+                StickerWidth = 260;
+                StickerHeight = 220;
+                StickerCornerRadius = 4;
+                StickerBackground = "#FFFFFF";
+                IsQrStyle = false;
+                break;
+            case BarcodeLabelStyle.CompactAccessory_50x25mm:
+                StickerBadgeText = "50x25mm Compact Accessory";
+                StickerWidth = 240;
+                StickerHeight = 175;
+                StickerCornerRadius = 4;
+                StickerBackground = "#FFFFFF";
+                IsQrStyle = false;
+                break;
+            case BarcodeLabelStyle.DumbbellJewelryTag:
+                StickerBadgeText = "Dumbbell Jewelry Butterfly Tag";
+                StickerWidth = 210;
+                StickerHeight = 155;
+                StickerCornerRadius = 8;
+                StickerBackground = "#FFFFFF";
+                IsQrStyle = false;
+                break;
+            case BarcodeLabelStyle.TamperWarrantyVoidSeal_25mm:
+                StickerBadgeText = "25mm Circular Tamper Warranty Seal";
+                StickerWidth = 190;
+                StickerHeight = 190;
+                StickerCornerRadius = 95;
+                StickerBackground = "#FFFBEB";
+                IsQrStyle = true;
+                break;
+            case BarcodeLabelStyle.DualQrTechExplorer:
+                StickerBadgeText = "Dual QR Tech Explorer";
+                StickerWidth = 260;
+                StickerHeight = 220;
+                StickerCornerRadius = 4;
+                StickerBackground = "#F0FDF4";
+                IsQrStyle = true;
+                break;
+            case BarcodeLabelStyle.MultiStickerA4Sheet_24Up:
+                StickerBadgeText = "24-Up A4 Sheet Multi-Sticker";
+                StickerWidth = 240;
+                StickerHeight = 175;
+                StickerCornerRadius = 2;
+                StickerBackground = "#FFFFFF";
+                IsQrStyle = false;
+                break;
+            case BarcodeLabelStyle.MetallicSilverWeatherproof:
+                StickerBadgeText = "Metallic Silver Weatherproof Tag";
+                StickerWidth = 260;
+                StickerHeight = 210;
+                StickerCornerRadius = 4;
+                StickerBackground = "#E2E8F0";
+                IsQrStyle = false;
+                break;
+        }
     }
 
     [ObservableProperty]
@@ -145,11 +227,64 @@ public partial class InventoryIntakeViewModel : ObservableObject
 
         try
         {
-            PreviewBarcodeBytes = _barcodeService.GenerateCode128Barcode(code, 300, 70);
+            if (IsQrStyle)
+            {
+                PreviewBarcodeBytes = _barcodeService.GenerateQrCode(code, 150);
+            }
+            else
+            {
+                PreviewBarcodeBytes = _barcodeService.GenerateCode128Barcode(code, 300, 70);
+            }
         }
         catch
         {
             PreviewBarcodeBytes = null;
+        }
+    }
+
+    [RelayCommand]
+    public void PreviewStickerPdf()
+    {
+        try
+        {
+            string identifier = !string.IsNullOrWhiteSpace(Imei1) 
+                ? Imei1 
+                : (!string.IsNullOrWhiteSpace(SerialNumber) ? SerialNumber : GenerateSku());
+
+            string specsText = $"{StorageCapacity} | {Color}".Trim(' ', '|');
+            var stickerData = new BarcodeStickerData(
+                ShopName: "SASAN THE GADGET LOUNGE",
+                ModelName: $"{Brand} {ModelName}",
+                Specs: specsText,
+                Identifier: identifier,
+                Price: SellingPrice,
+                MRP: Mrp > 0 ? Mrp : null,
+                ConditionGrade: SelectedCondition.ToString().Replace('_', ' '),
+                BatteryHealth: BatteryHealthPercentage,
+                Warranty: SelectedWarranty.ToString().Replace('_', ' '),
+                Category: SelectedCategory.ToString()
+            );
+
+            string tempDir = Path.Combine(Path.GetTempPath(), "SasanERP_StickerPreviews");
+            Directory.CreateDirectory(tempDir);
+            string stickerPdfPath = Path.Combine(tempDir, $"Preview_Sticker_{SelectedBarcodeStyle}_{identifier}.pdf");
+
+            var labelDoc = _barcodeLabelEngine.CreateDocument(SelectedBarcodeStyle, stickerData);
+            labelDoc.GeneratePdf(stickerPdfPath);
+
+            bool launched = SasanERP.Services.Printing.PdfViewerLauncher.Launch(stickerPdfPath);
+            if (launched)
+            {
+                StatusMessage = $"[PREVIEW] Opened real vector sticker PDF ({SelectedBarcodeStyle}).";
+            }
+            else
+            {
+                StatusMessage = $"[PREVIEW] Generated vector sticker PDF: {stickerPdfPath}";
+            }
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"[ERROR] Failed to preview sticker: {ex.Message}";
         }
     }
 
