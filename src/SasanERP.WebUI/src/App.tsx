@@ -1,14 +1,20 @@
 import React, { useState } from 'react';
+import { Shell } from './components/layout/Shell';
+import { ModuleKey } from './components/layout/SidebarRail';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeModule, setActiveModule] = useState<ModuleKey>('dashboard');
 
   return (
-    <div className="flex h-screen w-screen bg-[#080E1A] text-[#F8FAFC]">
-      <div className="p-4">
-        <h1 className="text-xl font-bold text-[#00E5FF]">Sasan The Gadget Lounge</h1>
-        <p className="text-xs text-[#8EA4C1]">React 18 + Tailwind CSS Luxury Shell Initialized</p>
+    <Shell activeModule={activeModule} onSelectModule={setActiveModule}>
+      <div className="bg-sasan-surface border border-sasan-border rounded-xl p-6 shadow-sm">
+        <h2 className="text-xl font-bold text-sasan-cyan uppercase tracking-wide">
+          Module: {activeModule.toUpperCase()}
+        </h2>
+        <p className="text-xs text-sasan-muted mt-1">
+          Press F1-F12 to switch modules smoothly with zero latency.
+        </p>
       </div>
-    </div>
+    </Shell>
   );
 }
