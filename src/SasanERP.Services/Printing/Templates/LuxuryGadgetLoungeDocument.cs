@@ -78,10 +78,15 @@ public class LuxuryGadgetLoungeDocument : IDocument
                     row.RelativeItem(5).AlignRight().Column(c =>
                     {
                         string docType = !_invoice.IsGstEnabled ? "RETAIL INVOICE / CASH MEMO" : "TAX INVOICE";
-                        c.Item().Background(isBw ? "#0F172A" : "#162744").Padding(6).AlignCenter().Text(docType).FontSize(12).Bold().FontColor(isBw ? "#FFFFFF" : "#00E5FF");
-                        c.Item().PaddingTop(6).Text($"INVOICE #: {_invoice.InvoiceNumber}").FontSize(10).Bold().FontColor("#FFFFFF");
-                        c.Item().Text($"Date: {_invoice.InvoiceDate:dd MMM yyyy, hh:mm tt}").FontSize(8.5f).FontColor("#E2E8F0");
-                        c.Item().Text($"Payment Status: PAID").FontSize(8.5f).Bold().FontColor(isBw ? "#FFFFFF" : "#10B981");
+                        c.Item().AlignRight().Container()
+                            .Background(isBw ? "#0F172A" : "#10223D")
+                            .Border(1).BorderColor(isBw ? "#334155" : "#00E5FF")
+                            .PaddingVertical(4).PaddingHorizontal(14)
+                            .Text(docType).FontSize(11).Bold().FontColor(isBw ? "#FFFFFF" : "#00E5FF");
+
+                        c.Item().PaddingTop(6).AlignRight().Text($"INVOICE #: {_invoice.InvoiceNumber}").FontSize(10).Bold().FontColor("#FFFFFF");
+                        c.Item().AlignRight().Text($"Date: {_invoice.InvoiceDate:dd MMM yyyy, hh:mm tt}").FontSize(8.5f).FontColor("#E2E8F0");
+                        c.Item().AlignRight().Text("Payment Status: PAID").FontSize(8.5f).Bold().FontColor(isBw ? "#FFFFFF" : "#10B981");
                     });
                 });
 
@@ -92,10 +97,10 @@ public class LuxuryGadgetLoungeDocument : IDocument
             // Content Area
             page.Content().Column(col =>
             {
-                // Customer & VIP Banner
-                col.Item().PaddingTop(12).Row(row =>
+                // Customer & VIP Banner - Unified Single Card (Zero Stray Vertical Lines)
+                col.Item().PaddingTop(12).Border(1).BorderColor("#CBD5E1").Background("#F8FAFC").Row(row =>
                 {
-                    row.RelativeItem(7).Border(1).BorderColor("#E2E8F0").Padding(10).Column(c =>
+                    row.RelativeItem(7).Padding(10).Column(c =>
                     {
                         c.Item().Text("CLIENT / BUYER DETAILS").FontSize(8).Bold().FontColor("#64748B");
                         c.Item().PaddingTop(2).Text(_invoice.Customer.FullName).FontSize(11).Bold().FontColor("#0B192C");
@@ -108,7 +113,9 @@ public class LuxuryGadgetLoungeDocument : IDocument
                             c.Item().Text($"Buyer GSTIN: {_invoice.Customer.GSTIN}").FontSize(8.5f).Bold().FontColor("#0284C7");
                     });
 
-                    row.RelativeItem(5).PaddingLeft(10).Border(1).BorderColor("#E2E8F0").Padding(10).Column(c =>
+                    row.ConstantItem(1).Background("#E2E8F0");
+
+                    row.RelativeItem(5).Padding(10).Column(c =>
                     {
                         bool isInterState = _invoice.TotalIGST > 0;
                         c.Item().Text("TRANSACTION SUMMARY").FontSize(8).Bold().FontColor("#64748B");

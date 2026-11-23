@@ -167,10 +167,11 @@ public class EliteBoutiqueWatermarkDocument : IDocument
                 });
 
                 // Summary & Settlement
-                col.Item().PaddingTop(8).Row(row =>
+                // Settlement Record & Financial Summary - Unified Card (Zero Stray Vertical Lines)
+                col.Item().PaddingTop(8).Border(1).BorderColor("#CBD5E1").Background("#F8FAFC").Row(row =>
                 {
                     // Left Column: Settlement & UPI QR
-                    row.RelativeItem(7).Border(1).BorderColor("#CBD5E1").Padding(8).Row(pr =>
+                    row.RelativeItem(7).Padding(8).Row(pr =>
                     {
                         pr.RelativeItem(7).Column(c =>
                         {
@@ -206,8 +207,10 @@ public class EliteBoutiqueWatermarkDocument : IDocument
                         });
                     });
 
+                    row.ConstantItem(1).Background("#E2E8F0");
+
                     // Right Column: Summary
-                    row.RelativeItem(5).PaddingLeft(8).Border(1).BorderColor("#CBD5E1").Background("#F8FAFC").Padding(8).Column(tc =>
+                    row.RelativeItem(5).Padding(8).Column(tc =>
                     {
                         tc.Item().Row(r => { r.RelativeItem().Text("SUBTOTAL:"); r.RelativeItem().AlignRight().Text($"₹{_invoice.GrossTotal:N2}").Bold(); });
                         if (_invoice.InvoiceDiscount > 0)

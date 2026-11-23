@@ -163,12 +163,10 @@ public partial class GodModeViewModel : ObservableObject
 
     public async Task InitializeAsync()
     {
-        await Task.WhenAll(
-            GenerateReportAsync(),
-            LoadStockUnitsAsync(),
-            LoadCustomersAsync(),
-            LoadVoidableInvoicesAsync()
-        );
+        await GenerateReportAsync();
+        await LoadStockUnitsAsync();
+        await LoadCustomersAsync();
+        await LoadVoidableInvoicesAsync();
     }
 
     // =========================================================================
@@ -223,7 +221,7 @@ public partial class GodModeViewModel : ObservableObject
                 string targetPath = saveDialog.FileName;
 
                 await Task.Run(() => _reportPdfEngine.GeneratePeriodSalesReportPdf(CurrentReport, company, targetPath));
-                Process.Start(new ProcessStartInfo(targetPath) { UseShellExecute = true });
+                PdfViewerLauncher.Launch(targetPath);
                 StatusMessage = $"[REPORT EXPORTED] Saved & opened: {targetPath}";
             }
             catch (Exception ex)
@@ -353,13 +351,8 @@ public partial class GodModeViewModel : ObservableObject
             if (saveDialog.ShowDialog() == true)
             {
                 _reportPdfEngine.GenerateStockValuationReportPdf(report, company, saveDialog.FileName);
+                PdfViewerLauncher.Launch(saveDialog.FileName);
                 StatusMessage = $"[SUCCESS] Stock Valuation PDF exported to: {Path.GetFileName(saveDialog.FileName)}";
-
-                try
-                {
-                    Process.Start(new ProcessStartInfo(saveDialog.FileName) { UseShellExecute = true });
-                }
-                catch { }
             }
         }
         catch (Exception ex)
@@ -418,7 +411,12 @@ public partial class GodModeViewModel : ObservableObject
             query = query.Where(c => c.FullName.ToLower().Contains(t) || c.PhoneNumber.Contains(t));
         }
 
-        var list = await query.OrderByDescending(c => c.OutstandingCredit).ThenBy(c => c.FullName).Take(100).ToListAsync();
+        var allMatching = await query.ToListAsync();
+        var list = allMatching
+            .OrderByDescending(c => c.OutstandingCredit)
+            .ThenBy(c => c.FullName)
+            .Take(100)
+            .ToList();
         Customers.Clear();
         foreach (var c in list) Customers.Add(c);
 
@@ -503,13 +501,8 @@ public partial class GodModeViewModel : ObservableObject
             if (saveDialog.ShowDialog() == true)
             {
                 _reportPdfEngine.GenerateCustomerKhataStatementPdf(statement, company, saveDialog.FileName);
+                PdfViewerLauncher.Launch(saveDialog.FileName);
                 StatusMessage = $"[SUCCESS] Khata Statement exported to: {Path.GetFileName(saveDialog.FileName)}";
-
-                try
-                {
-                    Process.Start(new ProcessStartInfo(saveDialog.FileName) { UseShellExecute = true });
-                }
-                catch { }
             }
         }
         catch (Exception ex)

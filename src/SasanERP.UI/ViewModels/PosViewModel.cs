@@ -85,6 +85,68 @@ public partial class PosViewModel : ObservableObject
     [ObservableProperty]
     private Customer? _selectedCustomer;
 
+    partial void OnSelectedCustomerChanged(Customer? value)
+    {
+        OnPropertyChanged(nameof(HasSelectedCustomer));
+        OnPropertyChanged(nameof(HasGstin));
+        if (value != null)
+        {
+            StatusMessage = $"Selected Customer: {value.FullName} ({value.PhoneNumber}) | Khata Balance: ₹{value.OutstandingCredit:N2}";
+        }
+    }
+
+    public bool HasSelectedCustomer => SelectedCustomer != null;
+    public bool HasGstin => !string.IsNullOrWhiteSpace(SelectedCustomer?.GSTIN);
+
+    // In-Place Customer Form Drawer fields
+    [ObservableProperty]
+    private bool _isCustomerEditorOpen;
+
+    [ObservableProperty]
+    private bool _isEditingExistingCustomer;
+
+    partial void OnIsEditingExistingCustomerChanged(bool value)
+    {
+        OnPropertyChanged(nameof(CustomerEditorTitle));
+    }
+
+    public string CustomerEditorTitle => IsEditingExistingCustomer 
+        ? "✏️ EDIT CUSTOMER PROFILE (வாடிக்கையாளர் திருத்து)" 
+        : "➕ REGISTER NEW CUSTOMER (புதிய வாடிக்கையாளர் பதிவு)";
+
+    [ObservableProperty]
+    private string _customerFormName = string.Empty;
+
+    [ObservableProperty]
+    private string _customerFormPhone = string.Empty;
+
+    [ObservableProperty]
+    private string _customerFormEmail = string.Empty;
+
+    [ObservableProperty]
+    private string _customerFormAddress = string.Empty;
+
+    [ObservableProperty]
+    private string _customerFormCity = "Theni";
+
+    [ObservableProperty]
+    private string _customerFormState = "Tamil Nadu";
+
+    [ObservableProperty]
+    private string _customerFormStateCode = "33";
+
+    [ObservableProperty]
+    private string _customerFormGstin = string.Empty;
+
+    [ObservableProperty]
+    private string _customerFormAadhaar = string.Empty;
+
+    // Parked / Held Bills Queue
+    public ObservableCollection<HeldBill> HeldBills { get; } = new();
+
+    [ObservableProperty]
+    private bool _isHeldBillsDrawerOpen;
+
     [ObservableProperty]
     private string _barcodeInput = string.Empty;
 
@@ -99,6 +161,7 @@ public partial class PosViewModel : ObservableObject
 
     [ObservableProperty]
     private decimal _invoiceDiscount;
+    partial void OnInvoiceDiscountChanged(decimal value) => RecalculateInvoiceTotals();
 
     [ObservableProperty]
     private decimal _totalTaxableValue;
@@ -121,18 +184,23 @@ public partial class PosViewModel : ObservableObject
     // Multi-tender split payment fields
     [ObservableProperty]
     private decimal _cashTendered;
+    partial void OnCashTenderedChanged(decimal value) => RecalculateTenderBalances();
 
     [ObservableProperty]
     private decimal _upiTendered;
+    partial void OnUpiTenderedChanged(decimal value) => RecalculateTenderBalances();
 
     [ObservableProperty]
     private decimal _cardTendered;
+    partial void OnCardTenderedChanged(decimal value) => RecalculateTenderBalances();
 
     [ObservableProperty]
     private decimal _exchangeTendered;
+    partial void OnExchangeTenderedChanged(decimal value) => RecalculateTenderBalances();
 
     [ObservableProperty]
     private decimal _financeEmiTendered;
+    partial void OnFinanceEmiTenderedChanged(decimal value) => RecalculateTenderBalances();
 
     [ObservableProperty]
     private string? _paymentReference;
@@ -403,6 +471,373 @@ public partial class PosViewModel : ObservableObject
         CartItems.Remove(item);
         RecalculateInvoiceTotals();
         StatusMessage = $"Removed {item.Name} from cart.";
+    }
+
+    /// <summary>
+    /// Increments quantity for a bulk non-serialized cart item
+    /// </summary>
+    [RelayCommand]
+    public void IncrementItemQuantity(PosCartItemViewModel? item)
+    {
+        if (item == null) return;
+        if (item.IsSerialized)
+        {
+            StatusMessage = "Serialized devices (IMEI/Serial) have a fixed quantity of 1.";
+            return;
+        }
+        item.Quantity += 1;
+        item.RecalculateTaxes(isGstEnabled: IsGstEnabled);
+        RecalculateInvoiceTotals();
+    }
+
+    /// <summary>
+    /// Decrements quantity for a bulk cart item, or removes if quantity reaches 0
+    /// </summary>
+    [RelayCommand]
+    public void DecrementItemQuantity(PosCartItemViewModel? item)
+    {
+        if (item == null) return;
+        if (item.Quantity > 1)
+        {
+            item.Quantity -= 1;
+            item.RecalculateTaxes(isGstEnabled: IsGstEnabled);
+            RecalculateInvoiceTotals();
+        }
+        else
+        {
+            RemoveCartItem(item);
+        }
+    }
+
+    // =========================================================================
+    // IN-PLACE CUSTOMER MANAGEMENT (வாடிக்கையாளர் மேலாண்மை)
+    // =========================================================================
+
+    [RelayCommand]
+    public void OpenNewCustomer()
+    {
+        IsEditingExistingCustomer = false;
+        CustomerFormName = string.Empty;
+        CustomerFormPhone = string.Empty;
+        CustomerFormEmail = string.Empty;
+        CustomerFormAddress = string.Empty;
+        CustomerFormCity = "Theni";
+        CustomerFormState = "Tamil Nadu";
+        CustomerFormStateCode = "33";
+        CustomerFormGstin = string.Empty;
+        CustomerFormAadhaar = string.Empty;
+        IsCustomerEditorOpen = true;
+        StatusMessage = "Enter customer details and click Save to add to database and current bill.";
+    }
+
+    [RelayCommand]
+    public void OpenEditCustomer()
+    {
+        if (SelectedCustomer == null)
+        {
+            StatusMessage = "Please select a customer first to edit.";
+            return;
+        }
+
+        IsEditingExistingCustomer = true;
+        CustomerFormName = SelectedCustomer.FullName;
+        CustomerFormPhone = SelectedCustomer.PhoneNumber;
+        CustomerFormEmail = SelectedCustomer.Email ?? string.Empty;
+        CustomerFormAddress = SelectedCustomer.Address ?? string.Empty;
+        CustomerFormCity = SelectedCustomer.City ?? "Theni";
+        CustomerFormState = SelectedCustomer.State ?? "Tamil Nadu";
+        CustomerFormStateCode = SelectedCustomer.StateCode ?? "33";
+        CustomerFormGstin = SelectedCustomer.GSTIN ?? string.Empty;
+        CustomerFormAadhaar = SelectedCustomer.AadhaarNumber ?? string.Empty;
+        IsCustomerEditorOpen = true;
+        StatusMessage = $"Editing customer details for '{SelectedCustomer.FullName}'.";
+    }
+
+    [RelayCommand]
+    public void CloseCustomerEditor()
+    {
+        IsCustomerEditorOpen = false;
+    }
+
+    [RelayCommand]
+    public async Task SaveCustomerAsync()
+    {
+        if (string.IsNullOrWhiteSpace(CustomerFormName))
+        {
+            _audioService?.PlayScanError();
+            StatusMessage = "[ERROR] Customer name is required.";
+            return;
+        }
+
+        string phone = CustomerFormPhone?.Trim() ?? string.Empty;
+        if (string.IsNullOrWhiteSpace(phone) || phone.Length < 10)
+        {
+            _audioService?.PlayScanError();
+            StatusMessage = "[ERROR] Valid 10-digit phone number is required.";
+            return;
+        }
+
+        try
+        {
+            if (IsEditingExistingCustomer && SelectedCustomer != null)
+            {
+                var dbCust = await _context.Customers.FindAsync(SelectedCustomer.Id);
+                if (dbCust != null)
+                {
+                    dbCust.FullName = CustomerFormName.Trim();
+                    dbCust.PhoneNumber = phone;
+                    dbCust.Email = string.IsNullOrWhiteSpace(CustomerFormEmail) ? null : CustomerFormEmail.Trim();
+                    dbCust.Address = string.IsNullOrWhiteSpace(CustomerFormAddress) ? null : CustomerFormAddress.Trim();
+                    dbCust.City = string.IsNullOrWhiteSpace(CustomerFormCity) ? "Theni" : CustomerFormCity.Trim();
+                    dbCust.State = string.IsNullOrWhiteSpace(CustomerFormState) ? "Tamil Nadu" : CustomerFormState.Trim();
+                    dbCust.StateCode = string.IsNullOrWhiteSpace(CustomerFormStateCode) ? "33" : CustomerFormStateCode.Trim();
+                    dbCust.GSTIN = string.IsNullOrWhiteSpace(CustomerFormGstin) ? null : CustomerFormGstin.Trim().ToUpperInvariant();
+                    dbCust.AadhaarNumber = string.IsNullOrWhiteSpace(CustomerFormAadhaar) ? null : CustomerFormAadhaar.Trim();
+
+                    await _context.SaveChangesAsync();
+
+                    SelectedCustomer.FullName = dbCust.FullName;
+                    SelectedCustomer.PhoneNumber = dbCust.PhoneNumber;
+                    SelectedCustomer.Email = dbCust.Email;
+                    SelectedCustomer.Address = dbCust.Address;
+                    SelectedCustomer.City = dbCust.City;
+                    SelectedCustomer.State = dbCust.State;
+                    SelectedCustomer.StateCode = dbCust.StateCode;
+                    SelectedCustomer.GSTIN = dbCust.GSTIN;
+                    SelectedCustomer.AadhaarNumber = dbCust.AadhaarNumber;
+
+                    var idx = Customers.IndexOf(SelectedCustomer);
+                    if (idx >= 0)
+                    {
+                        Customers[idx] = dbCust;
+                        SelectedCustomer = dbCust;
+                    }
+                }
+
+                _audioService?.PlayScanSuccess();
+                IsCustomerEditorOpen = false;
+                StatusMessage = $"[SUCCESS] Customer '{CustomerFormName}' updated in database and invoice.";
+            }
+            else
+            {
+                var newCust = new Customer
+                {
+                    FullName = CustomerFormName.Trim(),
+                    PhoneNumber = phone,
+                    Email = string.IsNullOrWhiteSpace(CustomerFormEmail) ? null : CustomerFormEmail.Trim(),
+                    Address = string.IsNullOrWhiteSpace(CustomerFormAddress) ? null : CustomerFormAddress.Trim(),
+                    City = string.IsNullOrWhiteSpace(CustomerFormCity) ? "Theni" : CustomerFormCity.Trim(),
+                    State = string.IsNullOrWhiteSpace(CustomerFormState) ? "Tamil Nadu" : CustomerFormState.Trim(),
+                    StateCode = string.IsNullOrWhiteSpace(CustomerFormStateCode) ? "33" : CustomerFormStateCode.Trim(),
+                    GSTIN = string.IsNullOrWhiteSpace(CustomerFormGstin) ? null : CustomerFormGstin.Trim().ToUpperInvariant(),
+                    AadhaarNumber = string.IsNullOrWhiteSpace(CustomerFormAadhaar) ? null : CustomerFormAadhaar.Trim(),
+                    OutstandingCredit = 0m,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                _context.Customers.Add(newCust);
+                await _context.SaveChangesAsync();
+
+                Customers.Add(newCust);
+                SelectedCustomer = newCust;
+
+                _audioService?.PlayScanSuccess();
+                IsCustomerEditorOpen = false;
+                StatusMessage = $"[SUCCESS] New customer '{newCust.FullName}' added to database and selected for invoice.";
+            }
+
+            OnPropertyChanged(nameof(HasSelectedCustomer));
+            OnPropertyChanged(nameof(HasGstin));
+        }
+        catch (Exception ex)
+        {
+            _audioService?.PlayScanError();
+            StatusMessage = $"[ERROR] Failed to save customer: {ex.Message}";
+        }
+    }
+
+    // =========================================================================
+    // PARK & RECALL BILLS (பில் நிறுத்தி வைத்தல் & மீட்டெடுத்தல்)
+    // =========================================================================
+
+    [RelayCommand]
+    public async Task HoldCurrentBillAsync()
+    {
+        if (CartItems.Count == 0)
+        {
+            _audioService?.PlayScanError();
+            StatusMessage = "[WARNING] Cannot park an empty bill. Add items first.";
+            return;
+        }
+
+        var held = new HeldBill
+        {
+            CustomerName = SelectedCustomer?.FullName ?? "Walk-in Retail Customer",
+            Customer = SelectedCustomer,
+            Items = CartItems.ToList(),
+            InvoiceDiscount = InvoiceDiscount,
+            GrandTotal = GrandTotal,
+            CashTendered = CashTendered,
+            UpiTendered = UpiTendered,
+            CardTendered = CardTendered,
+            ExchangeTendered = ExchangeTendered,
+            FinanceEmiTendered = FinanceEmiTendered,
+            PaymentReference = PaymentReference,
+            IsGstEnabled = IsGstEnabled
+        };
+
+        HeldBills.Add(held);
+        _audioService?.PlayScanSuccess();
+
+        await NewBillAsync();
+        StatusMessage = $"[PARKED] Bill held for {held.CustomerName} ({held.Items.Count} items, ₹{held.GrandTotal:N0}). Total parked: {HeldBills.Count}. Ready for next customer.";
+    }
+
+    [RelayCommand]
+    public void RecallHeldBill(HeldBill? heldBill)
+    {
+        heldBill ??= HeldBills.LastOrDefault();
+        if (heldBill == null)
+        {
+            StatusMessage = "No parked bills in queue to recall.";
+            return;
+        }
+
+        CartItems.Clear();
+        foreach (var item in heldBill.Items)
+        {
+            CartItems.Add(item);
+        }
+
+        SelectedCustomer = heldBill.Customer ?? Customers.FirstOrDefault();
+        InvoiceDiscount = heldBill.InvoiceDiscount;
+        CashTendered = heldBill.CashTendered;
+        UpiTendered = heldBill.UpiTendered;
+        CardTendered = heldBill.CardTendered;
+        ExchangeTendered = heldBill.ExchangeTendered;
+        FinanceEmiTendered = heldBill.FinanceEmiTendered;
+        PaymentReference = heldBill.PaymentReference;
+        IsGstEnabled = heldBill.IsGstEnabled;
+
+        HeldBills.Remove(heldBill);
+        RecalculateInvoiceTotals();
+        IsHeldBillsDrawerOpen = false;
+
+        _audioService?.PlayScanSuccess();
+        StatusMessage = $"[RESUMED] Recalled parked bill for {SelectedCustomer?.FullName} ({CartItems.Count} items, ₹{GrandTotal:N0}).";
+    }
+
+    [RelayCommand]
+    public void DiscardHeldBill(HeldBill? heldBill)
+    {
+        if (heldBill == null) return;
+        HeldBills.Remove(heldBill);
+        StatusMessage = $"[DISCARDED] Parked bill [{heldBill.Id}] removed from queue.";
+    }
+
+    [RelayCommand]
+    public void ToggleHeldBillsDrawer()
+    {
+        IsHeldBillsDrawerOpen = !IsHeldBillsDrawerOpen;
+    }
+
+    // =========================================================================
+    // 1-CLICK INSTANT PAYMENT SHORTCUTS & PRESET DISCOUNTS
+    // =========================================================================
+
+    [RelayCommand]
+    public void SetExactCash()
+    {
+        CashTendered = GrandTotal;
+        UpiTendered = 0;
+        CardTendered = 0;
+        ExchangeTendered = 0;
+        FinanceEmiTendered = 0;
+        _audioService?.PlayScanSuccess();
+        StatusMessage = $"Exact Cash Tendered: ₹{GrandTotal:N0}";
+    }
+
+    [RelayCommand]
+    public void SetExactUpi()
+    {
+        UpiTendered = GrandTotal;
+        CashTendered = 0;
+        CardTendered = 0;
+        ExchangeTendered = 0;
+        FinanceEmiTendered = 0;
+        _audioService?.PlayScanSuccess();
+        StatusMessage = $"Exact UPI Tendered: ₹{GrandTotal:N0}";
+    }
+
+    [RelayCommand]
+    public void SetExactCard()
+    {
+        CardTendered = GrandTotal;
+        CashTendered = 0;
+        UpiTendered = 0;
+        ExchangeTendered = 0;
+        FinanceEmiTendered = 0;
+        _audioService?.PlayScanSuccess();
+        StatusMessage = $"Exact Card Swipe Tendered: ₹{GrandTotal:N0}";
+    }
+
+    [RelayCommand]
+    public void SetSplit5050()
+    {
+        decimal half = Math.Round(GrandTotal / 2m, MidpointRounding.AwayFromZero);
+        CashTendered = half;
+        UpiTendered = GrandTotal - half;
+        CardTendered = 0;
+        ExchangeTendered = 0;
+        FinanceEmiTendered = 0;
+        _audioService?.PlayScanSuccess();
+        StatusMessage = $"Split 50/50: Cash ₹{CashTendered:N0} + UPI ₹{UpiTendered:N0}";
+    }
+
+    [RelayCommand]
+    public void ClearTender()
+    {
+        CashTendered = 0;
+        UpiTendered = 0;
+        CardTendered = 0;
+        ExchangeTendered = 0;
+        FinanceEmiTendered = 0;
+        StatusMessage = "Payment tender cleared.";
+    }
+
+    [RelayCommand]
+    public void ApplyPresetDiscount(string? discountType)
+    {
+        switch (discountType)
+        {
+            case "100":
+                InvoiceDiscount = Math.Min(100m, SubTotal);
+                break;
+            case "500":
+                InvoiceDiscount = Math.Min(500m, SubTotal);
+                break;
+            case "1000":
+                InvoiceDiscount = Math.Min(1000m, SubTotal);
+                break;
+            case "5PCT":
+                InvoiceDiscount = Math.Round(SubTotal * 0.05m, 2);
+                break;
+            case "10PCT":
+                InvoiceDiscount = Math.Round(SubTotal * 0.10m, 2);
+                break;
+            case "RESET":
+                InvoiceDiscount = 0m;
+                break;
+        }
+        RecalculateInvoiceTotals();
+        _audioService?.PlayScanSuccess();
+        StatusMessage = $"Applied discount: ₹{InvoiceDiscount:N2} | Net Total: ₹{GrandTotal:N0}";
+    }
+
+    public void RecalculateTenderBalances()
+    {
+        TotalTendered = CashTendered + UpiTendered + CardTendered + ExchangeTendered + FinanceEmiTendered;
+        BalanceChange = Math.Max(0, TotalTendered - GrandTotal);
     }
 
     /// <summary>

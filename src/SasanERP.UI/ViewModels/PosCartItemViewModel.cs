@@ -70,6 +70,7 @@ public partial class PosCartItemViewModel : ObservableObject
     private decimal _lineTotal;
 
     public bool IsSerialized => SerializedUnitId.HasValue;
+    public bool CanAdjustQuantity => !SerializedUnitId.HasValue;
 
     public string FormattedSpecs
     {

@@ -91,10 +91,10 @@ public class Rule32_5_MarginSchemeAuditDocument : IDocument
             // Content
             page.Content().Column(col =>
             {
-                // Buyer Details
-                col.Item().PaddingTop(10).Row(row =>
+                // Buyer Details & Rule 32(5) Notice - Unified Card (Zero Stray Vertical Lines)
+                col.Item().PaddingTop(10).Border(1).BorderColor("#CBD5E1").Background("#F8FAFC").Row(row =>
                 {
-                    row.RelativeItem(6).Border(1).BorderColor("#E2E8F0").Padding(8).Column(c =>
+                    row.RelativeItem(6).Padding(8).Column(c =>
                     {
                         c.Item().Text("DETAILS OF RECIPIENT / BUYER").FontSize(7.5f).Bold().FontColor("#475569");
                         c.Item().Text(_invoice.Customer.FullName).FontSize(10).Bold();
@@ -105,7 +105,9 @@ public class Rule32_5_MarginSchemeAuditDocument : IDocument
                             c.Item().Text($"Recipient GSTIN: {_invoice.Customer.GSTIN}").FontSize(8f).Bold();
                     });
 
-                    row.RelativeItem(6).PaddingLeft(10).Border(1).BorderColor("#E2E8F0").Padding(8).Column(c =>
+                    row.ConstantItem(1).Background("#E2E8F0");
+
+                    row.RelativeItem(6).Padding(8).Column(c =>
                     {
                         c.Item().Text("STATUTORY RULE 32(5) NOTICE").FontSize(7.5f).Bold().FontColor("#92400E");
                         c.Item().Text("As per Rule 32(5) of the Central Goods and Services Tax Rules, 2017, the value of supply of second-hand goods shall be the difference between the selling price and purchase price. Where the value of such supply is negative, it shall be ignored.").FontSize(7f).FontColor("#64748B");
